@@ -1,16 +1,15 @@
-package uk.ac.soton.comp2211.ui;
+package uk.ac.soton.comp2300.ui;
 
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.ac.soton.comp2211.App;
-import uk.ac.soton.comp2211.scene.BaseScene;
-import uk.ac.soton.comp2211.scene.DashboardScene;
+import uk.ac.soton.comp2300.App;
+import uk.ac.soton.comp2300.scene.BaseScene;
+import uk.ac.soton.comp2300.scene.DashboardScene;
 
 public class MainWindow {
     private static final Logger logger = LogManager.getLogger(MainWindow.class);

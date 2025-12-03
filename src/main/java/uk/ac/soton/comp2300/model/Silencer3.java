@@ -1,4 +1,4 @@
-package uk.ac.soton.comp2211.model;
+package uk.ac.soton.comp2300.model;
 
 public class Silencer3 {
     private int example;

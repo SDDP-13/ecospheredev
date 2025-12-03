@@ -1,4 +1,4 @@
-package uk.ac.soton.comp2211.ui;
+package uk.ac.soton.comp2300.ui;
 
 import javafx.geometry.Pos;
 import javafx.scene.layout.StackPane;

@@ -1,9 +1,9 @@
-package uk.ac.soton.comp2211.scene;
+package uk.ac.soton.comp2300.scene;
 
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
-import uk.ac.soton.comp2211.ui.MainPane;
-import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2300.ui.MainPane;
+import uk.ac.soton.comp2300.ui.MainWindow;
 
 public abstract class BaseScene  {
     protected final MainWindow mainWindow;

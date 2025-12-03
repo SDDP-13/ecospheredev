@@ -1,4 +1,4 @@
-package uk.ac.soton.comp2211;
+package uk.ac.soton.comp2300;
 
 public class Launcher {
     public static void main(String[] args) {

@@ -1,12 +1,12 @@
-package uk.ac.soton.comp2211.scene;
+package uk.ac.soton.comp2300.scene;
 
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.StackPane;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import uk.ac.soton.comp2211.component.Hello;
-import uk.ac.soton.comp2211.ui.MainPane;
-import uk.ac.soton.comp2211.ui.MainWindow;
+import uk.ac.soton.comp2300.component.Hello;
+import uk.ac.soton.comp2300.ui.MainPane;
+import uk.ac.soton.comp2300.ui.MainWindow;
 
 public class DashboardScene extends BaseScene {
     private static final Logger logger = LogManager.getLogger(DashboardScene.class);

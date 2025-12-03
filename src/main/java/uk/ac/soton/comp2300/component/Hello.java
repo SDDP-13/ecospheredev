@@ -1,4 +1,4 @@
-package uk.ac.soton.comp2211.component;
+package uk.ac.soton.comp2300.component;
 
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
