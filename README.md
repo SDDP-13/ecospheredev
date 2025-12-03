@@ -126,14 +126,14 @@ Hi username! You've successfully authenticated, but GitHub does not provide shel
 
 **Single Account**
 ```sh
-git clone git@github.com:chhl1g24/sddp-13.git
-cd sddp-13
+git clone git@github.com:SDDP-13/ecospheredev.git
+cd ecospheredev
 ```
 
 **Multi-Account**
 ```sh
-git clone git@github.com-uni:chhl1g24/sddp-13.git
-cd sddp-13
+git clone git@github.com-uni:SDDP-13/ecospheredev.git
+cd ecospheredev
 ```
 
 ---
@@ -146,9 +146,9 @@ cd sddp-13
 Use this if you only have one GitHub account on your computer.  
 
 ```sh
-git remote -v                                                  # Check current remotes
-git remote add origin git@github.com:chhl1g24/sddp-13.git      # Add remote if empty
-git remote set-url origin git@github.com:chhl1g24/sddp-13.git  # Update remote URL
+git remote -v                                                           # Check current remotes
+git remote add origin git@github.com:SDDP-13/ecospheredev.git           # Add remote if empty
+git remote set-url origin git@github.com:SDDP-13/ecospheredev.git       # Update remote URL
 ```
 
 ---
@@ -158,9 +158,9 @@ git remote set-url origin git@github.com:chhl1g24/sddp-13.git  # Update remote U
 Use this if you set up `.ssh/config` with a separate **github.com-uni** host.  
 
 ```sh
-git remote -v                                                      # Check current remotes
-git remote add origin git@github.com-uni:chhl1g24/sddp-13.git      # Add remote if empty
-git remote set-url origin git@github.com-uni:chhl1g24/sddp-13.git  # Update remote URL
+git remote -v                                                           # Check current remotes
+git remote add origin git@github.com-uni:SDDP-13/ecospheredev.git       # Add remote if empty
+git remote set-url origin git@github.com-uni:SDDP-13/ecospheredev.git   # Update remote URL
 ```
 
 ---
