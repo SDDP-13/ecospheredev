@@ -5,7 +5,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>groupId</groupId>
-    <artifactId>seg-18</artifactId>
+    <artifactId>sddp-13</artifactId>
     <version>1.0-SNAPSHOT</version>
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -133,7 +133,7 @@
                 <artifactId>javafx-maven-plugin</artifactId>
                 <version>0.0.8</version>
                 <configuration>
-                    <mainClass>uk.ac.soton.comp2211/uk.ac.soton.comp2300.App</mainClass>
+                    <mainClass>uk.ac.soton.comp2300.App</mainClass>
                 </configuration>
             </plugin>
         </plugins>

@@ -1,10 +1,1 @@
-uk\ac\soton\comp2300\App.class
-uk\ac\soton\comp2300\model\Silencer3.class
-uk\ac\soton\comp2300\component\Hello.class
-uk\ac\soton\comp2300\ui\MainWindow.class
-uk\ac\soton\comp2300\scene\DashboardScene.class
-uk\ac\soton\comp2300\event\Silencer2.class
-uk\ac\soton\comp2300\ui\MainPane.class
 module-info.class
-uk\ac\soton\comp2300\Launcher.class
-uk\ac\soton\comp2300\scene\BaseScene.class
