@@ -8,8 +8,10 @@ import uk.ac.soton.comp2300.ui.MainWindow;
 
 public class App extends Application {
     private static final Logger logger = LogManager.getLogger(App.class);
-    private final int width = 800;
-    private final int height = 600;
+
+    // Change these values to simulate a phone size (360x640)
+    private final int width = 450;
+    private final int height = 800;
 
     private static App instance;
     private Stage stage;
@@ -23,15 +25,13 @@ public class App extends Application {
     public void start(Stage stage) {
         instance = this;
         this.stage = stage;
-
         open();
     }
 
     public void open() {
-        logger.info("Opening window");
-
+        logger.info("Opening window at " + width + "x" + height);
+        // This ensures MainWindow receives the larger dimensions for its calculations
         var mainWindow = new MainWindow(stage, width, height);
-
         stage.show();
     }
 
