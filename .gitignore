@@ -1,19 +1,28 @@
-.vs/
+# --- IntelliJ IDEA Files ---
+# Ignore the local module file you asked about
+*.iml
+# Ignore the hidden settings folder
 .idea/
+# Ignore local workspace settings
+.idea/workspace.xml
+.idea/modules.xml
+.idea/libraries/
+
+# --- Maven & Build Files ---
+# Never push compiled code to GitHub
 target/
-# Compiled class file
+# Ignore individual class files
 *.class
 
-# Log file
+# --- Project Logs & Temporary Files ---
+# Logs for debugging (Subtask 3.2: Michael's testing)
 *.log
+# Java crash logs
+hs_err_pid*
+replay_pid*
 
-# BlueJ files
-*.ctxt
-
-# Mobile Tools for Java (J2ME)
-.mtj.tmp/
-
-# Package Files #
+# --- Package Files ---
+# Only code and pom.xml should be in the repo
 *.jar
 *.war
 *.nar
@@ -22,6 +31,10 @@ target/
 *.tar.gz
 *.rar
 
-# virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
-hs_err_pid*
-replay_pid*
+# --- OS Specific Files ---
+.DS_Store
+Thumbs.db
+
+# --- Version Control ---
+# Ensure local VS settings don't conflict
+.vs/
