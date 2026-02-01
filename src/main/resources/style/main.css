@@ -21,3 +21,19 @@
 .menu {
     -fx-padding: 10;
 }
+
+.menu-dropdown-bg {
+    -fx-background-color: rgba(150, 120, 200, 0.85);
+    -fx-background-radius: 25;
+    -fx-alignment: center;
+}
+
+.menu-icon-button {
+    -fx-background-color: white;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+}
+
+.menu-icon-button:hover {
+    -fx-background-color: #e0e0e0;
+}
