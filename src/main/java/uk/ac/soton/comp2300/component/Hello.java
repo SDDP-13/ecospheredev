@@ -8,7 +8,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
+//Test Comment from Michael
 public class Hello extends VBox {
     private static final Logger logger = LogManager.getLogger(Hello.class);
 
