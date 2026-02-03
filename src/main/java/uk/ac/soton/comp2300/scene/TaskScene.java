@@ -31,6 +31,19 @@ public class TaskScene extends BaseScene {
 
         container.getChildren().add(title);
         root.getChildren().addAll(container, btnBack);
+
+        // Adding a sample task card
+        VBox taskCard = new VBox(10);
+        taskCard.setStyle("-fx-background-color: #333; -fx-padding: 15; -fx-background-radius: 10;");
+        taskCard.setMaxWidth(300);
+
+        Label taskTitle = new Label("Fix Solar Array");
+        taskTitle.setStyle("-fx-text-fill: #4CAF50; -fx-font-weight: bold;");
+        Label taskDesc = new Label("Efficiency is down by 15%. Click to repair.");
+        taskDesc.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
+
+        taskCard.getChildren().addAll(taskTitle, taskDesc);
+        container.getChildren().add(taskCard);
     }
 
     @Override public void initialise() {}
