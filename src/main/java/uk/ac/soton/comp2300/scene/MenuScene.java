@@ -117,7 +117,9 @@ public class MenuScene extends BaseScene {
         btnSchedule.setOnAction(e -> mainWindow.loadScene(new ScheduleScene(mainWindow)));
         btnTasks.setOnAction(e -> mainWindow.loadScene(new TaskScene(mainWindow)));
         btnHelp.setOnAction(e -> mainWindow.loadScene(new HelpScene(mainWindow)));
-
+        // Logic for the bottom bar buttons
+        btnSolar.setOnAction(e -> mainWindow.loadScene(new SolarSystemScene(mainWindow)));
+        btnBuild.setOnAction(e -> mainWindow.loadScene(new BuildScene(mainWindow)));
         menuToggle.setOnAction(e -> {
             boolean visible = !dropDownItems.isVisible();
             dropDownItems.setVisible(visible);
