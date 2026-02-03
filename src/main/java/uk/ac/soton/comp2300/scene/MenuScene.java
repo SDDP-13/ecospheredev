@@ -113,7 +113,6 @@ public class MenuScene extends BaseScene {
         // Navigation logic for Settings button
         btnDashboard.setOnAction(e -> mainWindow.loadScene(new DashboardScene(mainWindow)));
 
-        // Drawer toggle logic
         menuToggle.setOnAction(e -> {
             boolean visible = !dropDownItems.isVisible();
             dropDownItems.setVisible(visible);
