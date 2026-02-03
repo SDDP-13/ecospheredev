@@ -1,41 +1,37 @@
 package uk.ac.soton.comp2300.scene;
 
-import javafx.scene.layout.BorderPane;
+import javafx.geometry.Insets;
+import javafx.geometry.Pos;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
 import javafx.scene.layout.StackPane;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
-import uk.ac.soton.comp2300.component.Hello;
+import javafx.scene.layout.VBox;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
 public class DashboardScene extends BaseScene {
-    private static final Logger logger = LogManager.getLogger(DashboardScene.class);
-
-    public DashboardScene(MainWindow mainWindow) {
-        super(mainWindow);
-    }
+    public DashboardScene(MainWindow mainWindow) { super(mainWindow); }
 
     @Override
     public void build() {
-        logger.info("Building " + this.getClass().getName());
-
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
+        root.setStyle("-fx-background-color: black;");
 
-        var stackPane = new StackPane();
-        stackPane.setMaxWidth(mainWindow.getWidth());
-        stackPane.setMaxHeight(mainWindow.getHeight());
-        stackPane.getStyleClass().add("black");
-        root.getChildren().add(stackPane);
+        Button btnBack = new Button("⬅");
+        btnBack.setPrefSize(50, 50);
+        btnBack.getStyleClass().add("menu-icon-button");
+        btnBack.setOnAction(e -> mainWindow.loadScene(new MenuScene(mainWindow)));
+        StackPane.setAlignment(btnBack, Pos.TOP_LEFT);
+        StackPane.setMargin(btnBack, new Insets(20));
 
-        var borderPane = new BorderPane();
-        stackPane.getChildren().add(borderPane);
+        VBox container = new VBox();
+        container.setAlignment(Pos.CENTER);
+        Label title = new Label("Dashboard");
+        title.setStyle("-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold;");
 
-        var hello = new Hello();        // single instance
-        borderPane.setCenter(hello);    // attach it to the scene
+        container.getChildren().add(title);
+        root.getChildren().addAll(container, btnBack);
     }
 
-    @Override
-    public void initialise() {
-        // Nothing to initialise. Helpful for key-presses if we need it.
-    }
+    @Override public void initialise() {}
 }

@@ -112,6 +112,12 @@ public class MenuScene extends BaseScene {
 
         // Navigation logic for Settings button
         btnDashboard.setOnAction(e -> mainWindow.loadScene(new DashboardScene(mainWindow)));
+        btnNotifications.setOnAction(e -> mainWindow.loadScene(new NotificationScene(mainWindow)));
+        btnDashboard.setOnAction(e -> mainWindow.loadScene(new DashboardScene(mainWindow)));
+        btnSchedule.setOnAction(e -> mainWindow.loadScene(new ScheduleScene(mainWindow)));
+        btnTasks.setOnAction(e -> mainWindow.loadScene(new TaskScene(mainWindow)));
+        btnSettings.setOnAction(e -> mainWindow.loadScene(new SettingsScene(mainWindow)));
+        btnHelp.setOnAction(e -> mainWindow.loadScene(new HelpScene(mainWindow)));
 
         menuToggle.setOnAction(e -> {
             boolean visible = !dropDownItems.isVisible();
