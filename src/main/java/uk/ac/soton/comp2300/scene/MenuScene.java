@@ -25,47 +25,41 @@ public class MenuScene extends BaseScene {
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
 
-        // 1. Background Layer: Starry Night
         Pane starField = new Pane();
         starField.setStyle("-fx-background-color: black;");
         Random random = new Random();
         for (int i = 0; i < 100; i++) {
-            Circle star = new Circle(
-                    random.nextInt(mainWindow.getWidth()),
-                    random.nextInt(mainWindow.getHeight()),
-                    random.nextDouble() * 1.5,
-                    Color.WHITE
-            );
+            Circle star = new Circle(random.nextInt(mainWindow.getWidth()), random.nextInt(mainWindow.getHeight()), random.nextDouble() * 1.5, Color.WHITE);
             starField.getChildren().add(star);
         }
 
-        // 2. Planet Layer: The central game world graphic
         Circle planet = new Circle(200, Color.web("#4CAF50"));
         StackPane planetLayer = new StackPane(planet);
         planetLayer.setAlignment(Pos.BOTTOM_CENTER);
         planetLayer.setPadding(new Insets(0, 0, -60, 0));
+        planetLayer.setMaxWidth(Region.USE_PREF_SIZE);
+        planetLayer.setMaxHeight(Region.USE_PREF_SIZE);
         planetLayer.setMouseTransparent(true);
+        StackPane.setAlignment(planetLayer, Pos.BOTTOM_CENTER);
 
-        // 3. Resource Layer: Top Left trackers (Money, Metal, Wood)
         VBox resourceContainer = new VBox(8);
         resourceContainer.setPadding(new Insets(15));
         resourceContainer.setAlignment(Pos.TOP_LEFT);
+        resourceContainer.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         resourceContainer.getChildren().addAll(
                 createResourceBox("🟡", "1,340,600", "#d4af37"),
                 createResourceBox("🔘", "8,975", "#a0a0a0"),
                 createResourceBox("🪵", "25,000", "#8b4513")
         );
 
-        // 4. Hover Label: Dynamic text that appears beside hovered buttons
         Label hoverLabel = new Label("");
         hoverLabel.setVisible(false);
         hoverLabel.setMouseTransparent(true);
         hoverLabel.getStyleClass().add("hover-description");
 
-        // 5. Navigation Drawer Layer: Top Right vertical menu
         VBox menuDrawer = new VBox(10);
         menuDrawer.setPadding(new Insets(20));
-        menuDrawer.setMaxWidth(Region.USE_PREF_SIZE);
+        menuDrawer.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
         StackPane.setAlignment(menuDrawer, Pos.TOP_RIGHT);
 
         Button menuToggle = new Button("☰");
@@ -79,44 +73,49 @@ public class MenuScene extends BaseScene {
         dropDownItems.setVisible(false);
         dropDownItems.setManaged(false);
 
-        // Define menu buttons and their corresponding hover text
-// Initialize Buttons
         Button btnNotifications = new Button("🕒");
-        Button btnDashboard = new Button("📈"); // Renamed from btnAnalytics
+        Button btnDashboard = new Button("📈");
         Button btnSchedule = new Button("📅");
         Button btnTasks = new Button("✅");
         Button btnSettings = new Button("⚙");
         Button btnHelp = new Button("❓");
+        Button btnSolar = new Button("☀️");
+        Button btnBuild = new Button("🏗️");
 
-// Update arrays for the hover loop
-        Button[] menuButtons = {btnNotifications, btnDashboard, btnSchedule, btnTasks, btnSettings, btnHelp};
-        String[] descriptions = {"Notifications", "Dashboard", "Schedules", "Tasks", "Settings", "Help"};
+        Button[] allButtons = {btnNotifications, btnDashboard, btnSchedule, btnTasks, btnSettings, btnHelp, btnSolar, btnBuild};
+        String[] descriptions = {"Notifications", "Dashboard", "Schedules", "Tasks", "Settings", "Help", "Solar System", "Build Mode"};
 
-
-        for (int i = 0; i < menuButtons.length; i++) {
-            Button b = menuButtons[i];
-            String desc = descriptions[i]; // This now uses "Notifications" for the first button
-
+        for (int i = 0; i < allButtons.length; i++) {
+            Button b = allButtons[i];
+            String desc = descriptions[i];
             b.setPrefSize(45, 45);
             b.getStyleClass().add("menu-icon-button");
 
             b.setOnMouseEntered(e -> {
                 hoverLabel.setText(desc);
                 var bounds = b.localToScene(b.getBoundsInLocal());
-                hoverLabel.setLayoutX(bounds.getMinX() - 95);
-                hoverLabel.setLayoutY(bounds.getMinY() + 10);
+
+                if (desc.equals("Solar System")) {
+                    hoverLabel.setLayoutX(bounds.getMinX());
+                    hoverLabel.setLayoutY(bounds.getMinY() - 40);
+                } else if (desc.equals("Build Mode")) {
+                    hoverLabel.setLayoutX(bounds.getMinX() - 40);
+                    hoverLabel.setLayoutY(bounds.getMinY() - 40);
+                } else {
+                    // Position for side drawer buttons
+                    hoverLabel.setLayoutX(bounds.getMinX() - 95);
+                    hoverLabel.setLayoutY(bounds.getMinY() + 10);
+                }
                 hoverLabel.setVisible(true);
             });
             b.setOnMouseExited(e -> hoverLabel.setVisible(false));
         }
 
-        // Navigation logic for Settings button
-        btnDashboard.setOnAction(e -> mainWindow.loadScene(new DashboardScene(mainWindow)));
+        btnSettings.setOnAction(e -> mainWindow.loadScene(new SettingsScene(mainWindow)));
         btnNotifications.setOnAction(e -> mainWindow.loadScene(new NotificationScene(mainWindow)));
         btnDashboard.setOnAction(e -> mainWindow.loadScene(new DashboardScene(mainWindow)));
         btnSchedule.setOnAction(e -> mainWindow.loadScene(new ScheduleScene(mainWindow)));
         btnTasks.setOnAction(e -> mainWindow.loadScene(new TaskScene(mainWindow)));
-        btnSettings.setOnAction(e -> mainWindow.loadScene(new SettingsScene(mainWindow)));
         btnHelp.setOnAction(e -> mainWindow.loadScene(new HelpScene(mainWindow)));
 
         menuToggle.setOnAction(e -> {
@@ -125,26 +124,22 @@ public class MenuScene extends BaseScene {
             dropDownItems.setManaged(visible);
         });
 
-        dropDownItems.getChildren().addAll(menuButtons);
+        dropDownItems.getChildren().addAll(btnNotifications, btnDashboard, btnSchedule, btnTasks, btnSettings, btnHelp);
         menuDrawer.getChildren().addAll(menuToggle, dropDownItems);
 
-        // 6. Bottom Bar: Main actions (Solar System and Build Mode)
         HBox bottomActions = new HBox();
         bottomActions.setAlignment(Pos.BOTTOM_CENTER);
         bottomActions.setPadding(new Insets(20));
-
-        Button btnSolar = new Button("☀️");
-        Button btnBuild = new Button("🏗️");
+        bottomActions.setMaxHeight(Region.USE_PREF_SIZE);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
         bottomActions.getChildren().addAll(btnSolar, spacer, btnBuild);
+        StackPane.setAlignment(bottomActions, Pos.BOTTOM_CENTER);
 
-        // Overlay for the hover label to ensure absolute positioning
         Pane labelOverlay = new Pane(hoverLabel);
         labelOverlay.setMouseTransparent(true);
 
-        // Final assembly of layers
-        root.getChildren().addAll(starField, planetLayer, resourceContainer, bottomActions, menuDrawer, labelOverlay);
+        root.getChildren().addAll(starField, planetLayer, resourceContainer, menuDrawer, bottomActions, labelOverlay);
     }
 
     /**
