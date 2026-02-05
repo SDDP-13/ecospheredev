@@ -218,7 +218,7 @@ Save and close.
 
 
 ## Repository Structure
-
+```bash
 .
 ├── .gitignore
 ├── README.md
@@ -264,7 +264,7 @@ Save and close.
             │
             └── style
                 CSS stylesheets (hover effects, themes, etc.)
-
+```
 ---
 
 
