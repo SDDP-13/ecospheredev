@@ -10,14 +10,14 @@ import javafx.scene.layout.Region;
 import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 
-import java.util.List;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
 import uk.ac.soton.comp2300.component.ToggleSwitch;
+import uk.ac.soton.comp2300.model.Setting;
+import uk.ac.soton.comp2300.model.Setting.SettingOption;
 
 /**
  * Build the settings menu UI
@@ -26,14 +26,6 @@ public class SettingsScene extends BaseScene {
     private static final Logger logger = LogManager.getLogger(SettingsScene.class);
     private static final double BASE = 44.0;
     private static final double SCALE = BASE / 44.0;
-
-
-    private final List<Setting> settingsList = List.of(
-        new Setting("Option 1", "For testing"),
-        new Setting("Music", "Enable background music"),
-        new Setting("Sound Effects", "Toggle UI sounds"),
-        new Setting("Fullscreen", "Run the game in fullscreen mode")
-    );
 
     public SettingsScene(MainWindow mainWindow) {
         super(mainWindow);
@@ -120,39 +112,21 @@ private Button makeActionButton(String text, String bg, String fg) {
     return b;
 }
 
-  private static class Setting {
-    private final String title;
-    private final String description;
-
-    private Setting(String title, String description) {
-      this.title = title;
-      this.description = description;
-    }
-
-    private String getTitle() {
-      return title;
-    }
-
-    private String getDescription() {
-      return description;
-    }
-  }
-
 
   private static class LabeledSwitch extends HBox {
     private final ToggleSwitch toggle;
 
-    public LabeledSwitch(String title, String description, float scale) {
+    public LabeledSwitch(SettingOption setting, float scale) {
         super(12 * scale);
 
-        Label titleLabel = new Label(title);
+        Label titleLabel = new Label(setting.getTitle());
         titleLabel.setStyle(
             "-fx-font-size: " + (16 * scale) + "px;" +
             "-fx-font-weight: 800;" +
             "-fx-text-fill: #1F1F1F;"
         );
 
-        Label descLabel = new Label(description);
+        Label descLabel = new Label(setting.getDescription());
         descLabel.setWrapText(true);
         descLabel.setStyle(
             "-fx-font-size: " + (12 * scale) + "px;" +
@@ -166,6 +140,7 @@ private Button makeActionButton(String text, String bg, String fg) {
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
         this.toggle = new ToggleSwitch(scale * 1.5f);
+        this.toggle.selectedProperty().bindBidirectional(setting.enabledProperty());
 
         setAlignment(Pos.CENTER_LEFT);
         setPadding(new Insets(8 * scale, 12 * scale, 8 * scale, 12 * scale));
@@ -183,8 +158,8 @@ private VBox settingSelectionBox(float scale) {
     vbox.setPadding(new Insets(10 * scale));
     vbox.setMaxWidth(420);
 
-    for (Setting setting : settingsList) {
-        LabeledSwitch row = new LabeledSwitch(setting.getTitle(), setting.getDescription(), scale);
+    for (SettingOption setting : Setting.settingsList) {
+        LabeledSwitch row = new LabeledSwitch(setting, scale);
         vbox.getChildren().add(row);
     }
 

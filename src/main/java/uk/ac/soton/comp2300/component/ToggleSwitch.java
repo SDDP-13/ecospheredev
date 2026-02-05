@@ -3,19 +3,20 @@ package uk.ac.soton.comp2300.component;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import javafx.scene.layout.StackPane;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.paint.Color;
-
 
 public class ToggleSwitch extends StackPane {
-    private BooleanProperty isEnable = new SimpleBooleanProperty(false);
-    double travel = 10;
-    float height = 20;
-    float width = 40;
 
-    Rectangle background;
-    Circle knob;
+    private final BooleanProperty selected = new SimpleBooleanProperty(false);
+
+    private double travel = 10;
+    private float height = 20;
+    private float width = 40;
+
+    private final Rectangle background;
+    private final Circle knob;
 
     public ToggleSwitch() {
         this(1.0f);
@@ -25,25 +26,24 @@ public class ToggleSwitch extends StackPane {
         height *= scale;
         width *= scale;
         travel *= scale;
-        
+
         background = new Rectangle(width, height);
         knob = new Circle(8 * scale);
 
         background.setArcHeight(height);
         background.setArcWidth(height);
 
-        knob.setTranslateX(travel);;
-
         getChildren().addAll(background, knob);
 
-        update();
+        setOnMouseClicked(e -> setSelected(!isSelected()));
 
-        setOnMouseClicked(e -> isEnable.set(!isEnable.get()));
-        isEnable.addListener((obs, oldV, newV) -> update());
+        selected.addListener((obs, oldV, newV) -> update());
+
+        update();
     }
 
     private void update() {
-        if (isEnable.get()) {
+        if (isSelected()) {
             background.setFill(Color.LIGHTGREEN);
             knob.setTranslateX(travel);
         } else {
@@ -52,7 +52,15 @@ public class ToggleSwitch extends StackPane {
         }
     }
 
-    public BooleanProperty isEnableProperty() {
-        return isEnable;
+    public boolean isSelected() {
+        return selected.get();
+    }
+
+    public void setSelected(boolean value) {
+        selected.set(value);
+    }
+
+    public BooleanProperty selectedProperty() {
+        return selected;
     }
 }
