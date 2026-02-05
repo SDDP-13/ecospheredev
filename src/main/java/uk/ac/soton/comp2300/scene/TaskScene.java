@@ -9,8 +9,8 @@ import javafx.scene.layout.VBox;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
-public class DashboardScene extends BaseScene {
-    public DashboardScene(MainWindow mainWindow) { super(mainWindow); }
+public class TaskScene extends BaseScene {
+    public TaskScene(MainWindow mainWindow) { super(mainWindow); }
 
     @Override
     public void build() {
@@ -26,11 +26,24 @@ public class DashboardScene extends BaseScene {
 
         VBox container = new VBox();
         container.setAlignment(Pos.CENTER);
-        Label title = new Label("Dashboard");
+        Label title = new Label("Tasks Window");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold;");
 
         container.getChildren().add(title);
         root.getChildren().addAll(container, btnBack);
+
+        // Adding a sample task card
+        VBox taskCard = new VBox(10);
+        taskCard.setStyle("-fx-background-color: #333; -fx-padding: 15; -fx-background-radius: 10;");
+        taskCard.setMaxWidth(300);
+
+        Label taskTitle = new Label("Fix Solar Array");
+        taskTitle.setStyle("-fx-text-fill: #4CAF50; -fx-font-weight: bold;");
+        Label taskDesc = new Label("Efficiency is down by 15%. Click to repair.");
+        taskDesc.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
+
+        taskCard.getChildren().addAll(taskTitle, taskDesc);
+        container.getChildren().add(taskCard);
     }
 
     @Override public void initialise() {}

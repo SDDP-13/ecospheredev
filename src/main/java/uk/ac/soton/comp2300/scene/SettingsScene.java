@@ -51,6 +51,11 @@ public void build() {
         "-fx-font-size: 18px;" +
         "-fx-text-fill: #1F1F1F;"
     );
+    btnBack.getStyleClass().add("menu-icon-button");
+    btnBack.setOnAction(e -> mainWindow.loadScene(new MenuScene(mainWindow)));
+
+    StackPane.setAlignment(btnBack, Pos.TOP_LEFT);
+    StackPane.setMargin(btnBack, new Insets(20));
 
     Label title = new Label("Settings");
     title.setStyle(
@@ -59,9 +64,9 @@ public void build() {
         "-fx-font-weight: 800;"
     );
 
-    Button btnGear = new Button("⚙");
-    btnGear.setPrefSize(BASE, BASE);
-    btnGear.setStyle(
+    Button blbGear = new Button("\u2699");
+    blbGear.setPrefSize(BASE, BASE);
+    blbGear.setStyle(
         "-fx-background-color: transparent;" +
         "-fx-font-size: 18px;" +
         "-fx-text-fill: #1F1F1F;"
@@ -72,7 +77,7 @@ public void build() {
     HBox.setHgrow(topSpacerL, Priority.ALWAYS);
     HBox.setHgrow(topSpacerR, Priority.ALWAYS);
 
-    HBox topBar = new HBox(10, btnBack, topSpacerL, title, topSpacerR, btnGear);
+    HBox topBar = new HBox(10, btnBack, topSpacerL, title, topSpacerR, blbGear);
     topBar.setAlignment(Pos.CENTER);
     topBar.setPadding(new Insets(18, 18, 10, 18));
 
@@ -83,6 +88,9 @@ public void build() {
     Button btnAccountDetails = makeActionButton("Account Details", "#E8DDFB", "#2B2B2B");
     Button btnLogout = makeActionButton("Logout", "#E8DDFB", "#2B2B2B");
     Button btnDelete = makeActionButton("Delete Account", "#F4B7C0", "#2B2B2B");
+
+    // Navigation logic to return to Login
+    btnLogout.setOnAction(e -> mainWindow.loadScene(new LoginScene(mainWindow)));
 
     VBox container = new VBox(BASE * 0.35, settingsBox, btnAccountDetails, btnLogout, btnDelete);
     container.setAlignment(Pos.TOP_CENTER);

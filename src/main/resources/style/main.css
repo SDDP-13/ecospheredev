@@ -21,3 +21,28 @@
 .menu {
     -fx-padding: 10;
 }
+
+.menu-dropdown-bg {
+    -fx-background-color: rgba(150, 120, 200, 0.85);
+    -fx-background-radius: 25;
+    -fx-alignment: center;
+}
+
+.menu-icon-button {
+    -fx-background-color: white;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+}
+
+.menu-icon-button:hover {
+    -fx-background-color: #e0e0e0;
+}
+
+.hover-description {
+    -fx-background-color: rgba(92, 45, 145, 0.9);
+    -fx-text-fill: white;
+    -fx-padding: 5 12;
+    -fx-background-radius: 10;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}

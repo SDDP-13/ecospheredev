@@ -9,8 +9,8 @@ import javafx.scene.layout.VBox;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
-public class DashboardScene extends BaseScene {
-    public DashboardScene(MainWindow mainWindow) { super(mainWindow); }
+public class ScheduleScene extends BaseScene {
+    public ScheduleScene(MainWindow mainWindow) { super(mainWindow); }
 
     @Override
     public void build() {
@@ -26,7 +26,7 @@ public class DashboardScene extends BaseScene {
 
         VBox container = new VBox();
         container.setAlignment(Pos.CENTER);
-        Label title = new Label("Dashboard");
+        Label title = new Label("Schedule Window");
         title.setStyle("-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold;");
 
         container.getChildren().add(title);
