@@ -219,29 +219,51 @@ Save and close.
 
 ## Repository Structure
 
-* **assets**
-
-  * **ui**
-    Images, icons, and visual references
-
-* **common**
-
-  * **utils**
-    Shared utilities or helper modules
-
-* **create**
-
-  * **generators**
-    Scripts or templates for building app components
-
-* **runs**
-
-  * **testing**
-    Runtime logs, prototype runs, or test outputs
-
-* **README.md**
-  Project overview and documentation
-
+.
+├── .gitignore
+├── README.md
+├── pom.xml
+└── src
+    └── main
+        ├── java
+        │   ├── module-info.java
+        │   └── uk
+        │       └── ac
+        │           └── soton
+        │               └── comp2300
+        │                   ├── component
+        │                   │   Reusable UI / application components
+        │                   │
+        │                   ├── event
+        │                   │   Event definitions and handlers
+        │                   │
+        │                   ├── model
+        │                   │   Core data models and application state
+        │                   │
+        │                   ├── scene
+        │                   │   JavaFX scenes / screen controllers
+        │                   │
+        │                   ├── ui
+        │                   │   Main menu and UI layouts
+        │                   │
+        │                   ├── App.java
+        │                   │   Main application logic
+        │                   │
+        │                   └── Launcher.java
+        │                       Application entry point
+        │
+        └── resources
+            ├── assets
+            │   General UI assets and references
+            │
+            ├── common
+            │   Shared resource utilities
+            │
+            ├── images
+            │   Application images and icons
+            │
+            └── style
+                CSS stylesheets (hover effects, themes, etc.)
 
 ---
 
