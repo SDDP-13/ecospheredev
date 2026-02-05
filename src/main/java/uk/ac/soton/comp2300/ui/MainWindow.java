@@ -10,6 +10,7 @@ import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.App;
 import uk.ac.soton.comp2300.scene.BaseScene;
 import uk.ac.soton.comp2300.scene.DashboardScene;
+import uk.ac.soton.comp2300.scene.SettingsScene;
 
 public class MainWindow {
     private static final Logger logger = LogManager.getLogger(MainWindow.class);
@@ -35,7 +36,8 @@ public class MainWindow {
         setupDefaultScene();
 
         // Go to intro scene
-        loadScene(new DashboardScene(this));
+        // loadScene(new DashboardScene(this));
+        loadScene(new SettingsScene(this));
     }
 
     public void setupStage() {
