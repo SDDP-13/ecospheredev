@@ -6,8 +6,8 @@ import java.util.UUID;
 public class Notification {
 
     public enum Source {USER, SYSTEM, GAME, SCHEDULER}
-    public enum Type { REMINDER, SUGGESTION, GAME_EVENT, GAME_TASK_COMPLETE, ENERGY_ALERT}
-    public enum Status {PENDING, SENT, UNREAD, READ, DISMISSED, COMPLETED, TIMED_OUT}
+    public enum Type { REMINDER, GAME_EVENT, ENERGY_ALERT}
+    public enum Status {PENDING, SENT, TASK_COMPLETED, TIMED_OUT}
 
     // Origin and Type of message
     private String id;
@@ -17,40 +17,43 @@ public class Notification {
     //currentStatus
     private Status status;
 
-    //Contents
+    //Contents - Title, Do What, When
     private String title;
     private String message;
-    private LocalDateTime toSendTime;
+    private LocalDateTime scheduled_Time;
+
+    //When to send the Notification
+    private LocalDateTime sendAt;
 
     //Record keeping
     // Origin of Notification - e.g. Game Task
     private String refId;
     private LocalDateTime sentAt;
     private LocalDateTime dismissedAt;
+    private LocalDateTime completedAt;
 
-    public Notification(Source source, Type type, String title, String message, LocalDateTime toSendTime, String refId ){
+    public Notification(Source source, Type type, String title, String message,LocalDateTime scheduled_Time, LocalDateTime sendAt, String refId ){
 
         this.id = UUID.randomUUID().toString();
         this.source = source;
         this.type = type;
         this.title = title;
         this.message = message;
-        this.toSendTime = toSendTime;
+        this.scheduled_Time = scheduled_Time;
+        this.sendAt = sendAt;
         this.refId = refId;
         this.status = Status.PENDING;
     }
 
     public String getId() {return id;}
-    public Source getSource() {return source;}
     public Type getType() {return type;}
     public String getTitle() {return title;}
     public String getMessage() {return message;}
-    public LocalDateTime getToSendTime() {return toSendTime;}
-    public String getRefId() {return refId;}
+    public LocalDateTime getToSendTime() {return sendAt;}
+    public LocalDateTime getScheduled_Time() {return scheduled_Time;};
 
     public Status getStatus() {return status;}
-    public LocalDateTime getSentAt() {return sentAt;}
-    public LocalDateTime getDismissedAt() {return dismissedAt;}
+
 
     public void setStatus (Status status) {this.status = status;}
 
@@ -59,16 +62,11 @@ public class Notification {
         this.sentAt = when;
     }
 
-    public void markDismissed(LocalDateTime when){
-        this.status = Status.DISMISSED;
-        this.dismissedAt = when;
+    public void setCompleted(LocalDateTime when){
+        this.status = Status.TASK_COMPLETED;
     }
 
-    public void markRead(LocalDateTime when){
-        this.status = Status.READ;
-    }
-
-    public void markCompleted(LocalDateTime when){
-        this.status = Status.COMPLETED;
+    public void setScheduled_Time(LocalDateTime newTime){
+        this.scheduled_Time = newTime;
     }
 }
