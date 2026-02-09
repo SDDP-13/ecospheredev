@@ -1,0 +1,53 @@
+{
+  "tasks": [
+    {
+      "id": "log_in",
+      "description":"Log in today",
+      "rewards": [
+        {"type": "MONEY", "amount": 1000}
+        ]
+    },
+    {
+      "id": "log_in",
+      "description":"Log in today",
+      "rewards": [
+        {"type": "MONEY", "amount": 1000}
+      ]
+    },
+    {
+      "id": "log_in",
+      "description":"Log in today",
+      "rewards": [
+        {"type": "MONEY", "amount": 1000}
+      ]
+    },
+    {
+      "id": "log_in",
+      "description":"Log in today",
+      "rewards": [
+        {"type": "MONEY", "amount": 1000}
+      ]
+    },
+    {
+      "id": "log_in",
+      "description":"Log in today",
+      "rewards": [
+        {"type": "MONEY", "amount": 1000}
+      ]
+    },
+    {
+      "id": "log_in",
+      "description":"Log in today",
+      "rewards": [
+        {"type": "MONEY", "amount": 1000}
+      ]
+    },
+    {
+      "id": "log_in",
+      "description":"Log in today",
+      "rewards": [
+        {"type": "MONEY", "amount": 1000}
+      ]
+    }
+  ]
+}
