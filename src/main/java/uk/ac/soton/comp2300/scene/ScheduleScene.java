@@ -136,30 +136,43 @@ public class ScheduleScene extends BaseScene {
     deviceBox.getItems().addAll("Washing Machine", "Dishwasher", "Dryer",
             "Radiator", "Air Conditioner", "TV", "Garden Lights");
     deviceBox.setPrefWidth(220);
+    deviceBox.setPromptText("Select device");
 
     TextField descField = new TextField();
     descField.setPromptText("Task description");
     descField.setPrefWidth(220);
 
     Spinner<Integer> hourSpinner = new Spinner<>(0, 23, 12);
-    Spinner<Integer> minuteSpinner = new Spinner<>(0, 59, 00);
+    Spinner<Integer> minSpinner = new Spinner<>(0, 59, 00);
 
+    Label hourLabel = new Label("Hour: ");
+    Label minLabel = new Label("Minute: ");
+
+    hourLabel.setPrefWidth(90);
+    minLabel.setPrefWidth(90);
+
+    HBox hourRow = new HBox(10, hourLabel, hourSpinner);
+    HBox minRow = new HBox(10, minLabel, minSpinner);
+
+    hourRow.setAlignment(Pos.CENTER);
+    minRow.setAlignment(Pos.CENTER);
+    
     hourSpinner.setEditable(true);
-    minuteSpinner.setEditable(true);
+    minSpinner.setEditable(true);
 
     // Can manually type accepted numerical time instead of using arrows
     hourSpinner.focusedProperty().addListener((obs, oldVal, newVal) -> {
         if (!newVal) try { hourSpinner.increment(0); } catch (Exception ignored) {}
     });
-    minuteSpinner.focusedProperty().addListener((obs, oldVal, newVal) -> {
-        if (!newVal) try { minuteSpinner.increment(0); } catch (Exception ignored) {}
+    minSpinner.focusedProperty().addListener((obs, oldVal, newVal) -> {
+        if (!newVal) try { minSpinner.increment(0); } catch (Exception ignored) {}
     });
 
     if (taskToEdit != null) {
         deviceBox.setValue(taskToEdit.getDeviceName());
         descField.setText(taskToEdit.getDescription());
         hourSpinner.getValueFactory().setValue(taskToEdit.getTime().getHour());
-        minuteSpinner.getValueFactory().setValue(taskToEdit.getTime().getMinute());
+        minSpinner.getValueFactory().setValue(taskToEdit.getTime().getMinute());
     }
 
     Button saveBtn = new Button("Save");
@@ -192,7 +205,7 @@ public class ScheduleScene extends BaseScene {
 
     try {
         hour = Integer.parseInt(hourSpinner.getEditor().getText());
-        minute = Integer.parseInt(minuteSpinner.getEditor().getText());
+        minute = Integer.parseInt(minSpinner.getEditor().getText());
 
         if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
             throw new NumberFormatException();
@@ -220,7 +233,7 @@ public class ScheduleScene extends BaseScene {
 
     cancelBtn.setOnAction(e -> popup.close());
 
-    layout.getChildren().addAll(deviceBox, descField, hourSpinner, minuteSpinner, buttonRow);
+    layout.getChildren().addAll(deviceBox, descField, hourRow, minRow, buttonRow);
     popup.setScene(new Scene(layout));
     popup.show();
     }
