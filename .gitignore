@@ -15,7 +15,6 @@ target/
 *.class
 
 # --- Project Logs & Temporary Files ---
-# Logs for debugging (Subtask 3.2: Michael's testing)
 *.log
 # Java crash logs
 hs_err_pid*

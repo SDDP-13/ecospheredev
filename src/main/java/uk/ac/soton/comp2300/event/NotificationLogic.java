@@ -23,6 +23,9 @@ public class NotificationLogic {
         this.repository = repository;
         this.listener = listener;
     }
+    public void setListener(NotificationListenerInterface listener) {
+        this.listener = listener;
+    }
 
     public void start () {
         if (task != null && !task.isCancelled()) return;
