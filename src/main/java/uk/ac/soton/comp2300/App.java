@@ -7,6 +7,8 @@ import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.event.NotificationLogic;
 import uk.ac.soton.comp2300.model.Notification;
 import uk.ac.soton.comp2300.model.NotificationRepository;
+import uk.ac.soton.comp2300.model.Task;
+import uk.ac.soton.comp2300.model.TaskPool;
 import uk.ac.soton.comp2300.scene.LoginScene;
 import uk.ac.soton.comp2300.scene.MenuScene;
 import uk.ac.soton.comp2300.ui.MainWindow;
@@ -20,11 +22,13 @@ public class App extends Application {
     private final int width = 450;
     private final int height = 800;
 
-    // --- ADD THESE THREE LINES HERE ---
     private int money = 0;
     private int metal = 0;
     private int wood = 0;
-    // ----------------------------------
+
+    // Persistent storage for the current session
+    private List<Task> currentSessionTasks;
+    private final TaskPool taskPool = new TaskPool();
 
     private static App instance;
     private Stage stage;
@@ -46,6 +50,17 @@ public class App extends Application {
         open();
     }
 
+    /**
+     * Retrieves the daily tasks. If they don't exist yet, they are generated once.
+     * This ensures the "claimed" state is preserved during the session.
+     */
+    public List<Task> getTasks() {
+        if (currentSessionTasks == null) {
+            currentSessionTasks = taskPool.generateDailyTasks();
+        }
+        return currentSessionTasks;
+    }
+
     private void setupNotificationLogic() {
         this.repository = new NotificationRepository() {
             private final List<Notification> notifications = new ArrayList<>();
@@ -56,20 +71,6 @@ public class App extends Application {
             @Override public void add(Notification n) { notifications.add(n); }
         };
 
-/*
-        java.time.LocalDateTime now = java.time.LocalDateTime.now();
-        Notification testNote = new Notification(
-                Notification.Source.SYSTEM,
-                Notification.Type.ENERGY_ALERT,
-                "Dish Washer",
-                "Task: Run Dish Washer\nReward: Money 10",
-                now, // scheduled_Time
-                now, // sendAt (Send it immediately)
-                "ref-123"
-        );
-        repository.add(testNote);
-        // ---------------------------
-*/
         this.notificationLogic = new NotificationLogic(repository, record -> {
             logger.info("New notification sent: " + record.title());
         });
@@ -80,10 +81,7 @@ public class App extends Application {
     public void open() {
         logger.info("Opening window at " + width + "x" + height);
         var mainWindow = new MainWindow(stage, width, height);
-
-        // change between MenuScene and LoginScene for which you want to appear first
         mainWindow.loadScene(new LoginScene(mainWindow));
-
         stage.show();
     }
 
@@ -103,8 +101,6 @@ public class App extends Application {
         return this.repository;
     }
 
-// ... existing getNotificationLogic() method ...
-
     public NotificationLogic getNotificationLogic() {
         return this.notificationLogic;
     }
@@ -113,26 +109,15 @@ public class App extends Application {
     public int getMetal() { return metal; }
     public int getWood() { return wood; }
 
-    /**
-     * Updates the resources based on the type and amount claimed.
-     */
     public void addResources(uk.ac.soton.comp2300.model.Resource type, int amount) {
         if (type == null) return;
 
         switch (type) {
-            case MONEY:
-                this.money += amount;
-                break;
-            case WOOD:
-                this.wood += amount;
-                break;
-            case METAL:
-                this.metal += amount;
-                break;
-            default:
-                System.out.println("Unknown resource type: " + type);
-                break;
+            case MONEY -> this.money += amount;
+            case WOOD -> this.wood += amount;
+            case METAL -> this.metal += amount;
+            default -> System.out.println("Unknown resource type: " + type);
         }
-        System.out.println("Updated: " + type + " +" + amount + " | M:" + money + " W:" + wood + " Met:" + metal);
+        System.out.println("Updated resources | M:" + money + " W:" + wood + " Met:" + metal);
     }
 }

@@ -9,21 +9,22 @@ import javafx.scene.layout.*;
 import uk.ac.soton.comp2300.model.Task;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
-import uk.ac.soton.comp2300.model.TaskLoader;
-import uk.ac.soton.comp2300.model.TaskPool;
 
 import java.util.List;
 
 public class TaskScene extends BaseScene {
-    private TaskPool taskPool = new TaskPool(TaskLoader.loadTasks());
-    private List<Task> dailyTasks = taskPool.generateDailyTasks();
+    private List<Task> dailyTasks;
 
     public TaskScene(MainWindow mainWindow) { super(mainWindow); }
 
     @Override
     public void build() {
+        var app = uk.ac.soton.comp2300.App.getInstance();
+        this.dailyTasks = app.getTasks();
+        // -----------------------
+
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: #EFEEF5;"); // Light background from mockup
+        root.setStyle("-fx-background-color: #EFEEF5;");
 
         Button btnBack = new Button("←");
         btnBack.setPrefSize(44, 44);
@@ -57,61 +58,66 @@ public class TaskScene extends BaseScene {
         container.getChildren().addAll(title, windowDesc, taskScrollPane);
         root.getChildren().addAll(container, btnBack);
     }
+
     private HBox createTask(Task taskObj) {
-        HBox taskCard = new HBox(10);
+        HBox taskCard = new HBox(15);
         taskCard.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 12;");
         taskCard.setMaxWidth(400);
-        taskCard.setAlignment(Pos.CENTER);
+        taskCard.setAlignment(Pos.CENTER_LEFT);
 
         VBox textContainer = new VBox(5);
         textContainer.setAlignment(Pos.CENTER_LEFT);
+        HBox.setHgrow(textContainer, Priority.ALWAYS);
 
         Label title = new Label(taskObj.getId());
-        title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 22px; -fx-font-weight: bold;");
+        title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 20px; -fx-font-weight: bold;");
 
         Label desc = new Label(taskObj.getDescription());
-        desc.setStyle("-fx-text-fill: #555; -fx-font-size: 14px;");
+        desc.setWrapText(true);
+        desc.setMaxWidth(250);
+        desc.setStyle("-fx-text-fill: #555; -fx-font-size: 13px;");
 
-        // Smaller Rewards label
-        Label rewardLabel = new Label("Rewards: " + taskObj.getRewards().toString());
+        Label rewardLabel = new Label("Rewards: Money 100, Wood 50, Metal 20");
         rewardLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-weight: bold;");
 
         textContainer.getChildren().addAll(title, desc, rewardLabel);
 
-        Region space = new Region();
-        HBox.setHgrow(space, Priority.ALWAYS);
-
         Button claimBtn = new Button();
-        // Setting fixed sizes to prevent the (...) truncation
-        claimBtn.setMinWidth(60);
-        claimBtn.setMinHeight(60);
-        claimBtn.setStyle("-fx-background-color: transparent; -fx-font-size: 28px; -fx-cursor: hand;");
+        claimBtn.setMinWidth(100);
 
-        // Using standard Emojis which are more likely to be supported by your OS font
         if (taskObj.getRewardCollected()) {
-            claimBtn.setText("⭐"); // Solid Gold Star
-            claimBtn.setDisable(true);
-            claimBtn.setOpacity(0.8);
+            setBtnClaimed(claimBtn);
         } else {
-            claimBtn.setText("🔘"); // Using a circle/target emoji to represent the circled star
+            setBtnReady(claimBtn);
         }
 
         claimBtn.setOnAction(e -> {
             if (taskObj.getRewardCollected()) return;
 
-            taskObj.toggleRewardCollected();
-            var app = uk.ac.soton.comp2300.App.getInstance();
+            taskObj.toggleRewardCollected(); // Updates the object in the App's list
 
-            for (uk.ac.soton.comp2300.model.ResourceStack stack : taskObj.getRewards()) {
+            var app = uk.ac.soton.comp2300.App.getInstance();
+            for (var stack : taskObj.getRewards()) {
                 app.addResources(stack.getType(), stack.getAmount());
             }
 
-            claimBtn.setDisable(true);
-            claimBtn.setText("⭐");
+            setBtnClaimed(claimBtn);
         });
 
-        taskCard.getChildren().addAll(textContainer, space, claimBtn);
+        taskCard.getChildren().addAll(textContainer, claimBtn);
         return taskCard;
+    }
+
+    private void setBtnClaimed(Button btn) {
+        btn.setText("CLAIMED");
+        btn.setDisable(true);
+        btn.setStyle("-fx-background-color: #E0E0E0; -fx-text-fill: #999; -fx-font-size: 13px; -fx-background-radius: 20;");
+    }
+
+    private void setBtnReady(Button btn) {
+        btn.setText("CLAIM");
+        btn.setDisable(false);
+        btn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 20; -fx-cursor: hand;");
     }
 
     @Override public void initialise() {}

@@ -1,38 +1,32 @@
 package uk.ac.soton.comp2300.model;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
-
-/*
-Class which holds the serialised tasks and has method for random daily task creation
- */
 
 public class TaskPool {
-    private final List<Task> allTasks;
+    private List<Task> allTasks;
 
-
-    public TaskPool(List<Task> allTasks) {
-        this.allTasks = allTasks;
+    /**
+     * This constructor handles the case where you want to pass a list in.
+     * Fixes: 'TaskPool()' cannot be applied to '(java.util.List...)'
+     */
+    public TaskPool(List<Task> tasks) {
+        this.allTasks = tasks != null ? tasks : new ArrayList<>();
     }
 
-    public List<Task> getAllTasks() { return allTasks; }
-
-    public Optional<Task> getById(String id) {
-        return allTasks.stream()
-                .filter(t -> t.getId().equals(id))
-                .findFirst();
+    /**
+     * This constructor handles the 'new TaskPool()' case for the App class.
+     */
+    public TaskPool() {
+        this.allTasks = TaskLoader.loadTasks();
     }
 
+    /**
+     * This method provides the tasks to your Scene.
+     * Fixes: Cannot resolve method 'generateDailyTasks'
+     */
     public List<Task> generateDailyTasks() {
-        List<Task> copy = new ArrayList<>(allTasks);
-        int dailyTaskCount = 5;
-
-        if (this.allTasks.size() <= dailyTaskCount) { return allTasks; }
-        else {
-            Collections.shuffle(copy);
-            return copy.subList(0, dailyTaskCount);
-        }
+        // We return a copy of the list in the order defined in the JSON
+        return new ArrayList<>(allTasks);
     }
 }
