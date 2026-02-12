@@ -23,38 +23,32 @@ public class TaskScene extends BaseScene {
     @Override
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: #F6F3FB;");
+        root.setStyle("-fx-background-color: #EFEEF5;"); // Light background from mockup
 
-        Button btnBack = new Button("⬅");
+        Button btnBack = new Button("←");
         btnBack.setPrefSize(44, 44);
         btnBack.getStyleClass().add("menu-icon-button");
         btnBack.setOnAction(e -> mainWindow.loadScene(new MenuScene(mainWindow)));
         StackPane.setAlignment(btnBack, Pos.TOP_LEFT);
         StackPane.setMargin(btnBack, new Insets(20));
 
-        VBox container = new VBox();
+        VBox container = new VBox(20);
         container.setAlignment(Pos.TOP_CENTER);
-        container.setPadding(new Insets(20));
-        container.setSpacing(20);
+        container.setPadding(new Insets(20, 20, 20, 20));
 
         Label title = new Label("Daily Tasks");
-        title.setStyle("-fx-font-size: 32px; -fx-font-weight: 800;");
-
+        title.setStyle("-fx-font-size: 32px; -fx-font-weight: 800; -fx-text-fill: #333;");
 
         Label windowDesc = new Label("Tasks will reset at 08:00 GMT");
-        windowDesc.setStyle("-fx-font-size: 16px; -fx-font-weight: 400; -fx-text-fill: rgba(0, 0, 0, 0.8);");
-
+        windowDesc.setStyle("-fx-font-size: 16px; -fx-text-fill: #666;");
 
         VBox taskList = new VBox(15);
         taskList.setAlignment(Pos.TOP_CENTER);
 
         ScrollPane taskScrollPane = new ScrollPane(taskList);
         taskScrollPane.setFitToWidth(true);
-        taskScrollPane.setPrefViewportHeight(620);
-        taskScrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        taskScrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        taskScrollPane.setStyle("-fx-background-color: #F6F3FB;");
-
+        taskScrollPane.setPrefViewportHeight(600);
+        taskScrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent;");
 
         for (Task task : dailyTasks) {
             taskList.getChildren().add(createTask(task));
@@ -62,24 +56,10 @@ public class TaskScene extends BaseScene {
 
         container.getChildren().addAll(title, windowDesc, taskScrollPane);
         root.getChildren().addAll(container, btnBack);
-
-
-/*        VBox taskCard = new VBox(10);
-        taskCard.setStyle("-fx-background-color: #333; -fx-padding: 15; -fx-background-radius: 10;");
-        taskCard.setMaxWidth(300);
-
-        Label taskTitle = new Label("Fix Solar Array");
-        taskTitle.setStyle("-fx-text-fill: #4CAF50; -fx-font-weight: bold;");
-        Label taskDesc = new Label("Efficiency is down by 15%. Click to repair.");
-        taskDesc.setStyle("-fx-text-fill: white; -fx-font-size: 12px;");
-
-        taskCard.getChildren().addAll(taskTitle, taskDesc);
-        container.getChildren().add(taskCard);*/
     }
-
     private HBox createTask(Task taskObj) {
         HBox taskCard = new HBox(10);
-        taskCard.setStyle("-fx-background-color: #333; -fx-padding: 15; -fx-background-radius: 10;");
+        taskCard.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 12;");
         taskCard.setMaxWidth(400);
         taskCard.setAlignment(Pos.CENTER);
 
@@ -87,33 +67,50 @@ public class TaskScene extends BaseScene {
         textContainer.setAlignment(Pos.CENTER_LEFT);
 
         Label title = new Label(taskObj.getId());
-        title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 28px; -fx-font-weight: bold;");
+        title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 22px; -fx-font-weight: bold;");
 
         Label desc = new Label(taskObj.getDescription());
-        desc.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+        desc.setStyle("-fx-text-fill: #555; -fx-font-size: 14px;");
 
-        Label reward = new Label("Rewards: " + taskObj.getRewards().toString());
-        reward.setStyle("-fx-text-fill: white; -fx-font-size: 16px;");
+        // Smaller Rewards label
+        Label rewardLabel = new Label("Rewards: " + taskObj.getRewards().toString());
+        rewardLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-weight: bold;");
 
-        textContainer.getChildren().addAll(title, desc, reward);
-
-        Button claimBtn = new Button("⭐");
-        claimBtn.setPrefSize(70, 70);
-        claimBtn.getStyleClass().add("menu-icon-button");
-        claimBtn.setStyle("-fx-background-color: #F6F3FB; -fx-text-fill: black; -fx-font-size: 30px;");
-        claimBtn.setAlignment(Pos.CENTER_RIGHT);
-        claimBtn.setOnAction(e -> {
-            taskObj.toggleRewardCollected();
-            claimBtn.setDisable(true);
-            claimBtn.setText("\uD83C\uDF1F");
-            System.out.println("Reward collected");
-        });
+        textContainer.getChildren().addAll(title, desc, rewardLabel);
 
         Region space = new Region();
         HBox.setHgrow(space, Priority.ALWAYS);
 
-        taskCard.getChildren().addAll(textContainer, space, claimBtn);
+        Button claimBtn = new Button();
+        // Setting fixed sizes to prevent the (...) truncation
+        claimBtn.setMinWidth(60);
+        claimBtn.setMinHeight(60);
+        claimBtn.setStyle("-fx-background-color: transparent; -fx-font-size: 28px; -fx-cursor: hand;");
 
+        // Using standard Emojis which are more likely to be supported by your OS font
+        if (taskObj.getRewardCollected()) {
+            claimBtn.setText("⭐"); // Solid Gold Star
+            claimBtn.setDisable(true);
+            claimBtn.setOpacity(0.8);
+        } else {
+            claimBtn.setText("🔘"); // Using a circle/target emoji to represent the circled star
+        }
+
+        claimBtn.setOnAction(e -> {
+            if (taskObj.getRewardCollected()) return;
+
+            taskObj.toggleRewardCollected();
+            var app = uk.ac.soton.comp2300.App.getInstance();
+
+            for (uk.ac.soton.comp2300.model.ResourceStack stack : taskObj.getRewards()) {
+                app.addResources(stack.getType(), stack.getAmount());
+            }
+
+            claimBtn.setDisable(true);
+            claimBtn.setText("⭐");
+        });
+
+        taskCard.getChildren().addAll(textContainer, space, claimBtn);
         return taskCard;
     }
 

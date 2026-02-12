@@ -20,6 +20,12 @@ public class App extends Application {
     private final int width = 450;
     private final int height = 800;
 
+    // --- ADD THESE THREE LINES HERE ---
+    private int money = 0;
+    private int metal = 0;
+    private int wood = 0;
+    // ----------------------------------
+
     private static App instance;
     private Stage stage;
 
@@ -98,7 +104,37 @@ public class App extends Application {
         return this.repository;
     }
 
+// ... existing getNotificationLogic() method ...
+
     public NotificationLogic getNotificationLogic() {
         return this.notificationLogic;
+    }
+
+    // --- ADD THESE METHODS AT THE BOTTOM ---
+    public int getMoney() { return money; }
+    public int getMetal() { return metal; }
+    public int getWood() { return wood; }
+
+    /**
+     * Updates the resources based on the type and amount claimed.
+     */
+    public void addResources(uk.ac.soton.comp2300.model.Resource type, int amount) {
+        if (type == null) return;
+
+        switch (type) {
+            case MONEY:
+                this.money += amount;
+                break;
+            case WOOD:
+                this.wood += amount;
+                break;
+            case METAL:
+                this.metal += amount;
+                break;
+            default:
+                System.out.println("Unknown resource type: " + type);
+                break;
+        }
+        System.out.println("Updated: " + type + " +" + amount + " | M:" + money + " W:" + wood + " Met:" + metal);
     }
 }

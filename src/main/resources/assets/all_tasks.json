@@ -4,49 +4,63 @@
       "id": "log_in",
       "description":"Log in today",
       "rewards": [
-        {"type": "MONEY", "amount": 1000}
+        {"type": "MONEY", "amount": 100},
+        { "type": "wood", "amount": 50 },
+        { "type": "metal", "amount": 20 }
         ]
     },
     {
       "id": "log_in",
       "description":"Log in today",
       "rewards": [
-        {"type": "MONEY", "amount": 1000}
+        {"type": "MONEY", "amount": 100},
+        { "type": "wood", "amount": 50 },
+        { "type": "metal", "amount": 20 }
       ]
     },
     {
       "id": "log_in",
       "description":"Log in today",
       "rewards": [
-        {"type": "MONEY", "amount": 1000}
+        {"type": "MONEY", "amount": 100},
+        { "type": "wood", "amount": 50 },
+        { "type": "metal", "amount": 20 }
       ]
     },
     {
       "id": "log_in",
       "description":"Log in today",
       "rewards": [
-        {"type": "MONEY", "amount": 1000}
+        {"type": "MONEY", "amount": 100},
+        { "type": "wood", "amount": 50 },
+        { "type": "metal", "amount": 20 }
       ]
     },
     {
       "id": "log_in",
       "description":"Log in today",
       "rewards": [
-        {"type": "MONEY", "amount": 1000}
+        {"type": "MONEY", "amount": 100},
+        { "type": "wood", "amount": 50 },
+        { "type": "metal", "amount": 20 }
       ]
     },
     {
       "id": "log_in",
       "description":"Log in today",
       "rewards": [
-        {"type": "MONEY", "amount": 1000}
+        {"type": "MONEY", "amount": 100},
+        { "type": "wood", "amount": 50 },
+        { "type": "metal", "amount": 20 }
       ]
     },
     {
       "id": "log_in",
       "description":"Log in today",
       "rewards": [
-        {"type": "MONEY", "amount": 1000}
+        {"type": "MONEY", "amount": 100},
+        { "type": "wood", "amount": 50 },
+        { "type": "metal", "amount": 20 }
       ]
     }
   ]

@@ -42,14 +42,18 @@ public class MenuScene extends BaseScene {
         planetLayer.setMouseTransparent(true);
         StackPane.setAlignment(planetLayer, Pos.BOTTOM_CENTER);
 
+        var app = uk.ac.soton.comp2300.App.getInstance();
+
         VBox resourceContainer = new VBox(8);
         resourceContainer.setPadding(new Insets(15));
         resourceContainer.setAlignment(Pos.TOP_LEFT);
         resourceContainer.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
+
+        // We use String.format("%,d", ...) to ensure numbers like 1000000 look like 1,000,000
         resourceContainer.getChildren().addAll(
-                createResourceBox("🟡", "1,340,600", "#d4af37"),
-                createResourceBox("🔘", "8,975", "#a0a0a0"),
-                createResourceBox("🪵", "25,000", "#8b4513")
+                createResourceBox("🟡", String.format("%,d", app.getMoney()), "#d4af37"),
+                createResourceBox("🔘", String.format("%,d", app.getMetal()), "#a0a0a0"), // Must be getMetal()
+                createResourceBox("🪵", String.format("%,d", app.getWood()), "#8b4513")   // Must be getWood()
         );
 
         Label hoverLabel = new Label("");
