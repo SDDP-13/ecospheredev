@@ -1,0 +1,8 @@
+{
+  "settings": {
+    "shareUsageData": true,
+    "darkMode": true,
+    "sendCrashReports": true,
+    "notifications": true
+  }
+}
