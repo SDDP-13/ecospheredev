@@ -7,15 +7,15 @@ public class Notification {
 
     public enum Source {USER, SYSTEM, GAME, SCHEDULER}
     public enum Type { REMINDER, GAME_EVENT, ENERGY_ALERT}
-    public enum Status {PENDING, SENT, TASK_COMPLETED, TIMED_OUT}
+    public enum state {PENDING, SENT, TASK_COMPLETED, TIMED_OUT}
 
     // Origin and Type of message
-    private String id;
+    private UUID id;
     private Source source;
     private Type type;
 
     //currentStatus
-    private Status status;
+    private state state;
 
     //Contents - Title, Do What, When
     private String title;
@@ -34,7 +34,7 @@ public class Notification {
 
     public Notification(Source source, Type type, String title, String message,LocalDateTime scheduled_Time, LocalDateTime sendAt, String refId ){
 
-        this.id = UUID.randomUUID().toString();
+        this.id = UUID.randomUUID();
         this.source = source;
         this.type = type;
         this.title = title;
@@ -42,28 +42,29 @@ public class Notification {
         this.scheduled_Time = scheduled_Time;
         this.sendAt = sendAt;
         this.refId = refId;
-        this.status = Status.PENDING;
+        this.state = state.PENDING;
     }
 
-    public String getId() {return id;}
+    public UUID getId() {return id;}
     public Type getType() {return type;}
     public String getTitle() {return title;}
     public String getMessage() {return message;}
     public LocalDateTime getToSendTime() {return sendAt;}
     public LocalDateTime getScheduled_Time() {return scheduled_Time;};
 
-    public Status getStatus() {return status;}
+    public state getStatus() {return state;}
 
 
-    public void setStatus (Status status) {this.status = status;}
+    public void setStatus (state state) {this.state = state;}
 
     public void markSent (LocalDateTime when){
-        this.status = Status.SENT;
+        this.state = state.SENT;
         this.sentAt = when;
     }
 
-    public void setCompleted(LocalDateTime when){
-        this.status = Status.TASK_COMPLETED;
+
+    public void setCompleted(){
+        this.state = state.TASK_COMPLETED;
     }
 
     public void setScheduled_Time(LocalDateTime newTime){

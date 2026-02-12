@@ -1,26 +1,27 @@
 package uk.ac.soton.comp2300.event;
 
 import uk.ac.soton.comp2300.model.Notification;
-import uk.ac.soton.comp2300.model.NotificationRepository;
+import uk.ac.soton.comp2300.model.dataBaseInterface;
 
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 import java.util.concurrent.*;
 
 
 
 public class NotificationLogic {
 
-    private NotificationRepository repository;
+    private dataBaseInterface databaseInterface;
     private NotificationListenerInterface listener;
 
 
     //Thread
     private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> task;
+    private ScheduledFuture<?> thread;
 
-    public NotificationLogic(NotificationRepository repository, NotificationListenerInterface listener){
-        this.repository = repository;
+    public NotificationLogic(dataBaseInterface databaseInterface, NotificationListenerInterface listener){
+        this.databaseInterface = databaseInterface;
         this.listener = listener;
     }
     public void setListener(NotificationListenerInterface listener) {
@@ -28,14 +29,14 @@ public class NotificationLogic {
     }
 
     public void start () {
-        if (task != null && !task.isCancelled()) return;
-        task = scheduler.scheduleAtFixedRate(this::sendDueNotifications, 0, 3, TimeUnit.SECONDS);
+        if (thread != null && !thread.isCancelled()) return;
+        thread = scheduler.scheduleAtFixedRate(this::sendDueNotifications, 0, 3, TimeUnit.SECONDS);
     }
 
     public void stop() {
-        if (task != null)
-            task.cancel(true);
-        task = null;
+        if (thread != null)
+            thread.cancel(true);
+        thread = null;
     }
 
     public void shutdown(){
@@ -47,12 +48,12 @@ public class NotificationLogic {
         try {
             LocalDateTime now = LocalDateTime.now();
 
-            for (Notification n : repository.getAllNotifications()) {
-                if (n.getStatus() != Notification.Status.PENDING) continue;
+            for (Notification n : databaseInterface.getAllNotifications()) {
+                if (n.getStatus() != Notification.state.PENDING) continue;
                 if (n.getToSendTime().isAfter(now)) continue;
 
                 n.markSent(now);
-                repository.saveChanges(n);
+                databaseInterface.saveChanges(n);
 
                 NotificationRecord record = new NotificationRecord(
                         n.getId(),
@@ -69,6 +70,22 @@ public class NotificationLogic {
         }
 
     }
+    public void markNotificationComplete(UUID notificationID){
+        Notification n = databaseInterface.findWithID(notificationID);
+        if (n == null) return;
 
+        n.setCompleted();
+        databaseInterface.saveChanges(n);
+
+        NotificationRecord record = new NotificationRecord(
+                n.getId(),
+                n.getTitle(),
+                n.getMessage(),
+                n.getScheduled_Time(),
+                n.getType()
+        );
+        listener.notificationUpdated(record);
+
+    }
 
 }
