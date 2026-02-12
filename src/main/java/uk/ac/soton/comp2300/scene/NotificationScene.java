@@ -46,6 +46,20 @@ public class NotificationScene extends BaseScene implements NotificationListener
 
         VBox mainLayout = new VBox(header, scrollPane);
         root.getChildren().add(mainLayout);
+
+        // SYNC LOGIC: Fixed to match the 5-parameter NotificationRecord constructor
+        var repo = uk.ac.soton.comp2300.App.getInstance().getRepository();
+        for (var note : repo.getAllNotifications()) {
+            if (note.getStatus() == uk.ac.soton.comp2300.model.Notification.Status.SENT) {
+                notificationList.getChildren().add(0, createNotificationCard(new NotificationRecord(
+                        note.getId(),             // Param 1: String id
+                        note.getTitle(),          // Param 2: String title
+                        note.getMessage(),        // Param 3: String message
+                        note.getScheduled_Time(), // Param 4: LocalDateTime time
+                        note.getType()            // Param 5: Notification.Type type
+                )));
+            }
+        }
     }
 
     @Override
@@ -66,7 +80,7 @@ public class NotificationScene extends BaseScene implements NotificationListener
         StackPane iconContainer = new StackPane();
         iconContainer.setPrefSize(60, 60);
         iconContainer.setStyle("-fx-background-color: #E6E0F8; -fx-background-radius: 12; -fx-border-color: #333; -fx-border-radius: 12;");
-        Label icon = new Label(getIconForDevice(record.title())); // Helper for specific device icons
+        Label icon = new Label(getIconForDevice(record.title()));
         icon.setStyle("-fx-font-size: 30px;");
         iconContainer.getChildren().add(icon);
 
@@ -85,7 +99,7 @@ public class NotificationScene extends BaseScene implements NotificationListener
         VBox rightBox = new VBox(5);
         rightBox.setAlignment(Pos.TOP_RIGHT);
 
-        String time = record.scheduled_Time().format(java.time.format.DateTimeFormatter.ofPattern("HH:mm"));
+        String time = record.scheduled_Time().format(DateTimeFormatter.ofPattern("HH:mm"));
         Label timeLabel = new Label(time);
         timeLabel.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
 
@@ -111,12 +125,29 @@ public class NotificationScene extends BaseScene implements NotificationListener
 
         return card;
     }
+
     private void handleTaskAction(NotificationRecord record, boolean completed, VBox card) {
-        if (completed) {
-            System.out.println("Rewarding user for: " + record.title());
+        var repo = uk.ac.soton.comp2300.App.getInstance().getRepository();
+
+        // Find the specific notification in the backend repository
+        for (var note : repo.getAllNotifications()) {
+            if (note.getId().equals(record.id())) {
+                if (completed) {
+                    System.out.println("Rewarding user for: " + record.title());
+                    note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED);
+                    // Note: You could also call note.setCompleted(java.time.LocalDateTime.now()) here
+                } else {
+                    // If Mariya clicks 'X', we mark it so it doesn't show up again
+                    note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TIMED_OUT);
+                }
+                break;
+            }
         }
+
+        // Remove the card from the current UI list
         notificationList.getChildren().remove(card);
     }
+
     private String getIconForDevice(String deviceName) {
         if (deviceName == null) return "📱";
         return switch (deviceName.toLowerCase()) {
@@ -140,6 +171,6 @@ public class NotificationScene extends BaseScene implements NotificationListener
 
     @Override
     public void initialise() {
-        // Register this scene as the active listener
         uk.ac.soton.comp2300.App.getInstance().getNotificationLogic().setListener(this);
-    }}
+    }
+}
