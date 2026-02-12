@@ -14,4 +14,5 @@ module uk.ac.soton.comp2211 {
     exports uk.ac.soton.comp2300.component;
     exports uk.ac.soton.comp2300.model;
     opens uk.ac.soton.comp2300.component to javafx.fxml;
+    opens uk.ac.soton.comp2300.model to com.google.gson;
 }
