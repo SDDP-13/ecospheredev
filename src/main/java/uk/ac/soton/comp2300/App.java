@@ -56,7 +56,7 @@ public class App extends Application {
             @Override public void add(Notification n) { notifications.add(n); }
         };
 
-        // --- ADD THIS TEST DATA ---
+/*
         java.time.LocalDateTime now = java.time.LocalDateTime.now();
         Notification testNote = new Notification(
                 Notification.Source.SYSTEM,
@@ -69,10 +69,9 @@ public class App extends Application {
         );
         repository.add(testNote);
         // ---------------------------
-
+*/
         this.notificationLogic = new NotificationLogic(repository, record -> {
             logger.info("New notification sent: " + record.title());
-            // If you are currently on the NotificationScene, it will catch this via the interface
         });
 
         notificationLogic.start();
@@ -110,7 +109,6 @@ public class App extends Application {
         return this.notificationLogic;
     }
 
-    // --- ADD THESE METHODS AT THE BOTTOM ---
     public int getMoney() { return money; }
     public int getMetal() { return metal; }
     public int getWood() { return wood; }
