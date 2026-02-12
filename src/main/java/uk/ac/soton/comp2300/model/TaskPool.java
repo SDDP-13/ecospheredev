@@ -11,7 +11,7 @@ Class which holds the serialised tasks and has method for random daily task crea
 
 public class TaskPool {
     private final List<Task> allTasks;
-    private List<Task> dailyTasks;
+
 
     public TaskPool(List<Task> allTasks) {
         this.allTasks = allTasks;
