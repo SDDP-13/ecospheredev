@@ -1,66 +1,66 @@
 {
   "tasks": [
     {
-      "id": "log_in",
-      "description":"Log in today",
+      "id": "Log in",
+      "description": "By Logging in, you will automatically receive your prize.",
       "rewards": [
         {"type": "MONEY", "amount": 100},
-        { "type": "wood", "amount": 50 },
-        { "type": "metal", "amount": 20 }
-        ]
-    },
-    {
-      "id": "log_in",
-      "description":"Log in today",
-      "rewards": [
-        {"type": "MONEY", "amount": 100},
-        { "type": "wood", "amount": 50 },
-        { "type": "metal", "amount": 20 }
+        {"type": "WOOD", "amount": 50},
+        {"type": "METAL", "amount": 20}
       ]
     },
     {
-      "id": "log_in",
-      "description":"Log in today",
+      "id": "Followed a recommendation (1)",
+      "description": "Follow the recommended time to use for 1 Device.",
       "rewards": [
         {"type": "MONEY", "amount": 100},
-        { "type": "wood", "amount": 50 },
-        { "type": "metal", "amount": 20 }
+        {"type": "WOOD", "amount": 50},
+        {"type": "METAL", "amount": 20}
       ]
     },
     {
-      "id": "log_in",
-      "description":"Log in today",
+      "id": "Followed a recommendation (2)",
+      "description": "Follow the recommended time to use for 3 Devices.",
       "rewards": [
         {"type": "MONEY", "amount": 100},
-        { "type": "wood", "amount": 50 },
-        { "type": "metal", "amount": 20 }
+        {"type": "WOOD", "amount": 50},
+        {"type": "METAL", "amount": 20}
       ]
     },
     {
-      "id": "log_in",
-      "description":"Log in today",
+      "id": "Did a scheduled task (1)",
+      "description": "Mark 1 scheduled task as done.",
       "rewards": [
         {"type": "MONEY", "amount": 100},
-        { "type": "wood", "amount": 50 },
-        { "type": "metal", "amount": 20 }
+        {"type": "WOOD", "amount": 50},
+        {"type": "METAL", "amount": 20}
       ]
     },
     {
-      "id": "log_in",
-      "description":"Log in today",
+      "id": "Did a scheduled task (2)",
+      "description": "Mark 3 scheduled tasks as done.",
       "rewards": [
         {"type": "MONEY", "amount": 100},
-        { "type": "wood", "amount": 50 },
-        { "type": "metal", "amount": 20 }
+        {"type": "WOOD", "amount": 50},
+        {"type": "METAL", "amount": 20}
       ]
     },
     {
-      "id": "log_in",
-      "description":"Log in today",
+      "id": "Build a structure (1)",
+      "description": "Build 1 structure (This could include a house or any type of structures).",
       "rewards": [
         {"type": "MONEY", "amount": 100},
-        { "type": "wood", "amount": 50 },
-        { "type": "metal", "amount": 20 }
+        {"type": "WOOD", "amount": 50},
+        {"type": "METAL", "amount": 20}
+      ]
+    },
+    {
+      "id": "Build a structure (2)",
+      "description": "Build 3 structure (This could include a house or any type of structures).",
+      "rewards": [
+        {"type": "MONEY", "amount": 100},
+        {"type": "WOOD", "amount": 50},
+        {"type": "METAL", "amount": 20}
       ]
     }
   ]
