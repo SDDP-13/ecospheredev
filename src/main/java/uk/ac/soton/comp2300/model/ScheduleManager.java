@@ -29,8 +29,12 @@ public class ScheduleManager {
         LocalDateTime triggerTime = LocalDateTime.now()
                 .withHour(newTask.getTime().getHour())
                 .withMinute(newTask.getTime().getMinute())
-                .withSecond(0);
+                .withSecond(0)
+                .withNano(0);
 
+        if (triggerTime.isBefore(LocalDateTime.now())) {
+            triggerTime = triggerTime.plusDays(1);
+        }
         // TEST MODE: Uncomment the line below to make notifications appear instantly
         // triggerTime = LocalDateTime.now().minusSeconds(10);
 

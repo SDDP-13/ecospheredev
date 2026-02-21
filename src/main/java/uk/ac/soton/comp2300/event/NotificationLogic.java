@@ -48,9 +48,13 @@ public class NotificationLogic {
             LocalDateTime now = LocalDateTime.now();
 
             for (Notification n : repository.getAllNotifications()) {
+                // Only process pending notifications
                 if (n.getStatus() != Notification.Status.PENDING) continue;
+
+                // CRITICAL: Skip if the scheduled time hasn't arrived yet
                 if (n.getToSendTime().isAfter(now)) continue;
 
+                // Mark as SENT immediately to prevent double-triggering in the next 3s loop
                 n.markSent(now);
                 repository.saveChanges(n);
 
@@ -64,10 +68,9 @@ public class NotificationLogic {
                 listener.onNotificationSent(record);
             }
         } catch (Exception e) {
-           System.out.println("Send Notification Error");
-           e.printStackTrace();
+            System.out.println("Send Notification Error");
+            e.printStackTrace();
         }
-
     }
 
 
