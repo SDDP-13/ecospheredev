@@ -195,7 +195,7 @@ public class NotificationScene extends BaseScene implements NotificationListener
             case "hallway light", "radiator" -> "💡";
             case "television", "tv" -> "📺";
             case "fan" -> "🌀";
-            default -> "📱";
+            default -> "🛠️";
         };
     }
 

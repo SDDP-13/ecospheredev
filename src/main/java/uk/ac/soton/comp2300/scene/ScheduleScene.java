@@ -22,6 +22,7 @@ public class ScheduleScene extends BaseScene {
     public ScheduleScene(MainWindow mainWindow) {
         super(mainWindow);
     }
+
     @Override
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
@@ -123,119 +124,146 @@ public class ScheduleScene extends BaseScene {
 
     private void showSchedulePopup(ScheduleTask taskToEdit) {
 
-    Stage popup = new Stage();
-    popup.initOwner(mainWindow.getScene().getWindow());
-    popup.setTitle(taskToEdit == null ? "Add Schedule" : "Edit Schedule");
+        Stage popup = new Stage();
+        popup.initOwner(mainWindow.getScene().getWindow());
+        popup.setTitle(taskToEdit == null ? "Add Schedule" : "Edit Schedule");
 
-    VBox layout = new VBox(15);
-    layout.setPadding(new Insets(20));
-    layout.setAlignment(Pos.CENTER);
-    layout.setStyle("-fx-background-color: #F6F3FB; -fx-background-radius: 18;");
+        VBox layout = new VBox(15);
+        layout.setPadding(new Insets(20));
+        layout.setAlignment(Pos.CENTER);
+        layout.setStyle("-fx-background-color: #F6F3FB; -fx-background-radius: 18;");
 
-    ComboBox<String> deviceBox = new ComboBox<>();
-    deviceBox.getItems().addAll("Washing Machine", "Dishwasher", "Dryer",
-            "Radiator", "Air Conditioner", "TV", "Garden Lights");
-    deviceBox.setPrefWidth(220);
-    deviceBox.setPromptText("Select device");
+        ComboBox<String> deviceBox = new ComboBox<>();
+        deviceBox.getItems().addAll("Washing Machine", "Dishwasher", "Dryer",
+                "Radiator", "Air Conditioner", "TV", "Garden Lights", "Other");
+        deviceBox.setPrefWidth(220);
+        deviceBox.setPromptText("Select device");
 
-    TextField descField = new TextField();
-    descField.setPromptText("Task description");
-    descField.setPrefWidth(220);
+        TextField customNameField = new TextField();
+        customNameField.setPromptText("Enter custom device name");
+        customNameField.setPrefWidth(220);
+        customNameField.setVisible(false);
+        customNameField.setManaged(false);
 
-    Spinner<Integer> hourSpinner = new Spinner<>(0, 23, 12);
-    Spinner<Integer> minSpinner = new Spinner<>(0, 59, 00);
+        deviceBox.getSelectionModel().selectedItemProperty().addListener((obs, oldVal, newVal) -> {
+            boolean isOther = "Other".equals(newVal);
+            customNameField.setVisible(isOther);
+            customNameField.setManaged(isOther);
+        });
 
-    Label hourLabel = new Label("Hour: ");
-    Label minLabel = new Label("Minute: ");
+        TextField descField = new TextField();
+        descField.setPromptText("Task description");
+        descField.setPrefWidth(220);
 
-    hourLabel.setPrefWidth(90);
-    minLabel.setPrefWidth(90);
+        Spinner<Integer> hourSpinner = new Spinner<>(0, 23, 12);
+        Spinner<Integer> minSpinner = new Spinner<>(0, 59, 00);
 
-    HBox hourRow = new HBox(10, hourLabel, hourSpinner);
-    HBox minRow = new HBox(10, minLabel, minSpinner);
+        Label hourLabel = new Label("Hour: ");
+        Label minLabel = new Label("Minute: ");
 
-    hourRow.setAlignment(Pos.CENTER);
-    minRow.setAlignment(Pos.CENTER);
-    
-    hourSpinner.setEditable(true);
-    minSpinner.setEditable(true);
+        hourLabel.setPrefWidth(90);
+        minLabel.setPrefWidth(90);
 
-    // Can manually type accepted numerical time instead of using arrows
-    hourSpinner.focusedProperty().addListener((obs, oldVal, newVal) -> {
-        if (!newVal) try { hourSpinner.increment(0); } catch (Exception ignored) {}
-    });
-    minSpinner.focusedProperty().addListener((obs, oldVal, newVal) -> {
-        if (!newVal) try { minSpinner.increment(0); } catch (Exception ignored) {}
-    });
+        HBox hourRow = new HBox(10, hourLabel, hourSpinner);
+        HBox minRow = new HBox(10, minLabel, minSpinner);
 
-    if (taskToEdit != null) {
-        deviceBox.setValue(taskToEdit.getDeviceName());
-        descField.setText(taskToEdit.getDescription());
-        hourSpinner.getValueFactory().setValue(taskToEdit.getTime().getHour());
-        minSpinner.getValueFactory().setValue(taskToEdit.getTime().getMinute());
-    }
+        hourRow.setAlignment(Pos.CENTER);
+        minRow.setAlignment(Pos.CENTER);
 
-    Button saveBtn = new Button("Save");
-    saveBtn.setPrefWidth(120);
-    saveBtn.setStyle(
-        "-fx-background-color: #DCD0FF;" +
-        "-fx-text-fill: #1F1F1F;" +
-        "-fx-font-weight: bold;" +
-        "-fx-background-radius: 12;" +
-        "-fx-padding: 8 16;"
-    );
+        hourSpinner.setEditable(true);
+        minSpinner.setEditable(true);
 
-    Button cancelBtn = new Button("Cancel");
-    cancelBtn.setPrefWidth(120);
-    cancelBtn.setStyle(saveBtn.getStyle());
+        hourSpinner.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) try { hourSpinner.increment(0); } catch (Exception ignored) {}
+        });
+        minSpinner.focusedProperty().addListener((obs, oldVal, newVal) -> {
+            if (!newVal) try { minSpinner.increment(0); } catch (Exception ignored) {}
+        });
 
-    HBox buttonRow = new HBox(15, saveBtn, cancelBtn);
-    buttonRow.setAlignment(Pos.CENTER);
-
-    saveBtn.setOnAction(e -> {
-
-    String device = deviceBox.getValue();
-    if (device == null) {
-        return;
-    }
-
-    String desc = descField.getText().trim(); // Task description is optional
-    int hour;
-    int minute;
-
-    try {
-        hour = Integer.parseInt(hourSpinner.getEditor().getText());
-        minute = Integer.parseInt(minSpinner.getEditor().getText());
-
-        if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
-            throw new NumberFormatException();
+        if (taskToEdit != null) {
+            String existingDevice = taskToEdit.getDeviceName();
+            if (deviceBox.getItems().contains(existingDevice)) {
+                deviceBox.setValue(existingDevice);
+            } else {
+                deviceBox.setValue("Other");
+                customNameField.setText(existingDevice);
+                customNameField.setVisible(true);
+                customNameField.setManaged(true);
+            }
+            descField.setText(taskToEdit.getDescription());
+            hourSpinner.getValueFactory().setValue(taskToEdit.getTime().getHour());
+            minSpinner.getValueFactory().setValue(taskToEdit.getTime().getMinute());
         }
-    } catch (NumberFormatException ex) {
-        showError("Please enter a valid time (00–23 hours, 00–59 minutes).");
-        return;
-    }
 
-    LocalTime time = LocalTime.of(hour, minute);
+        Button saveBtn = new Button("Save");
+        saveBtn.setPrefWidth(120);
+        saveBtn.setStyle(
+                "-fx-background-color: #DCD0FF;" +
+                        "-fx-text-fill: #1F1F1F;" +
+                        "-fx-font-weight: bold;" +
+                        "-fx-background-radius: 12;" +
+                        "-fx-padding: 8 16;"
+        );
 
-    boolean success;
-    if (taskToEdit == null) {
-        success = ScheduleManager.addTask(new ScheduleTask(device, time, desc));
-    } else {
-        success = ScheduleManager.updateTask(taskToEdit, device, time, desc);
-    }
+        Button cancelBtn = new Button("Cancel");
+        cancelBtn.setPrefWidth(120);
+        cancelBtn.setStyle(saveBtn.getStyle());
 
-    if (success) {
-        popup.close();
-    } else {
-        showError("This device is already scheduled at that time.");
-    }
-});
+        HBox buttonRow = new HBox(15, saveBtn, cancelBtn);
+        buttonRow.setAlignment(Pos.CENTER);
 
-    cancelBtn.setOnAction(e -> popup.close());
+        saveBtn.setOnAction(e -> {
 
-    layout.getChildren().addAll(deviceBox, descField, hourRow, minRow, buttonRow);
-    popup.setScene(new Scene(layout));
-    popup.show();
+            String device = deviceBox.getValue();
+            if (device == null) {
+                return;
+            }
+
+            if ("Other".equals(device)) {
+                device = customNameField.getText().trim();
+                if (device.isEmpty()) {
+                    showError("Please enter a name for the custom device.");
+                    return;
+                }
+            }
+
+            String desc = descField.getText().trim();
+            int hour;
+            int minute;
+
+            try {
+                hour = Integer.parseInt(hourSpinner.getEditor().getText());
+                minute = Integer.parseInt(minSpinner.getEditor().getText());
+
+                if (hour < 0 || hour > 23 || minute < 0 || minute > 59) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException ex) {
+                showError("Please enter a valid time (00–23 hours, 00–59 minutes).");
+                return;
+            }
+
+            LocalTime time = LocalTime.of(hour, minute);
+
+            boolean success;
+            if (taskToEdit == null) {
+                success = ScheduleManager.addTask(new ScheduleTask(device, time, desc));
+            } else {
+                success = ScheduleManager.updateTask(taskToEdit, device, time, desc);
+            }
+
+            if (success) {
+                popup.close();
+            } else {
+                showError("This device is already scheduled at that time.");
+            }
+        });
+
+        cancelBtn.setOnAction(e -> popup.close());
+
+        layout.getChildren().addAll(deviceBox, customNameField, descField, hourRow, minRow, buttonRow);
+        popup.setScene(new Scene(layout));
+        popup.show();
     }
 
     private void showError(String msg) {

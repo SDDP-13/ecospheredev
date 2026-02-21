@@ -40,7 +40,7 @@ public class ScheduleManager {
         uk.ac.soton.comp2300.model.Notification note = new uk.ac.soton.comp2300.model.Notification(
                 uk.ac.soton.comp2300.model.Notification.Source.SCHEDULER,
                 uk.ac.soton.comp2300.model.Notification.Type.REMINDER,
-                newTask.getDeviceName(),
+                newTask.getDeviceName(), // This will now be the custom name if "Other" was used
                 fullMessage,
                 triggerTime,
                 triggerTime,
