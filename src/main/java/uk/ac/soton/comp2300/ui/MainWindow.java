@@ -8,6 +8,7 @@ import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.App;
+import uk.ac.soton.comp2300.event.NotificationRecord;
 import uk.ac.soton.comp2300.scene.BaseScene;
 
 public class MainWindow {
@@ -71,5 +72,11 @@ public class MainWindow {
 
     public int getHeight() {
         return this.height;
+    }
+    // Inside MainWindow.java
+
+    // Inside uk.ac.soton.comp2300.ui.MainWindow
+    public Stage getStage() {
+        return this.stage;
     }
 }

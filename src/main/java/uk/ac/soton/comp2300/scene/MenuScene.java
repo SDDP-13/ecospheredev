@@ -7,15 +7,17 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import uk.ac.soton.comp2300.event.NotificationListenerInterface;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 import java.util.Random;
-
+import uk.ac.soton.comp2300.event.NotificationRecord;
+import uk.ac.soton.comp2300.ui.NotificationPopup;
 /**
  * MenuScene: The central navigation hub for the EcoSphere application.
  * Focuses on Ebaa's Sprint 1 UI layout and navigation tasks.
  */
-public class MenuScene extends BaseScene {
+public class MenuScene extends BaseScene implements NotificationListenerInterface {
 
     public MenuScene(MainWindow mainWindow) {
         super(mainWindow);
@@ -148,6 +150,14 @@ public class MenuScene extends BaseScene {
         root.getChildren().addAll(starField, planetLayer, resourceContainer, menuDrawer, bottomActions, labelOverlay);
     }
 
+    @Override
+    public void onNotificationSent(NotificationRecord record) {
+        javafx.application.Platform.runLater(() -> {
+            // Correctly pass the mainWindow instance
+            NotificationPopup.show(mainWindow, record);
+        });
+    }
+
     /**
      * Helper to create compact resource tracker boxes matching the lo-fi prototype.
      */
@@ -169,6 +179,6 @@ public class MenuScene extends BaseScene {
 
     @Override
     public void initialise() {
-        // Required by BaseScene
+        uk.ac.soton.comp2300.App.getInstance().getNotificationLogic().setListener(this);
     }
 }
