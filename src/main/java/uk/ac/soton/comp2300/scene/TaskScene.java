@@ -21,7 +21,6 @@ public class TaskScene extends BaseScene {
     public void build() {
         var app = uk.ac.soton.comp2300.App.getInstance();
         this.dailyTasks = app.getTasks();
-        // -----------------------
 
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
         root.setStyle("-fx-background-color: #EFEEF5;");
@@ -69,6 +68,7 @@ public class TaskScene extends BaseScene {
         textContainer.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(textContainer, Priority.ALWAYS);
 
+        // Using taskObj.getId() for the title as per your JSON
         Label title = new Label(taskObj.getId());
         title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 20px; -fx-font-weight: bold;");
 
@@ -85,27 +85,51 @@ public class TaskScene extends BaseScene {
         Button claimBtn = new Button();
         claimBtn.setMinWidth(100);
 
-        if (taskObj.getRewardCollected()) {
-            setBtnClaimed(claimBtn);
-        } else {
-            setBtnReady(claimBtn);
+        int completedCount = uk.ac.soton.comp2300.App.getInstance().getCompletedScheduledTasks();
+        boolean isLocked = false;
+
+        // Task 1 Check
+        if (taskObj.getId().equals("Did a scheduled task (1)")) {
+            if (completedCount < 1) {
+                isLocked = true;
+                setBtnLocked(claimBtn, "LOCKED (0/1)");
+            }
+        }
+        // Task 2 Check (Requires 3 completions)
+        else if (taskObj.getId().equals("Did a scheduled task (2)")) {
+            if (completedCount < 3) {
+                isLocked = true;
+                setBtnLocked(claimBtn, "LOCKED (" + completedCount + "/3)");
+            }
+        }
+
+        if (!isLocked) {
+            if (taskObj.getRewardCollected()) {
+                setBtnClaimed(claimBtn);
+            } else {
+                setBtnReady(claimBtn);
+            }
         }
 
         claimBtn.setOnAction(e -> {
             if (taskObj.getRewardCollected()) return;
 
-            taskObj.toggleRewardCollected(); // Updates the object in the App's list
-
+            taskObj.toggleRewardCollected();
             var app = uk.ac.soton.comp2300.App.getInstance();
             for (var stack : taskObj.getRewards()) {
                 app.addResources(stack.getType(), stack.getAmount());
             }
-
             setBtnClaimed(claimBtn);
         });
 
         taskCard.getChildren().addAll(textContainer, claimBtn);
         return taskCard;
+    }
+
+    private void setBtnLocked(Button btn, String text) {
+        btn.setText(text);
+        btn.setDisable(true);
+        btn.setStyle("-fx-background-color: #fce4ec; -fx-text-fill: #d81b60; -fx-font-size: 11px; -fx-background-radius: 20; -fx-border-color: #f06292; -fx-border-radius: 20;");
     }
 
     private void setBtnClaimed(Button btn) {

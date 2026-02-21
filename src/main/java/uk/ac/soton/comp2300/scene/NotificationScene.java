@@ -175,7 +175,8 @@ public class NotificationScene extends BaseScene implements NotificationListener
             if (note.getId().equals(record.id())) {
                 if (completed) {
                     note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED);
-                    // Add reward logic here if needed
+                    // NEW: Increment the counter in App
+                    uk.ac.soton.comp2300.App.getInstance().incrementCompletedTasks();
                 } else {
                     note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TIMED_OUT);
                 }

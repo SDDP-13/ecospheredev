@@ -39,7 +39,21 @@ public class NotificationPopup {
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_RIGHT);
 
-        // New Button to jump to the full Notification Window
+        // CHECK BUTTON: Increments the task counter
+        Button btnCheck = new Button("✓");
+        btnCheck.setStyle("-fx-background-color: transparent; -fx-font-size: 20px; -fx-cursor: hand; -fx-padding: 0 5 0 0;");
+        btnCheck.setOnAction(e -> {
+            var repo = uk.ac.soton.comp2300.App.getInstance().getRepository();
+            for (var note : repo.getAllNotifications()) {
+                if (note.getId().equals(record.id())) {
+                    note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED);
+                    break;
+                }
+            }
+            uk.ac.soton.comp2300.App.getInstance().incrementCompletedTasks();
+            popup.hide();
+        });
+
         Button btnViewAll = new Button("View All");
         btnViewAll.setStyle("-fx-background-color: #DCD0FF; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11px;");
         btnViewAll.setOnAction(e -> {
@@ -51,16 +65,15 @@ public class NotificationPopup {
         btnClose.setStyle("-fx-background-color: transparent; -fx-font-size: 16px; -fx-cursor: hand;");
         btnClose.setOnAction(e -> popup.hide());
 
-        actions.getChildren().addAll(btnViewAll, btnClose);
+        // Added btnCheck to the action row
+        actions.getChildren().addAll(btnCheck, btnViewAll, btnClose);
         container.getChildren().addAll(title, msg, actions);
 
         popup.getContent().add(container);
 
-        // --- POSITION: TOP LEFT ---
         popup.setX(stage.getX() + 20);
         popup.setY(stage.getY() + 50);
 
-        // 7-second auto-dismiss with fade
         PauseTransition stayVisible = new PauseTransition(Duration.seconds(7));
         FadeTransition fadeOut = new FadeTransition(Duration.millis(500), container);
         fadeOut.setFromValue(1.0);
@@ -71,5 +84,4 @@ public class NotificationPopup {
 
         popup.show(stage);
         stayVisible.play();
-    }
-}
+    }}

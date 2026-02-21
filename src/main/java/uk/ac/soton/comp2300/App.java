@@ -26,6 +26,8 @@ public class App extends Application {
     private int metal = 0;
     private int wood = 0;
 
+    private int completedScheduledTasks = 0;
+
     // Persistent storage for the current session
     private List<Task> currentSessionTasks;
     private final TaskPool taskPool = new TaskPool();
@@ -59,6 +61,15 @@ public class App extends Application {
             currentSessionTasks = taskPool.generateDailyTasks();
         }
         return currentSessionTasks;
+    }
+
+    public void incrementCompletedTasks() {
+        this.completedScheduledTasks++;
+        logger.info("Total completed tasks: " + completedScheduledTasks);
+    }
+
+    public int getCompletedScheduledTasks() {
+        return completedScheduledTasks;
     }
 
     private void setupNotificationLogic() {
