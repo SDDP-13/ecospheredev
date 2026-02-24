@@ -2,6 +2,8 @@ package uk.ac.soton.comp2300.scene;
 
 import javafx.scene.Scene;
 import javafx.scene.paint.Color;
+import uk.ac.soton.comp2300.model.LightDarkTheme;
+import uk.ac.soton.comp2300.model.Setting;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
@@ -31,7 +33,8 @@ public abstract class BaseScene  {
     public Scene setScene() {
         var previous = mainWindow.getScene();
         Scene scene = new Scene(this.root, previous.getWidth(), previous.getHeight(), Color.BLACK);
-        scene.getStylesheets().add(getClass().getResource("/style/main.css").toExternalForm());
+        scene.getStylesheets().add(getClass().getResource("/style/main_v2.css").toExternalForm());
+        LightDarkTheme.applyTheme(scene, Setting.isDarkMode());
         this.scene = scene;
         return scene;
     }

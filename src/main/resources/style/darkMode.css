@@ -1,0 +1,23 @@
+.root {
+
+    /*accent = container bg, outline = prominent borders, outlineVariant = soft border colour */
+    -background: black;
+    -foreground: #211f1f;
+    -surface: #A1A1A1;
+    -border: black;
+    -stroke: black;
+    -menu-bg: rgba(71, 7, 177, 0.85);
+    -menu-icon-bg: rgba(60, 30, 112, 0.85);
+    -menu-icon-hover: rgba(81, 50, 133, 0.85);
+    -menu-hover-description:rgba(92, 45, 145, 0.9);
+    -text-fill: white;
+    -accent: #BBBBBB;
+    -outline: #387713;
+    -outlineVariant: #1A1A11;
+
+    /*
+    - background-colour: -background;
+    - text-colour: - foreground;
+
+     */
+}

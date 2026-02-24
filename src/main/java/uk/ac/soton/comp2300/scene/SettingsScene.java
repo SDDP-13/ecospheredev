@@ -14,6 +14,7 @@ import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.component.ToggleSwitch;
+import uk.ac.soton.comp2300.model.LightDarkTheme;
 import uk.ac.soton.comp2300.model.Setting;
 import uk.ac.soton.comp2300.model.Setting.SettingOption;
 import uk.ac.soton.comp2300.ui.MainPane;
@@ -40,6 +41,17 @@ public class SettingsScene extends BaseScene {
     @Override
     public void build() {
         Setting.init();
+
+        for (SettingOption option: Setting.settingsList) {
+            if (option.getKey().equals("darkMode")) {
+                option.enabledProperty().addListener((obs, oldV, newV)
+                        -> {LightDarkTheme.applyTheme(mainWindow.getStage().getScene(), newV);
+                });
+
+                LightDarkTheme.applyTheme(mainWindow.getStage().getScene(), option.enabledProperty().get());
+                break;
+            }
+        }
 
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
         root.setStyle("-fx-background-color: #F6F3FB;");
@@ -637,4 +649,5 @@ public class SettingsScene extends BaseScene {
 
         return vbox;
     }
+
 }

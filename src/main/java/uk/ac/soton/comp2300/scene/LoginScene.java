@@ -18,7 +18,7 @@ public class LoginScene extends BaseScene {
     @Override
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: white;");
+        root.setStyle("-fx-background-color: -background ;");
 
         VBox container = new VBox(20);
         container.setAlignment(Pos.CENTER);
@@ -28,7 +28,7 @@ public class LoginScene extends BaseScene {
         title.setFont(Font.font("Arial", FontWeight.BOLD, 32));
 
         Label userIcon = new Label("👤");
-        userIcon.setStyle("-fx-font-size: 60px; -fx-text-fill: #333;");
+        userIcon.setStyle("-fx-font-size: 60px; -fx-text-fill: -text-fill;");
 
         Label loginHeader = new Label("Login");
         loginHeader.setFont(Font.font("Arial", FontWeight.BOLD, 20));

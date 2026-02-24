@@ -1,0 +1,48 @@
+@import url('https://fonts.cdnfonts.com/css/impact');
+
+.mainPane {
+
+}
+
+.black {
+    -fx-background-color: -background;
+}
+
+.helloText {
+    -fx-fill: -foreground;
+    -fx-font-family: 'Impact', sans-serif;
+    -fx-font-size: 48px;
+    -fx-font-weight: 700;
+    -fx-border-color: -border;
+    -fx-stroke: -stroke;
+    -fx-border-width: 2;
+}
+
+.menu {
+    -fx-padding: 10;
+}
+
+.menu-dropdown-bg {
+    -fx-background-color: -menu-bg;
+    -fx-background-radius: 25;
+    -fx-alignment: center;
+}
+
+.menu-icon-button {
+    -fx-background-color: -menu-icon-bg;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+}
+
+.menu-icon-button:hover {
+    -fx-background-color: -menu-icon-hover;
+}
+
+.hover-description {
+    -fx-background-color: -menu-hover-description;
+    -fx-text-fill: -text-fill;
+    -fx-padding: 5 12;
+    -fx-background-radius: 10;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
