@@ -15,7 +15,7 @@ public class SolarSystemScene extends BaseScene {
     @Override
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: black;");
+        root.getStyleClass().add("root-black");
 
         // Back button to return to the planet
         Button btnBack = new Button("⬅");
@@ -29,7 +29,7 @@ public class SolarSystemScene extends BaseScene {
         VBox container = new VBox();
         container.setAlignment(Pos.CENTER);
         Label title = new Label("Solar System View");
-        title.setStyle("-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold;");
+        title.getStyleClass().add("title-xlarge");
 
         container.getChildren().add(title);
         root.getChildren().addAll(container, btnBack);

@@ -28,7 +28,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
 
         Pane starField = new Pane();
-        starField.setStyle("-fx-background-color: black;");
+        starField.getStyleClass().add("root-black");
         Random random = new Random();
         for (int i = 0; i < 100; i++) {
             Circle star = new Circle(random.nextInt(mainWindow.getWidth()), random.nextInt(mainWindow.getHeight()), random.nextDouble() * 1.5, Color.WHITE);
@@ -171,7 +171,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
         Label iconLabel = new Label(icon);
         Label val = new Label(amount);
-        val.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;");
+        val.getStyleClass().add("title-small");
 
         box.getChildren().addAll(iconLabel, val);
         return box;

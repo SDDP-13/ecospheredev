@@ -25,7 +25,7 @@ public class NotificationScene extends BaseScene implements NotificationListener
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
         // Light lavender background matching the mockup style
-        root.setStyle("-fx-background-color: #F4F0FF;");
+        root.getStyleClass().add("root-light");
 
         // Header Section
         StackPane header = new StackPane();
@@ -38,7 +38,7 @@ public class NotificationScene extends BaseScene implements NotificationListener
         StackPane.setAlignment(btnBack, Pos.CENTER_LEFT);
 
         Label title = new Label("Notifications");
-        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold; -fx-text-fill: #333;");
+        title.getStyleClass().add("title-xlarge-dark");
         StackPane.setAlignment(title, Pos.CENTER);
 
         header.getChildren().addAll(title, btnBack);
@@ -95,7 +95,7 @@ public class NotificationScene extends BaseScene implements NotificationListener
      */
     private VBox createNotificationCard(NotificationRecord record) {
         VBox card = new VBox(5);
-        card.setStyle("-fx-background-color: white; -fx-border-color: #D1C4E9; -fx-border-radius: 12; -fx-background-radius: 12; -fx-padding: 12;");
+        card.getStyleClass().add("card");
         card.setMaxWidth(400);
 
         HBox mainLayout = new HBox(12);
@@ -104,9 +104,9 @@ public class NotificationScene extends BaseScene implements NotificationListener
         // Icon Container
         StackPane iconContainer = new StackPane();
         iconContainer.setPrefSize(55, 55);
-        iconContainer.setStyle("-fx-background-color: #DCD0FF; -fx-background-radius: 10;");
+        iconContainer.getStyleClass().add("icon-surface");
         Label icon = new Label(getIconForDevice(record.title()));
-        icon.setStyle("-fx-font-size: 28px;");
+        icon.getStyleClass().add("icon");
         iconContainer.getChildren().add(icon);
 
         // Text Content
@@ -114,12 +114,12 @@ public class NotificationScene extends BaseScene implements NotificationListener
 
         // Appliance Name (Big and Bold)
         Label title = new Label(record.title());
-        title.setStyle("-fx-font-weight: 800; -fx-font-size: 18px; -fx-text-fill: #333;");
+        title.getStyleClass().add("title-large-dark");
 
         // Action Instruction - Replaces the old Task and Reward labels
         String action = getActionInstruction(record.title());
         Label instructionLabel = new Label("It's time to " + action + " this appliance");
-        instructionLabel.setStyle("-fx-text-fill: #666; -fx-font-size: 13px; -fx-font-weight: normal;");
+        instructionLabel.getStyleClass().add("title-medium-dark");
         instructionLabel.setWrapText(true);
         instructionLabel.setMaxWidth(200);
 
@@ -131,7 +131,7 @@ public class NotificationScene extends BaseScene implements NotificationListener
 
         String timeStr = record.scheduled_Time().format(DateTimeFormatter.ofPattern("HH:mm"));
         Label timeLabel = new Label(timeStr);
-        timeLabel.setStyle("-fx-font-weight: 800; -fx-font-size: 15px; -fx-text-fill: #333;");
+        timeLabel.getStyleClass().add("title-medium-small-dark");
 
         HBox actions = new HBox(8);
         actions.setAlignment(Pos.CENTER_RIGHT);

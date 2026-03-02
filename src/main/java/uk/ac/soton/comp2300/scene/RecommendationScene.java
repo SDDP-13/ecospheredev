@@ -18,7 +18,7 @@ public class RecommendationScene extends BaseScene {
     @Override
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: #F6F3FB;");
+        root.getStyleClass().add("root-light");
 
         // 🔙 Back button
         Button btnBack = new Button("←");
@@ -30,7 +30,7 @@ public class RecommendationScene extends BaseScene {
 
         // Title
         Label title = new Label("Recommendations");
-        title.setStyle("-fx-font-size: 30px; -fx-font-weight: 800; -fx-text-fill: #1F1F1F;");
+        title.getStyleClass().add("title-xlarge-dark");
 
         Label content = new Label(
                 "EcoSphere: Recommended Device Usage for Energy Savings\n\n" +
@@ -57,7 +57,7 @@ public class RecommendationScene extends BaseScene {
                 "   • Avoid heating/cooling empty rooms.\n"
         );
         content.setWrapText(true);
-        content.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
+        content.getStyleClass().add("title-medium-dark");
 
         VBox textBox = new VBox(20, title, content);
         textBox.setAlignment(Pos.TOP_LEFT);
