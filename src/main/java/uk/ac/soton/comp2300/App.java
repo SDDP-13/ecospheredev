@@ -162,4 +162,23 @@ public class App extends Application {
             default -> 0.5;
         };
     }
+    private double totalEnergySaved = 0.0;
+
+    public double getTotalEnergySaved() {
+        return totalEnergySaved;
+    }
+
+    public void addEnergySavings(String deviceName) {
+        double saved = switch (deviceName.toLowerCase()) {
+            case "washing machine" -> 1.2;
+            case "dishwasher" -> 1.5;
+            case "dryer" -> 2.5;
+            case "radiator" -> 3.0;
+            case "air conditioner" -> 4.5;
+            case "tv" -> 0.3;
+            case "garden lights" -> 0.8;
+            default -> 0.5; // For "Other" devices
+        };
+        this.totalEnergySaved += saved;
+    }
 }
