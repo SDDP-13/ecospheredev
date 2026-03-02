@@ -26,6 +26,8 @@ public class App extends Application {
     private int metal = 0;
     private int wood = 0;
 
+    private int totalXp = 0;
+
     private int completedScheduledTasks = 0;
 
     // Persistent storage for the current session
@@ -51,6 +53,14 @@ public class App extends Application {
         setupNotificationLogic();
         open();
     }
+    public int getTotalXp() {
+        return totalXp;
+    }
+
+    public void addXp(int amount) {
+        this.totalXp += amount;
+        logger.info("XP increased! New Total: " + totalXp);
+    }
 
     /**
      * Retrieves the daily tasks. If they don't exist yet, they are generated once.
@@ -69,9 +79,16 @@ public class App extends Application {
     }
 
     public int getCompletedScheduledTasks() {
-        return completedScheduledTasks;
-    }
+        if (currentSessionTasks == null) return 0;
 
+        int count = 0;
+        for (Task task : currentSessionTasks) {
+            if (task.getRewardCollected()) {
+                count++;
+            }
+        }
+        return count;
+    }
     private void setupNotificationLogic() {
         this.repository = new NotificationRepository() {
             private final List<Notification> notifications = new ArrayList<>();
@@ -130,5 +147,19 @@ public class App extends Application {
             default -> System.out.println("Unknown resource type: " + type);
         }
         System.out.println("Updated resources | M:" + money + " W:" + wood + " Met:" + metal);
+    }
+    public double getEnergySavedForDevice(String deviceName) {
+        if (deviceName == null) return 0.5; // Default value for "Other"
+
+        return switch (deviceName.toLowerCase()) {
+            case "washing machine" -> 1.2;
+            case "dishwasher" -> 1.5;
+            case "dryer" -> 2.5;
+            case "radiator" -> 3.0;
+            case "air conditioner" -> 4.5;
+            case "tv" -> 0.3;
+            case "garden lights" -> 0.8;
+            default -> 0.5;
+        };
     }
 }
