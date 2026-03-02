@@ -114,12 +114,12 @@ public class NotificationScene extends BaseScene implements NotificationListener
 
         // Appliance Name (Big and Bold)
         Label title = new Label(record.title());
-        title.getStyleClass().add("title-large-dark");
+        title.getStyleClass().add("title-large");
 
         // Action Instruction - Replaces the old Task and Reward labels
         String action = getActionInstruction(record.title());
         Label instructionLabel = new Label("It's time to " + action + " this appliance");
-        instructionLabel.getStyleClass().add("title-medium-dark");
+        instructionLabel.getStyleClass().add("title-medium");
         instructionLabel.setWrapText(true);
         instructionLabel.setMaxWidth(200);
 

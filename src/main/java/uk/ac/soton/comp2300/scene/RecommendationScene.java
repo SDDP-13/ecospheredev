@@ -30,7 +30,7 @@ public class RecommendationScene extends BaseScene {
 
         // Title
         Label title = new Label("Recommendations");
-        title.getStyleClass().add("title-xlarge-dark");
+        title.getStyleClass().add("title-xlarge");
 
         Label content = new Label(
                 "EcoSphere: Recommended Device Usage for Energy Savings\n\n" +
@@ -57,7 +57,7 @@ public class RecommendationScene extends BaseScene {
                 "   • Avoid heating/cooling empty rooms.\n"
         );
         content.setWrapText(true);
-        content.getStyleClass().add("title-medium-dark");
+        content.getStyleClass().add("title-medium");
 
         VBox textBox = new VBox(20, title, content);
         textBox.setAlignment(Pos.TOP_LEFT);

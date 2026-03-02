@@ -58,7 +58,7 @@ public class SettingsScene extends BaseScene {
 
         Button btnBack = new Button("←");
         btnBack.setPrefSize(BASE, BASE);
-        btnBack.getStyleClass().addAll("bg-transparent","title-large-dark");
+        btnBack.getStyleClass().addAll("bg-transparent","title-large");
         btnBack.getStyleClass().add("menu-icon-button");
         btnBack.setOnAction(e -> mainWindow.loadScene(new MenuScene(mainWindow)));
 
@@ -66,11 +66,11 @@ public class SettingsScene extends BaseScene {
         StackPane.setMargin(btnBack, new Insets(20));
 
         Label title = new Label("Settings");
-        title.getStyleClass().add("title-xlarge-dark");
+        title.getStyleClass().add("title-xlarge");
 
         Button blbGear = new Button("\u2699");
         blbGear.setPrefSize(BASE, BASE);
-        blbGear.getStyleClass().addAll("title-large-dark", "bg-transparent");
+        blbGear.getStyleClass().addAll("title-large", "bg-transparent");
 
         Region topSpacerL = new Region();
         Region topSpacerR = new Region();

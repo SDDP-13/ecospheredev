@@ -215,7 +215,7 @@
 }
 
 .recommendation .tip {
-    -fx-background-color: #6C4AB6;
+    -fx-background-color: -background;
     -fx-text-fill: -text-fill;
 }
 
