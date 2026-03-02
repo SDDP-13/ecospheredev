@@ -3,8 +3,9 @@
     /*accent = container bg, outline = prominent borders, outlineVariant = soft border colour */
     -background: rgba(160, 113, 239, 0.85);
     -foreground: #F4F0FF;
-    -surface: #E6E0F8;
-    -border: #CCC;
+    -surface: #DCD0FF;
+    -surface-2: #F4B7C0;
+    -border: #D1C4E9;
     -stroke: black;
     -menu-bg: rgba(150, 120, 200, 0.85);
     -menu-icon-bg: white;

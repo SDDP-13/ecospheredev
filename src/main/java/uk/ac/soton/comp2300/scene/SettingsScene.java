@@ -330,20 +330,20 @@ public class SettingsScene extends BaseScene {
             title.getStyleClass().add("title-large");
 
             Label msg = new Label("Enter a new password and retype it.");
-            msg.getStyleClass().add("title-small");
+            //msg.getStyleClass().add("title-small");
 
             PasswordField pf1 = new PasswordField();
             pf1.setPromptText("New password");
-            pf1.getStyleClass().addAll("title-small", "root-light");
+            //pf1.getStyleClass().addAll("title-small", "root-light");
             pf1.setPrefHeight(40);
 
             PasswordField pf2 = new PasswordField();
             pf2.setPromptText("Retype new password");
-            pf2.getStyleClass().addAll("title-small", "root-light");
+            //pf2.getStyleClass().addAll("title-small", "root-light");
             pf2.setPrefHeight(40);
 
             Label status = new Label("Note: This is hard coded (does nothing yet).");
-            status.getStyleClass().add("title-small");
+            //status.getStyleClass().add("title-small");
 
             Button cancel = new Button("Cancel");
             styleSmallButton(cancel, "button-tertiary");
