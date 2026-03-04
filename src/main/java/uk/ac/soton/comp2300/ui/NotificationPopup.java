@@ -33,13 +33,10 @@ public class NotificationPopup {
         Label title = new Label(record.title());
         title.setStyle("-fx-font-weight: bold; -fx-text-fill: #311B92;");
 
-        // --- UPDATED MESSAGE LOGIC ---
         Label message = new Label();
         if (record.type() == uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT) {
-            // Shows "Your eco-influence is growing. ⭐"
             message.setText(record.message());
         } else {
-            // Reverts back to original appliance reminder
             message.setText("It's time to check this appliance");
         }
 
@@ -49,21 +46,31 @@ public class NotificationPopup {
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_LEFT);
 
-        Button btnViewAll = new Button("View All");
-        btnViewAll.setStyle("-fx-background-color: #DCD0FF; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11px;");
-        btnViewAll.setOnAction(e -> {
-            popup.hide();
-            mainWindow.loadScene(new NotificationScene(mainWindow));
-        });
-
+        // --- BUTTONS ---
         Button btnClose = new Button("✕");
         btnClose.setStyle("-fx-background-color: transparent; -fx-font-size: 16px; -fx-cursor: hand;");
         btnClose.setOnAction(e -> popup.hide());
 
-        // Logic branching for Level Up vs Appliances
+        // Logically branch based on Notification Type
         if (record.type() == uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT) {
-            actions.getChildren().addAll(btnViewAll, btnClose);
+            // NEW: Dashboard button for Level Up
+            Button btnDashboard = new Button("Dashboard");
+            btnDashboard.setStyle("-fx-background-color: #DCD0FF; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11px;");
+            btnDashboard.setOnAction(e -> {
+                popup.hide();
+                mainWindow.loadScene(new uk.ac.soton.comp2300.scene.DashboardScene(mainWindow));
+            });
+
+            actions.getChildren().addAll(btnDashboard, btnClose);
         } else {
+            // Standard View All button for Appliances
+            Button btnViewAll = new Button("View All");
+            btnViewAll.setStyle("-fx-background-color: #DCD0FF; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11px;");
+            btnViewAll.setOnAction(e -> {
+                popup.hide();
+                mainWindow.loadScene(new NotificationScene(mainWindow));
+            });
+
             Button btnCheck = new Button("✓");
             btnCheck.setStyle("-fx-background-color: transparent; -fx-font-size: 20px; -fx-cursor: hand; -fx-padding: 0 5 0 0;");
 
@@ -101,7 +108,6 @@ public class NotificationPopup {
         container.getChildren().addAll(title, message, actions);
         popup.getContent().add(container);
 
-        // (Positioning and Transitions remain as before...)
         popup.setX(stage.getX() + 20);
         popup.setY(stage.getY() + 50);
         popup.show(stage);

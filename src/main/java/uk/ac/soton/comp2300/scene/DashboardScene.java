@@ -42,6 +42,36 @@ public class DashboardScene extends BaseScene {
         Label title = new Label("Dashboard");
         title.getStyleClass().add("title-xlarge");
 
+        // --- SECTION 1: XP DATA & LEVEL BAR (NOW AT TOP) ---
+        double[] levelData = app.getLevelData();
+        int level = (int) levelData[0];
+        int xpInCurrentLevel = (int) levelData[1];
+        int xpRequiredForThisLevel = (int) levelData[2];
+        double levelProgress = levelData[3];
+
+        VBox xpBox = new VBox(10);
+        xpBox.setPrefWidth(335);
+        xpBox.setAlignment(Pos.CENTER);
+        xpBox.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
+
+        Label xpIcon = new Label("⭐");
+        Label xpTitle = new Label("Total XP: " + String.format("%,d", app.getTotalXp()));
+        xpTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4A148C;");
+
+        Label levelLabel = new Label("Level " + level);
+        levelLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #7B1FA2;");
+
+        ProgressBar levelBar = new ProgressBar(levelProgress);
+        levelBar.setPrefWidth(280);
+        levelBar.setPrefHeight(15);
+        levelBar.setStyle("-fx-accent: #FFD54F;"); // Golden color for level bar
+
+        Label nextLevelInfo = new Label(xpInCurrentLevel + " / " + xpRequiredForThisLevel + " XP to next level");
+        nextLevelInfo.setStyle("-fx-font-size: 10px; -fx-text-fill: #888;");
+
+        xpBox.getChildren().addAll(xpIcon, xpTitle, levelLabel, levelBar, nextLevelInfo);
+
         // --- TIME TOGGLE BAR ---
         HBox toggleBar = new HBox(30);
         toggleBar.setAlignment(Pos.CENTER);
@@ -56,23 +86,21 @@ public class DashboardScene extends BaseScene {
         week12.setStyle("-fx-text-fill: #7986CB; -fx-cursor: hand;");
         toggleBar.getChildren().addAll(day7, week4, week12);
 
-        // --- SECTION 1: TASKS CHART & APPLIANCE PROGRESS ---
-
+        // --- SECTION 2: TASKS CHART & APPLIANCE PROGRESS ---
         int dailyTasksDone = app.getCompletedScheduledTasks();
-
         long completedAppliances = app.getRepository().getAllNotifications().stream()
                 .filter(n -> n.getStatus() == uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED)
                 .count();
 
         int weeklyTarget = 35;
         double progressRatio = Math.min(1.0, (double) completedAppliances / weeklyTarget);
-        int displayPercent = (int) (progressRatio * 100);
 
         VBox weeklyProgressCard = createChartContainer("Tasks completed (%)");
 
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis(0, 100, 20);
 
+        // Dark Purple Axis Styling
         String axisStyle = "-fx-tick-label-fill: #311B92; " +
                 "-fx-axis-label-fill: #311B92; " +
                 "-fx-tick-mark-stroke: #311B92; " +
@@ -106,10 +134,8 @@ public class DashboardScene extends BaseScene {
         Label progressLabel = new Label("Recommended schedules completed");
         progressLabel.setStyle("-fx-text-fill: #7986CB; -fx-font-size: 11px;");
         Region spacer1 = new Region(); HBox.setHgrow(spacer1, Priority.ALWAYS);
-
         Label pLabel = new Label(completedAppliances + "/" + weeklyTarget);
         pLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #311B92;");
-
         progressRow.getChildren().addAll(progressLabel, spacer1, pLabel);
 
         ProgressBar weeklyBar = new ProgressBar(progressRatio);
@@ -118,7 +144,7 @@ public class DashboardScene extends BaseScene {
         weeklyStats.getChildren().addAll(progressTitle, progressRow, weeklyBar);
         weeklyProgressCard.getChildren().addAll(weeklyChart, weeklyStats);
 
-        // --- SECTION 2: PIE CHART ---
+        // --- SECTION 3: APPLIANCE PIE CHART ---
         VBox deviceChartCard = createChartContainer("Appliance Schedule Split");
         Map<String, Integer> counts = new HashMap<>();
         for (var note : app.getRepository().getAllNotifications()) {
@@ -148,7 +174,7 @@ public class DashboardScene extends BaseScene {
         }
         deviceChartCard.getChildren().addAll(pieChart, legend);
 
-        // --- SECTION 3: ECO IMPACT ---
+        // --- SECTION 4: ECO IMPACT ---
         VBox ecoImpactCard = new VBox(15);
         ecoImpactCard.setMaxWidth(320);
         ecoImpactCard.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; " +
@@ -161,7 +187,7 @@ public class DashboardScene extends BaseScene {
                 createImpactRow("Carbon Offset", String.format("%.2f kg", app.getTotalCo2Saved()), "#1B5E20")
         );
 
-// --- SECTION 4: RESOURCES DATA ---
+        // --- SECTION 5: RESOURCES DATA (AT BOTTOM) ---
         GridPane resourceGrid = new GridPane();
         resourceGrid.setHgap(15); resourceGrid.setVgap(15);
         resourceGrid.setAlignment(Pos.CENTER);
@@ -170,36 +196,10 @@ public class DashboardScene extends BaseScene {
         resourceGrid.add(createResourceBox("Wood", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD), "🪵"), 0, 1);
         resourceGrid.add(createResourceBox("Stone", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE), "🪨"), 1, 1);
 
-// --- SECTION 5: XP DATA & LEVEL BAR ---
-        double[] levelData = app.getLevelData(); // Call the helper
-        int level = (int) levelData[0];
-        int xpInCurrentLevel = (int) levelData[1];
-        int xpRequiredForThisLevel = (int) levelData[2];
-        double levelProgress = levelData[3];
+        // ASSEMBLY
+        content.getChildren().addAll(title, xpBox, toggleBar, weeklyProgressCard, deviceChartCard, ecoImpactCard, resourceGrid);
 
-        VBox xpBox = new VBox(10);
-        xpBox.setPrefWidth(335);
-        xpBox.setAlignment(Pos.CENTER);
-        xpBox.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; " +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
-
-        Label xpTitle = new Label("Total XP: " + String.format("%,d", app.getTotalXp()));
-        xpTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4A148C;");
-
-        Label levelLabel = new Label("Level " + level);
-        levelLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #7B1FA2;");
-
-        ProgressBar levelBar = new ProgressBar(levelProgress);
-        levelBar.setPrefWidth(280);
-        levelBar.setStyle("-fx-accent: #FFD54F;");
-
-        Label nextLevelInfo = new Label(xpInCurrentLevel + " / " + xpRequiredForThisLevel + " XP to next level");
-        nextLevelInfo.setStyle("-fx-font-size: 10px; -fx-text-fill: #888;");
-
-        xpBox.getChildren().addAll(xpTitle, levelLabel, levelBar, nextLevelInfo);
-        // --- FINAL ASSEMBLY ---
-        content.getChildren().addAll(title, toggleBar, weeklyProgressCard, deviceChartCard, ecoImpactCard, resourceGrid, xpBox);
-
+        // Navigation
         Button backBtn = new Button("←");
         backBtn.setPrefSize(44,44);
         backBtn.getStyleClass().add("menu-icon-button");
