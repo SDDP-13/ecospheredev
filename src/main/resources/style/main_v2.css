@@ -26,6 +26,14 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0.2, 0, 4);
 }
 
+.scroll-pane,
+.scroll-pane > .viewport {
+    -fx-background-color: -background;
+}
+
+
+
+
 .title-xlarge {
     -fx-font-size: 32px;
     -fx-font-weight: bold;
@@ -104,6 +112,7 @@
     -fx-background-radius: 18;
 }
 
+
 .card {
     -fx-background-color: -foreground;
     -fx-border-color: -border;
@@ -114,6 +123,9 @@
 .icon-surface {
     -fx-background-color: -surface;
     -fx-background-radius: 10;
+}
+.hover {
+    -fx-background-color: -hover;
 }
 .icon {
     -fx-font-size: 28px;
@@ -157,6 +169,18 @@
     -fx-font-size: 15px;
     -fx-font-weight: bold;
 }
+.button-claim {
+    -fx-background-color: -background-green;
+    -fx-text-fill: -text-fill;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+
+
+
 .button-shape-rounded-large{
     -fx-background-radius: 18;
     -fx-border-radius: 18;
@@ -184,6 +208,9 @@
 
 .bg-transparent {
     -fx-background-color: transparent;
+}
+.border-colour {
+    -fx-border-color: -surface;
 }
 
 /*Login Page Variables*/
@@ -219,7 +246,31 @@
     -fx-text-fill: -text-fill;
 }
 
+.build-menu-card {
+    -fx-background-color: -build-menu-bg;
+    -fx-background-radius: 14;
+    -fx-padding: 10;
+    -fx-alignment: center-left;
+}
+.build-menu-card:hover {
+    -fx-background-color: -hover;
+}
 
+.build-menu-title {
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.build-menu-cost {
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 12px;
+}
+
+.build-menu-image {
+    -fx-background-color: -surface;
+    -fx-background-radius: 10;
+}
 
 
 
