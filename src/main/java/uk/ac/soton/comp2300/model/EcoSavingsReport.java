@@ -29,4 +29,12 @@ public class EcoSavingsReport {
     public double getMoneySavedPounds() { return moneySavedPounds; }
     public double getCo2SavedKg() { return co2SavedKg; }
     public PeakWindow getPeakWindow() { return peakWindow; }
+    public EcoSavingsReport(double moneySavedPounds, double co2SavedKg) {
+        this.moneySavedPounds = moneySavedPounds;
+        this.co2SavedKg = co2SavedKg;
+        // Set other fields to null or default since they aren't needed for the dashboard
+        this.current = null;
+        this.peak = null;
+        this.peakWindow = null;
+    }
 }

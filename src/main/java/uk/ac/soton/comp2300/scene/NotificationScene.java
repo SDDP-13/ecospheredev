@@ -169,16 +169,25 @@ public class NotificationScene extends BaseScene implements NotificationListener
     }
 
     private void handleTaskAction(NotificationRecord record, boolean completed, VBox card) {
-        var repo = uk.ac.soton.comp2300.App.getInstance().getRepository();
+        var app = uk.ac.soton.comp2300.App.getInstance();
+        var repo = app.getRepository();
 
         for (var note : repo.getAllNotifications()) {
             if (note.getId().equals(record.id())) {
                 if (completed) {
                     note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED);
-                    var app = uk.ac.soton.comp2300.App.getInstance();
                     app.incrementCompletedTasks();
 
-                    //Add energy savings based on the specific device
+                    // --- NEW FIX ---
+                    // Get the energy profile from App.java and convert to Money/CO2
+                    double energy = app.getEnergySavedForDevice(note.getTitle());
+                    double money = energy * 0.15; // Estimated pence conversion
+                    double co2 = energy * 0.2;    // Estimated kg conversion
+
+                    // Create the report using the NEW constructor
+                    var report = new uk.ac.soton.comp2300.model.EcoSavingsReport(money, co2);
+                    app.addReportSavings(report); // This updates the Dashboard variables
+
                     app.addEnergySavings(note.getTitle());
                 } else {
                     note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TIMED_OUT);

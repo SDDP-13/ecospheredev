@@ -42,32 +42,35 @@ public class NotificationPopup {
         // CHECK BUTTON: Increments the task counter
         Button btnCheck = new Button("✓");
         btnCheck.setStyle("-fx-background-color: transparent; -fx-font-size: 20px; -fx-cursor: hand; -fx-padding: 0 5 0 0;");
+
+// Inside NotificationPopup.java btnCheck.setOnAction
         btnCheck.setOnAction(e -> {
-            var repo = uk.ac.soton.comp2300.App.getInstance().getRepository();
-            String deviceName = ""; // To capture the device name for energy calculation
+            var app = uk.ac.soton.comp2300.App.getInstance();
+            var repo = app.getRepository();
+            String deviceName = record.title();
 
             for (var note : repo.getAllNotifications()) {
                 if (note.getId().equals(record.id())) {
                     note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED);
-                    deviceName = note.getTitle(); // Capture title (device name)
                     break;
                 }
             }
 
-            var app = uk.ac.soton.comp2300.App.getInstance();
+            // --- NEW FIX ---
+            double energy = app.getEnergySavedForDevice(deviceName);
+            double calculatedMoney = energy * 0.15;
+            double calculatedCo2 = energy * 0.2;
 
-            // 1. Increment the task completion counter
+            // Use the NEW constructor to fix the "Cannot resolve" error
+            uk.ac.soton.comp2300.model.EcoSavingsReport report =
+                    new uk.ac.soton.comp2300.model.EcoSavingsReport(calculatedMoney, calculatedCo2);
+
+            app.addReportSavings(report); // Sends data to Dashboard
             app.incrementCompletedTasks();
-
-            // 2. Add theoretical energy savings based on the device name
-            app.addEnergySavings(deviceName);
-
-            // 3. Optional: Add XP for behavior change
             app.addXp(20);
 
             popup.hide();
         });
-
         Button btnViewAll = new Button("View All");
         btnViewAll.setStyle("-fx-background-color: #DCD0FF; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11px;");
         btnViewAll.setOnAction(e -> {

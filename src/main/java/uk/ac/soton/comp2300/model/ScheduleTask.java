@@ -32,7 +32,10 @@ public class ScheduleTask {
     public void setTime(LocalTime time) { this.time = time; }
 
     public Duration getDuration() {return duration; }
-    public void setDuration() {this.duration = duration; }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
