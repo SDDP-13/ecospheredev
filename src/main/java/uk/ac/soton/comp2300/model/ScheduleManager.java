@@ -26,32 +26,37 @@ public class ScheduleManager {
         tasks.add(newTask);
         sortTasks();
 
+        // Grant XP for the act of scheduling a device
+        uk.ac.soton.comp2300.App.getInstance().addXp(50);
+
+        // Calculate the next occurrence of this time
         LocalDateTime triggerTime = LocalDateTime.now()
                 .withHour(newTask.getTime().getHour())
                 .withMinute(newTask.getTime().getMinute())
                 .withSecond(0)
                 .withNano(0);
 
+        // If the chosen time has already passed today, set it for tomorrow
         if (triggerTime.isBefore(LocalDateTime.now())) {
             triggerTime = triggerTime.plusDays(1);
         }
-        // TEST MODE: Uncomment the line below to make notifications appear instantly
+
+        // TEST MODE: Uncomment the line below to make notifications appear instantly for testing
         // triggerTime = LocalDateTime.now().minusSeconds(10);
 
-        // Important: Include "Reward:" in the message so NotificationScene can parse it
         String fullMessage = newTask.getDescription() + " Reward: Money 10";
 
         uk.ac.soton.comp2300.model.Notification note = new uk.ac.soton.comp2300.model.Notification(
                 uk.ac.soton.comp2300.model.Notification.Source.SCHEDULER,
                 uk.ac.soton.comp2300.model.Notification.Type.REMINDER,
-                newTask.getDeviceName(), // This will now be the custom name if "Other" was used
+                newTask.getDeviceName(),
                 fullMessage,
                 triggerTime,
                 triggerTime,
                 "SCHED-" + java.util.UUID.randomUUID().toString()
         );
 
-        // Add to central repository so Michael's loop picks it up
+        // Add to central repository so the NotificationLogic loop picks it up
         uk.ac.soton.comp2300.App.getInstance().getRepository().add(note);
 
         return true;

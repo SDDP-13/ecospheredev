@@ -1,14 +1,13 @@
 package uk.ac.soton.comp2300;
 
+import com.google.gson.GsonBuilder;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.event.NotificationLogic;
-import uk.ac.soton.comp2300.model.Notification;
-import uk.ac.soton.comp2300.model.NotificationRepository;
-import uk.ac.soton.comp2300.model.Task;
-import uk.ac.soton.comp2300.model.TaskPool;
+import uk.ac.soton.comp2300.model.*;
+import uk.ac.soton.comp2300.model.game_logic.*;
 import uk.ac.soton.comp2300.scene.LoginScene;
 import uk.ac.soton.comp2300.scene.MenuScene;
 import uk.ac.soton.comp2300.ui.MainWindow;
@@ -26,6 +25,11 @@ public class App extends Application {
     private int money = 0;
     private int metal = 0;
     private int wood = 0;
+    private int totalXp = 0;
+    private GameState gameState;
+    private GameController gameController;
+    private GameSaveManager saveManager;
+    private GameLoadManager loadManager;
 
     private int completedScheduledTasks = 0;
 
@@ -50,7 +54,16 @@ public class App extends Application {
         this.stage = stage;
 
         setupNotificationLogic();
+        setupGameLogic();
         open();
+    }
+    public int getTotalXp() {
+        return totalXp;
+    }
+
+    public void addXp(int amount) {
+        this.totalXp += amount;
+        logger.info("XP increased! New Total: " + totalXp);
     }
 
     /**
@@ -70,9 +83,16 @@ public class App extends Application {
     }
 
     public int getCompletedScheduledTasks() {
-        return completedScheduledTasks;
-    }
+        if (currentSessionTasks == null) return 0;
 
+        int count = 0;
+        for (Task task : currentSessionTasks) {
+            if (task.getRewardCollected()) {
+                count++;
+            }
+        }
+        return count;
+    }
     private void setupNotificationLogic() {
         this.repository = new NotificationRepository() {
             private final List<Notification> notifications = new ArrayList<>();
@@ -90,6 +110,22 @@ public class App extends Application {
         notificationLogic.start();
     }
 
+    private void setupGameLogic() {
+        saveManager = new GameSaveManager();
+        loadManager = new GameLoadManager();
+
+        GameState loadedState = loadManager.loadGame();
+        if (loadedState != null) {
+            this.gameState = loadedState;
+            gameController = new GameController(gameState);
+
+        } else {
+            this.gameState = new GameState();
+            gameController = new GameController(gameState);
+            gameController.initializeNewGame();
+        }
+    }
+
     public void open() {
         logger.info("Opening window at " + width + "x" + height);
         var mainWindow = new MainWindow(stage, width, height);
@@ -103,11 +139,15 @@ public class App extends Application {
         if (notificationLogic != null) {
             notificationLogic.shutdown();
         }
+
+        saveManager.saveGame(gameState);
     }
 
     public static App getInstance() {
         return instance;
     }
+
+    public GameController getGameController() { return gameController; }
 
     public NotificationRepository getRepository() {
         return this.repository;
@@ -131,5 +171,38 @@ public class App extends Application {
             default -> System.out.println("Unknown resource type: " + type);
         }
         System.out.println("Updated resources | M:" + money + " W:" + wood + " Met:" + metal);
+    }
+    public double getEnergySavedForDevice(String deviceName) {
+        if (deviceName == null) return 0.5; // Default value for "Other"
+
+        return switch (deviceName.toLowerCase()) {
+            case "washing machine" -> 1.2;
+            case "dishwasher" -> 1.5;
+            case "dryer" -> 2.5;
+            case "radiator" -> 3.0;
+            case "air conditioner" -> 4.5;
+            case "tv" -> 0.3;
+            case "garden lights" -> 0.8;
+            default -> 0.5;
+        };
+    }
+    private double totalEnergySaved = 0.0;
+
+    public double getTotalEnergySaved() {
+        return totalEnergySaved;
+    }
+
+    public void addEnergySavings(String deviceName) {
+        double saved = switch (deviceName.toLowerCase()) {
+            case "washing machine" -> 1.2;
+            case "dishwasher" -> 1.5;
+            case "dryer" -> 2.5;
+            case "radiator" -> 3.0;
+            case "air conditioner" -> 4.5;
+            case "tv" -> 0.3;
+            case "garden lights" -> 0.8;
+            default -> 0.5; // For "Other" devices
+        };
+        this.totalEnergySaved += saved;
     }
 }

@@ -5,7 +5,8 @@ import java.util.Optional;
 public enum Resource {
     MONEY,
     WOOD,
-    METAL;
+    METAL,
+    STONE;
 
     public static Optional<Resource> fromString(String value) {     // Constructor with Optional wrapper in case String doesn't match any enum
         try {

@@ -44,13 +44,27 @@ public class NotificationPopup {
         btnCheck.setStyle("-fx-background-color: transparent; -fx-font-size: 20px; -fx-cursor: hand; -fx-padding: 0 5 0 0;");
         btnCheck.setOnAction(e -> {
             var repo = uk.ac.soton.comp2300.App.getInstance().getRepository();
+            String deviceName = ""; // To capture the device name for energy calculation
+
             for (var note : repo.getAllNotifications()) {
                 if (note.getId().equals(record.id())) {
                     note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED);
+                    deviceName = note.getTitle(); // Capture title (device name)
                     break;
                 }
             }
-            uk.ac.soton.comp2300.App.getInstance().incrementCompletedTasks();
+
+            var app = uk.ac.soton.comp2300.App.getInstance();
+
+            // 1. Increment the task completion counter
+            app.incrementCompletedTasks();
+
+            // 2. Add theoretical energy savings based on the device name
+            app.addEnergySavings(deviceName);
+
+            // 3. Optional: Add XP for behavior change
+            app.addXp(20);
+
             popup.hide();
         });
 

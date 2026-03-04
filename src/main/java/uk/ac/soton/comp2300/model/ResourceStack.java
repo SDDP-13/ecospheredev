@@ -16,10 +16,12 @@ public class ResourceStack {
     public Resource getType() {
         return type;
     }
-
     public int getAmount() {
         return amount;
     }
+    public void add(int value) { this.amount += value; }
+    public void subtract(int value) { this.amount -= value; }
+
 
     @Override
     public String toString() {

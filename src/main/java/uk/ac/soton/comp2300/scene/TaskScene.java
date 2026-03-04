@@ -123,6 +123,10 @@ public class TaskScene extends BaseScene {
 
             taskObj.toggleRewardCollected();
             var app = uk.ac.soton.comp2300.App.getInstance();
+
+            // Grant 100 XP for finishing a daily task
+            app.addXp(100);
+
             for (var stack : taskObj.getRewards()) {
                 app.addResources(stack.getType(), stack.getAmount());
             }
