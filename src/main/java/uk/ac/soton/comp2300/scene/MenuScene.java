@@ -61,17 +61,26 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         StackPane.setAlignment(planetLayer, Pos.BOTTOM_CENTER);
 
         var app = uk.ac.soton.comp2300.App.getInstance();
+        // Access the game state to get accurate resource counts
+        var state = app.getGameController().getGameState();
 
         VBox resourceContainer = new VBox(8);
         resourceContainer.setPadding(new Insets(15));
         resourceContainer.setAlignment(Pos.TOP_LEFT);
         resourceContainer.setMaxSize(Region.USE_PREF_SIZE, Region.USE_PREF_SIZE);
 
-        // We use String.format("%,d", ...) to ensure numbers like 1000000 look like 1,000,000
+        // Pulling all 4 resources from the GameState model
+        int gold = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY);
+        int metal = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL);
+        int wood = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD);
+        int stone = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE);
+
+        // Displaying resources with the same formatting as the Dashboard
         resourceContainer.getChildren().addAll(
-                createResourceBox("🟡", String.format("%,d", app.getMoney()), "#d4af37"),
-                createResourceBox("🔘", String.format("%,d", app.getMetal()), "#a0a0a0"), // Must be getMetal()
-                createResourceBox("🪵", String.format("%,d", app.getWood()), "#8b4513")   // Must be getWood()
+                createResourceBox("🟡", String.format("%,d", gold), "#d4af37"),
+                createResourceBox("🔘", String.format("%,d", metal), "#a0a0a0"),
+                createResourceBox("🪵", String.format("%,d", wood), "#8b4513"),
+                createResourceBox("🪨", String.format("%,d", stone), "#708090") // Added Stone
         );
 
         Label hoverLabel = new Label("");
