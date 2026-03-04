@@ -1,14 +1,13 @@
 package uk.ac.soton.comp2300;
 
+import com.google.gson.GsonBuilder;
 import javafx.application.Application;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.event.NotificationLogic;
-import uk.ac.soton.comp2300.model.Notification;
-import uk.ac.soton.comp2300.model.NotificationRepository;
-import uk.ac.soton.comp2300.model.Task;
-import uk.ac.soton.comp2300.model.TaskPool;
+import uk.ac.soton.comp2300.model.*;
+import uk.ac.soton.comp2300.model.game_logic.*;
 import uk.ac.soton.comp2300.scene.LoginScene;
 import uk.ac.soton.comp2300.scene.MenuScene;
 import uk.ac.soton.comp2300.ui.MainWindow;
@@ -25,8 +24,11 @@ public class App extends Application {
     private int money = 0;
     private int metal = 0;
     private int wood = 0;
-
     private int totalXp = 0;
+    private GameState gameState;
+    private GameController gameController;
+    private GameSaveManager saveManager;
+    private GameLoadManager loadManager;
 
     private int completedScheduledTasks = 0;
 
@@ -51,6 +53,7 @@ public class App extends Application {
         this.stage = stage;
 
         setupNotificationLogic();
+        setupGameLogic();
         open();
     }
     public int getTotalXp() {
@@ -106,6 +109,22 @@ public class App extends Application {
         notificationLogic.start();
     }
 
+    private void setupGameLogic() {
+        saveManager = new GameSaveManager();
+        loadManager = new GameLoadManager();
+
+        GameState loadedState = loadManager.loadGame();
+        if (loadedState != null) {
+            this.gameState = loadedState;
+            gameController = new GameController(gameState);
+
+        } else {
+            this.gameState = new GameState();
+            gameController = new GameController(gameState);
+            gameController.initializeNewGame();
+        }
+    }
+
     public void open() {
         logger.info("Opening window at " + width + "x" + height);
         var mainWindow = new MainWindow(stage, width, height);
@@ -119,11 +138,15 @@ public class App extends Application {
         if (notificationLogic != null) {
             notificationLogic.shutdown();
         }
+
+        saveManager.saveGame(gameState);
     }
 
     public static App getInstance() {
         return instance;
     }
+
+    public GameController getGameController() { return gameController; }
 
     public NotificationRepository getRepository() {
         return this.repository;

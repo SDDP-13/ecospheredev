@@ -7,6 +7,7 @@ import javafx.scene.control.Label;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import uk.ac.soton.comp2300.App;
 import uk.ac.soton.comp2300.event.NotificationListenerInterface;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
@@ -36,12 +37,16 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         }
 
         Circle planet = new Circle(200, Color.web("#4CAF50"));
-        StackPane planetLayer = new StackPane(planet);
+        Button planetButton = new Button();
+        planetButton.setGraphic(planet);
+        planetButton.setStyle("-fx-background-color: transparent;");
+        planetButton.setPickOnBounds(false);
+        planetButton.setOnAction((e) -> {mainWindow.loadScene(new PlanetScene(mainWindow, App.getInstance().getGameController().getGameState().getSelectedPlanet()));});
+        StackPane planetLayer = new StackPane(planetButton);
         planetLayer.setAlignment(Pos.BOTTOM_CENTER);
         planetLayer.setPadding(new Insets(0, 0, -60, 0));
         planetLayer.setMaxWidth(Region.USE_PREF_SIZE);
         planetLayer.setMaxHeight(Region.USE_PREF_SIZE);
-        planetLayer.setMouseTransparent(true);
         StackPane.setAlignment(planetLayer, Pos.BOTTOM_CENTER);
 
         var app = uk.ac.soton.comp2300.App.getInstance();
