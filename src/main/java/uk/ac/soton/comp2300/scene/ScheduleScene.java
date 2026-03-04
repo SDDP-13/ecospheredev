@@ -26,7 +26,7 @@ public class ScheduleScene extends BaseScene {
     @Override
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: #F6F3FB;");
+        root.getStyleClass().add("root-light");
 
         Button backBtn = new Button("←");
         backBtn.setPrefSize(44, 44);
@@ -44,21 +44,21 @@ public class ScheduleScene extends BaseScene {
 
         Tooltip recommendTip = new Tooltip("Recommendations");
         recommendTip.setShowDelay(javafx.util.Duration.ZERO);
-        recommendTip.setStyle("-fx-background-color: #6C4AB6; -fx-text-fill: white;");
+        recommendTip.getStyleClass().add("tip");
         recBtn.setTooltip(recommendTip);
 
         Label title = new Label("Schedules");
-        title.setStyle("-fx-font-size: 32px; -fx-font-weight: 800;");
+        title.getStyleClass().add("title-xlarge-dark");
         StackPane.setAlignment(title, Pos.TOP_CENTER);
         StackPane.setMargin(title, new Insets(20, 0, 0, 0));
 
         Label emptyLabel = new Label("No schedules yet");
-        emptyLabel.setStyle("-fx-font-size: 16px; -fx-text-fill: #5A5A5A;");
+        emptyLabel.getStyleClass().add("label-medium");
 
         emptyBox = new VBox(emptyLabel);
         emptyBox.setAlignment(Pos.CENTER_LEFT);
         emptyBox.setPadding(new Insets(20));
-        emptyBox.setStyle("-fx-background-color: #EDE7F7; -fx-background-radius: 18;");
+        emptyBox.getStyleClass().add("label-empty");
 
         scheduleList = new VBox(15);
         scheduleList.setPadding(new Insets(10));
@@ -67,7 +67,7 @@ public class ScheduleScene extends BaseScene {
         Button addBtn = new Button("+ Add Schedule");
         addBtn.setPrefWidth(260);
         addBtn.setPrefHeight(50);
-        addBtn.setStyle("-fx-background-color: #DCD0FF; -fx-font-weight: bold;");
+        addBtn.getStyleClass().add("button");
         addBtn.setOnAction(e -> showSchedulePopup(null));
 
         VBox content = new VBox(20, emptyBox, scheduleList, addBtn);
@@ -96,19 +96,19 @@ public class ScheduleScene extends BaseScene {
         taskBox.setAlignment(Pos.CENTER_LEFT);
         taskBox.setPadding(new Insets(15));
         taskBox.setMaxWidth(350);
-        taskBox.setStyle("-fx-background-color: white; -fx-background-radius: 20;");
+        taskBox.getStyleClass().add("label-empty");
 
         VBox textBox = new VBox(5);
 
         Label device = new Label(task.getDeviceName());
-        device.setStyle("-fx-font-size: 18px; -fx-font-weight: bold;");
+        device.getStyleClass().add("title-large-dark");
 
         Label time = new Label(String.format("Set for: %02d:%02d",
                 task.getTime().getHour(),
                 task.getTime().getMinute()));
 
         Label description = new Label(task.getDescription());
-        description.setStyle("-fx-text-fill: #777; -fx-font-size: 12px;");
+        description.getStyleClass().add("title-medium-dark");
 
         textBox.getChildren().addAll(device, time, description);
 
@@ -131,7 +131,7 @@ public class ScheduleScene extends BaseScene {
         VBox layout = new VBox(15);
         layout.setPadding(new Insets(20));
         layout.setAlignment(Pos.CENTER);
-        layout.setStyle("-fx-background-color: #F6F3FB; -fx-background-radius: 18;");
+        layout.getStyleClass().add("label-empty");
 
         ComboBox<String> deviceBox = new ComboBox<>();
         deviceBox.getItems().addAll("Washing Machine", "Dishwasher", "Dryer",
@@ -197,13 +197,7 @@ public class ScheduleScene extends BaseScene {
 
         Button saveBtn = new Button("Save");
         saveBtn.setPrefWidth(120);
-        saveBtn.setStyle(
-                "-fx-background-color: #DCD0FF;" +
-                        "-fx-text-fill: #1F1F1F;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 12;" +
-                        "-fx-padding: 8 16;"
-        );
+        saveBtn.getStyleClass().add("button-2");
 
         Button cancelBtn = new Button("Cancel");
         cancelBtn.setPrefWidth(120);

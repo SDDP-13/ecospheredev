@@ -21,7 +21,7 @@ public class RecommendationScene extends BaseScene {
     @Override
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: #F6F3FB;");
+        root.getStyleClass().add("root-light");
 
         Button backBtn = new Button("←");
         backBtn.setPrefSize(44, 44);
@@ -31,12 +31,43 @@ public class RecommendationScene extends BaseScene {
         StackPane.setMargin(backBtn, new Insets(20));
 
         Label title = new Label("Recommendations");
-        title.setStyle("-fx-font-size: 28px; -fx-font-weight: 800;");
+
+        title.getStyleClass().add("title-xlarge");
+
+        Label content = new Label(
+                "EcoSphere: Recommended Device Usage for Energy Savings\n\n" +
+                "Overview: \n" +
+                "Optimising when you use your home appliances can help reduce energy costs, lower your environmental impact, and support grid stability. \n" +
+                "The recommendations below are based on typical energy tariffs and peak load times. \n" +
+                "1. Washing Machine & Dryer \n" +
+                "• Best Time to Use: 22:00 – 6:00 (off-peak hours) \n" +
+                "  Tips: \n" +
+                "   • Run full loads to maximise efficiency.\n" +
+                "   • Use cold-water cycles when possible.\n" +
+                "   • Avoid using the dryer during peak hours; consider air drying.\n" +
+                "2. Dishwasher \n" +
+                "• Best Time to Use: 21:00 – 7:00 \n" +
+                "  Tips: \n" +
+                "   • Run dishwasher on eco-mode if available.\n" +
+                "   • Delay start function can be used to schedule overnight operation.\n" +
+                "3. Heating & Cooling Systems \n" +
+                "• Best Time to Use: \n" +
+                "   • Heating: 5:00 - 8:00, 18:00 - 22:00 (pre-heat only) \n" +
+                "   • Cooling: 11:00 - 18:00 (during peak sun, use blinds/ventilation first) \n" +
+                "  Tips: \n" +
+                "   • Use programmable thermostats.\n" +
+                "   • Avoid heating/cooling empty rooms.\n"
+        );
+        content.setWrapText(true);
+        content.getStyleClass().add("title-medium");
+
+
 
         VBox deviceList = new VBox(15);
         deviceList.setAlignment(Pos.TOP_CENTER);
         deviceList.setPadding(new Insets(10));
         deviceList.setMaxWidth(380);
+
 
         String[] devices = {
                 "Washing Machine",
@@ -49,10 +80,10 @@ public class RecommendationScene extends BaseScene {
         for (String device : devices) {
             deviceList.getChildren().add(createDeviceBox(device));
         }
-        VBox content = new VBox(20, title, deviceList);
-        content.setAlignment(Pos.TOP_CENTER);
-        content.setPadding(new Insets(100, 20, 20, 20));
-        root.getChildren().addAll(content, backBtn);
+        VBox content_1 = new VBox(20, title, deviceList);
+        content_1.setAlignment(Pos.TOP_CENTER);
+        content_1.setPadding(new Insets(100, 20, 20, 20));
+        root.getChildren().addAll(content_1, backBtn);
     }
 
     private HBox createDeviceBox(String deviceName) {
@@ -69,7 +100,8 @@ public class RecommendationScene extends BaseScene {
         VBox textBox = new VBox(5);
 
         Label name = new Label(deviceName);
-        name.setStyle("-fx-font-size: 16pxl -fx-font-weight: bold;");
+        name.getStyleClass().addAll("label-medium", "font-weight-2");
+       // name.setStyle("-fx-font-size: 16pxl -fx-font-weight: bold;");
 
         Button recBtn = new Button("Get Recommendation");
         recBtn.setOnAction(e -> showRecommendationPopup(deviceName));

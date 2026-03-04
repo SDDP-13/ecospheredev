@@ -1,9 +1,11 @@
 package uk.ac.soton.comp2300.scene;
 
+import javafx.animation.Interpolator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
@@ -14,11 +16,20 @@ import uk.ac.soton.comp2300.ui.MainWindow;
 import java.util.Random;
 import uk.ac.soton.comp2300.event.NotificationRecord;
 import uk.ac.soton.comp2300.ui.NotificationPopup;
+
+/** 2 imports for the build menu*/
+import javafx.animation.TranslateTransition;
+import javafx.util.Duration;
+
 /**
  * MenuScene: The central navigation hub for the EcoSphere application.
  * Focuses on Ebaa's Sprint 1 UI layout and navigation tasks.
  */
 public class MenuScene extends BaseScene implements NotificationListenerInterface {
+
+    private HBox botMenuActions;
+    private VBox buildMenu;
+    private boolean buildmenuOpen = false;
 
     public MenuScene(MainWindow mainWindow) {
         super(mainWindow);
@@ -29,7 +40,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
 
         Pane starField = new Pane();
-        starField.setStyle("-fx-background-color: black;");
+        starField.getStyleClass().add("root-black");
         Random random = new Random();
         for (int i = 0; i < 100; i++) {
             Circle star = new Circle(random.nextInt(mainWindow.getWidth()), random.nextInt(mainWindow.getHeight()), random.nextDouble() * 1.5, Color.WHITE);
@@ -84,6 +95,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         dropDownItems.setVisible(false);
         dropDownItems.setManaged(false);
 
+
         Button btnNotifications = new Button("🕒");
         Button btnDashboard = new Button("📈");
         Button btnSchedule = new Button("📅");
@@ -128,9 +140,12 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         btnSchedule.setOnAction(e -> mainWindow.loadScene(new ScheduleScene(mainWindow)));
         btnTasks.setOnAction(e -> mainWindow.loadScene(new TaskScene(mainWindow)));
         btnHelp.setOnAction(e -> mainWindow.loadScene(new HelpScene(mainWindow)));
-        // Logic for the bottom bar buttons
+
+        /** Logic for the bottom menu buttons*/
         btnSolar.setOnAction(e -> mainWindow.loadScene(new SolarSystemScene(mainWindow)));
-        btnBuild.setOnAction(e -> mainWindow.loadScene(new BuildScene(mainWindow)));
+        btnBuild.setOnAction(e-> toggleBuildMenu());
+        //btnBuild.setOnAction(e -> mainWindow.loadScene(new BuildScene(mainWindow)));
+
         menuToggle.setOnAction(e -> {
             boolean visible = !dropDownItems.isVisible();
             dropDownItems.setVisible(visible);
@@ -140,19 +155,26 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         dropDownItems.getChildren().addAll(btnNotifications, btnDashboard, btnSchedule, btnTasks, btnSettings, btnHelp);
         menuDrawer.getChildren().addAll(menuToggle, dropDownItems);
 
-        HBox bottomActions = new HBox();
-        bottomActions.setAlignment(Pos.BOTTOM_CENTER);
-        bottomActions.setPadding(new Insets(20));
-        bottomActions.setMaxHeight(Region.USE_PREF_SIZE);
+        botMenuActions = new HBox();
+        botMenuActions.setAlignment(Pos.BOTTOM_CENTER);
+        botMenuActions.setPadding(new Insets(20));
+        botMenuActions.setMaxHeight(Region.USE_PREF_SIZE);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        bottomActions.getChildren().addAll(btnSolar, spacer, btnBuild);
-        StackPane.setAlignment(bottomActions, Pos.BOTTOM_CENTER);
+        botMenuActions.getChildren().addAll(btnSolar, spacer, btnBuild);
+        StackPane.setAlignment(botMenuActions, Pos.BOTTOM_CENTER);
 
         Pane labelOverlay = new Pane(hoverLabel);
         labelOverlay.setMouseTransparent(true);
 
-        root.getChildren().addAll(starField, planetLayer, resourceContainer, menuDrawer, bottomActions, labelOverlay);
+        /** Build Menu */
+        buildMenu = makeBuildMenu();
+        buildMenu.setTranslateY(350);
+        StackPane.setAlignment(buildMenu, Pos.BOTTOM_CENTER);
+        StackPane.setMargin(buildMenu, new Insets(0,0,70,0));
+
+
+        root.getChildren().addAll(starField, planetLayer, resourceContainer, menuDrawer, botMenuActions, labelOverlay, buildMenu);
     }
 
     @Override
@@ -176,7 +198,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
         Label iconLabel = new Label(icon);
         Label val = new Label(amount);
-        val.setStyle("-fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 12px;");
+        val.getStyleClass().add("title-small");
 
         box.getChildren().addAll(iconLabel, val);
         return box;
@@ -185,5 +207,77 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
     @Override
     public void initialise() {
         uk.ac.soton.comp2300.App.getInstance().getNotificationLogic().setListener(this);
+    }
+
+
+
+    /** 3 Methods which handle build menu: toggleBuildMenu, makeBuildMenu, buildEntry */
+    private void toggleBuildMenu() {
+        buildmenuOpen = !buildmenuOpen;
+
+        TranslateTransition move = new TranslateTransition(Duration.millis(250), buildMenu);
+        move.setInterpolator(Interpolator.EASE_BOTH);
+        if (buildmenuOpen) {
+            move.setToY(0);
+        } else {
+            move.setToY(350);
+        }
+
+        move.play();
+
+       // buildMenu.setVisible(buildmenuOpen);
+       // buildMenu.setManaged(buildmenuOpen);
+
+        //bottomActions.setVisible(!buildmenuOpen);
+       // bottomActions.setManaged((!buildmenuOpen));
+    }
+
+    private VBox makeBuildMenu () {
+        VBox menu = new VBox(8);
+        menu.setPrefHeight(240);
+        menu.setMaxHeight(260);
+        menu.getStyleClass().add("card");
+
+        Label title = new Label("Build Menu");
+        title.getStyleClass().add("title-large-font");
+
+        VBox buildList = new VBox(10);
+        buildList.getStyleClass().addAll("title-medium", "button-shape-rounded");
+
+        ScrollPane scrollPane = new ScrollPane(buildList);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
+        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+
+        buildList.getChildren().add(buildEntry("Lumber Mill", "Cost: 🔘 40  🪵 10  🟡 0"));
+        buildList.getChildren().add(buildEntry("Quarry", "Cost: 🔘 80  🪵 30  🟡 200"));
+        buildList.getChildren().add(buildEntry("Mine", "Cost: 🔘 20  🪵 200  🟡 10"));
+        buildList.getChildren().add(buildEntry("Town", "Cost: 🔘 50  🪵 350  🟡 50"));
+        buildList.getChildren().add(buildEntry("Market", "Cost: 🔘 200  🪵 30  🟡 500"));
+        buildList.getChildren().add(buildEntry("Space Port", "Cost: 🔘 5500  🪵 1000  🟡 100"));
+        buildList.getChildren().add(buildEntry("Research Lab", "Cost: 🔘 800  🪵 25  🟡 1000"));
+
+        menu.getChildren().addAll(title, scrollPane);
+        return menu;
+
+    }
+
+    private HBox buildEntry(String name, String cost){
+        Label label = new Label (name);
+        label.getStyleClass().addAll("build-menu-title");
+        Label resourceCost = new Label(cost);
+        resourceCost.getStyleClass().add("build-menu-cost");
+
+        VBox output = new VBox (4,label, resourceCost);
+
+        Region image = new Region();
+        image.setPrefSize(56, 56);
+        image.getStyleClass().addAll("build-menu-image");
+
+        HBox card = new HBox(12, image, output);
+        card.getStyleClass().addAll("build-menu-card");
+        card.setMaxWidth(Double.MAX_VALUE);
+        return card;
+
     }
 }

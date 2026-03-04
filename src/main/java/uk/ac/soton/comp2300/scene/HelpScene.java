@@ -15,7 +15,7 @@ public class HelpScene extends BaseScene {
     @Override
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: black;");
+        root.getStyleClass().add("root-light");
 
         Button btnBack = new Button("⬅");
         btnBack.setPrefSize(50, 50);
@@ -27,7 +27,7 @@ public class HelpScene extends BaseScene {
         VBox container = new VBox();
         container.setAlignment(Pos.CENTER);
         Label title = new Label("Help Page");
-        title.setStyle("-fx-text-fill: white; -fx-font-size: 32px; -fx-font-weight: bold;");
+        title.getStyleClass().add("title-xlarge");
 
         container.getChildren().add(title);
         root.getChildren().addAll(container, btnBack);

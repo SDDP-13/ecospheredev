@@ -5,6 +5,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonSyntaxException;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import uk.ac.soton.comp2300.scene.BaseScene;
+import uk.ac.soton.comp2300.ui.MainWindow;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -225,5 +227,11 @@ public class Setting {
         return new PasswordChangeResult(true, "OK", pw);
     }
 
-
+    public static boolean isDarkMode(){
+        for (SettingOption option: Setting.settingsList){
+            if (option.getKey().equals("darkMode"))
+                return option.enabledProperty().get();
+        }
+        return false;
+    }
 }

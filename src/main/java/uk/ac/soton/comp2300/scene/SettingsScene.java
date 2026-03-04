@@ -14,6 +14,7 @@ import javafx.util.Duration;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.component.ToggleSwitch;
+import uk.ac.soton.comp2300.model.LightDarkTheme;
 import uk.ac.soton.comp2300.model.Setting;
 import uk.ac.soton.comp2300.model.Setting.SettingOption;
 import uk.ac.soton.comp2300.ui.MainPane;
@@ -41,16 +42,23 @@ public class SettingsScene extends BaseScene {
     public void build() {
         Setting.init();
 
+        for (SettingOption option: Setting.settingsList) {
+            if (option.getKey().equals("darkMode")) {
+                option.enabledProperty().addListener((obs, oldV, newV)
+                        -> {LightDarkTheme.applyTheme(mainWindow.getStage().getScene(), newV);
+                });
+
+                LightDarkTheme.applyTheme(mainWindow.getStage().getScene(), option.enabledProperty().get());
+                break;
+            }
+        }
+
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: #F6F3FB;");
+        root.getStyleClass().add("root-light");
 
         Button btnBack = new Button("←");
         btnBack.setPrefSize(BASE, BASE);
-        btnBack.setStyle(
-                "-fx-background-color: transparent;" +
-                        "-fx-font-size: 18px;" +
-                        "-fx-text-fill: #1F1F1F;"
-        );
+        btnBack.getStyleClass().addAll("bg-transparent","title-large");
         btnBack.getStyleClass().add("menu-icon-button");
         btnBack.setOnAction(e -> mainWindow.loadScene(new MenuScene(mainWindow)));
 
@@ -58,19 +66,11 @@ public class SettingsScene extends BaseScene {
         StackPane.setMargin(btnBack, new Insets(20));
 
         Label title = new Label("Settings");
-        title.setStyle(
-                "-fx-text-fill: #1F1F1F;" +
-                        "-fx-font-size: " + (BASE * 0.6) + "px;" +
-                        "-fx-font-weight: 800;"
-        );
+        title.getStyleClass().add("title-xlarge");
 
         Button blbGear = new Button("\u2699");
         blbGear.setPrefSize(BASE, BASE);
-        blbGear.setStyle(
-                "-fx-background-color: transparent;" +
-                        "-fx-font-size: 18px;" +
-                        "-fx-text-fill: #1F1F1F;"
-        );
+        blbGear.getStyleClass().addAll("title-large", "bg-transparent");
 
         Region topSpacerL = new Region();
         Region topSpacerR = new Region();
@@ -85,9 +85,9 @@ public class SettingsScene extends BaseScene {
         VBox.setMargin(settingsBox, new Insets(10, 20, 10, 20));
         settingsBox.setMaxWidth(BASE * 8.2);
 
-        Button btnAccountDetails = makeActionButton("Account Details", "#E8DDFB", "#2B2B2B");
-        Button btnLogout = makeActionButton("Logout", "#E8DDFB", "#2B2B2B");
-        Button btnDelete = makeActionButton("Delete Account", "#F4B7C0", "#2B2B2B");
+        Button btnAccountDetails = makeActionButton("Account Details", "button-primary");
+        Button btnLogout = makeActionButton("Logout", "button-primary");
+        Button btnDelete = makeActionButton("Delete Account", "button-secondary");
 
         btnLogout.setOnAction(e -> mainWindow.loadScene(new LoginScene(mainWindow)));
 
@@ -122,7 +122,7 @@ public class SettingsScene extends BaseScene {
 
     private void showOverlay(Node content) {
         StackPane dim = new StackPane();
-        dim.setStyle("-fx-background-color: rgba(0,0,0,0.25);");
+        dim.getStyleClass().addAll("overlay-dim");
         dim.setPickOnBounds(true);
         dim.addEventFilter(MouseEvent.MOUSE_CLICKED, e -> e.consume());
 
@@ -138,18 +138,14 @@ public class SettingsScene extends BaseScene {
         box.setAlignment(Pos.CENTER_LEFT);
         box.setPadding(new Insets(18));
         box.setMaxWidth(440);
-        box.setStyle(
-                "-fx-background-color: #EDE7F7;" +
-                        "-fx-background-radius: 18;" +
-                        "-fx-border-radius: 18;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0.25, 0, 6);"
-        );
+        box.getStyleClass().addAll("button-shape-rounded-large", "effect-1", "label-empty");
+
 
         Label title = new Label("Account Details");
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: 900; -fx-text-fill: #1F1F1F;");
+        title.getStyleClass().addAll("title-large-font");
 
         Label hint = new Label("Hard coded, password is `Pass1`");
-        hint.setStyle("-fx-font-size: 12px; -fx-text-fill: #5A5A5A;");
+        hint.getStyleClass().addAll("title-medium");
 
         VBox rows = new VBox(10);
         rows.getChildren().addAll(
@@ -173,7 +169,7 @@ public class SettingsScene extends BaseScene {
 
 
         Button close = new Button("Close");
-        styleSmallButton(close, "#E8DDFB", "#2B2B2B");
+        styleSmallButton(close, "button-tertiary");
         close.setOnAction(e -> clearOverlay());
 
         HBox actions = new HBox(10, close);
@@ -196,19 +192,17 @@ public class SettingsScene extends BaseScene {
             super(12);
             setAlignment(Pos.CENTER_LEFT);
             setPadding(new Insets(10, 12, 10, 12));
-            setStyle(
-                    "-fx-background-color: rgba(255,255,255,0.55);" +
-                            "-fx-background-radius: 12;" +
-                            "-fx-border-radius: 12;"
-            );
+            getStyleClass().addAll("overlay-medium", "button-shape-rounded");
 
             VBox text = new VBox(3);
 
             Label l = new Label(label);
-            l.setStyle("-fx-font-size: 13px; -fx-font-weight: 800; -fx-text-fill: #1F1F1F;");
+            l.getStyleClass().addAll("title-small");
+
 
             Label v = new Label(value);
-            v.setStyle("-fx-font-size: 12px; -fx-text-fill: #4A4A4A;");
+            v.getStyleClass().addAll("title-small");
+
 
             text.getChildren().addAll(l, v);
 
@@ -216,14 +210,8 @@ public class SettingsScene extends BaseScene {
             HBox.setHgrow(spacer, Priority.ALWAYS);
 
             Button edit = new Button("Edit");
-            edit.setStyle(
-                    "-fx-background-color: #E8DDFB;" +
-                            "-fx-text-fill: #2B2B2B;" +
-                            "-fx-font-size: 13px;" +
-                            "-fx-font-weight: 800;" +
-                            "-fx-background-radius: 10;" +
-                            "-fx-border-radius: 10;"
-            );
+            edit.getStyleClass().addAll("button-tertiary","button-shape-rounded", "font-weight-1" );
+
             edit.setPrefHeight(34);
 
             edit.setOnAction(e -> {
@@ -287,32 +275,28 @@ public class SettingsScene extends BaseScene {
             setPadding(new Insets(18));
             setMaxWidth(460);
             setAlignment(Pos.CENTER_LEFT);
-            setStyle(
-                    "-fx-background-color: #EDE7F7;" +
-                            "-fx-background-radius: 18;" +
-                            "-fx-border-radius: 18;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0.25, 0, 6);"
-            );
+            getStyleClass().addAll("button-shape-rounded-large", "effect-1", "root-light");
 
             Label title = new Label("Create New Username");
-            title.setStyle("-fx-font-size: 18px; -fx-font-weight: 900; -fx-text-fill: #1F1F1F;");
+            title.getStyleClass().add("title-large");
 
             Label current = new Label("Current username: " + currentUsername);
-            current.setStyle("-fx-font-size: 12px; -fx-text-fill: #5A5A5A;");
+            current.getStyleClass().add("title-small");
 
             TextField tf = new TextField();
             tf.setPromptText("Enter new username");
+            tf.getStyleClass().addAll("root-light", "title-small");
             tf.setPrefHeight(40);
 
             Label status = new Label("Note: This is hard coded (does nothing yet).");
-            status.setStyle("-fx-font-size: 12px; -fx-text-fill: #5A5A5A;");
+            status.getStyleClass().add("title-small");
 
             Button cancel = new Button("Cancel");
-            styleSmallButton(cancel, "#E8DDFB", "#2B2B2B");
+            styleSmallButton(cancel, "button-tertiary");
             cancel.setOnAction(e -> onCancel.run());
 
             Button confirm = new Button("Confirm");
-            styleSmallButton(confirm, "#F4B7C0", "#2B2B2B");
+            styleSmallButton(confirm, "button-secondary");
 
             confirm.setOnAction(e -> {
                 Setting.UsernameResult res = Setting.validateUsername(tf.getText(), currentUsername);
@@ -340,36 +324,33 @@ public class SettingsScene extends BaseScene {
             setPadding(new Insets(18));
             setMaxWidth(460);
             setAlignment(Pos.CENTER_LEFT);
-            setStyle(
-                    "-fx-background-color: #EDE7F7;" +
-                            "-fx-background-radius: 18;" +
-                            "-fx-border-radius: 18;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0.25, 0, 6);"
-            );
+            getStyleClass().addAll("button-shape-round-large","button-tertiary","effect-1");
 
             Label title = new Label("Create New Password");
-            title.setStyle("-fx-font-size: 18px; -fx-font-weight: 900; -fx-text-fill: #1F1F1F;");
+            title.getStyleClass().add("title-large");
 
             Label msg = new Label("Enter a new password and retype it.");
-            msg.setStyle("-fx-font-size: 12px; -fx-text-fill: #5A5A5A;");
+            //msg.getStyleClass().add("title-small");
 
             PasswordField pf1 = new PasswordField();
             pf1.setPromptText("New password");
+            //pf1.getStyleClass().addAll("title-small", "root-light");
             pf1.setPrefHeight(40);
 
             PasswordField pf2 = new PasswordField();
             pf2.setPromptText("Retype new password");
+            //pf2.getStyleClass().addAll("title-small", "root-light");
             pf2.setPrefHeight(40);
 
             Label status = new Label("Note: This is hard coded (does nothing yet).");
-            status.setStyle("-fx-font-size: 12px; -fx-text-fill: #5A5A5A;");
+            //status.getStyleClass().add("title-small");
 
             Button cancel = new Button("Cancel");
-            styleSmallButton(cancel, "#E8DDFB", "#2B2B2B");
+            styleSmallButton(cancel, "button-tertiary");
             cancel.setOnAction(e -> onCancel.run());
 
             Button confirm = new Button("Confirm");
-            styleSmallButton(confirm, "#F4B7C0", "#2B2B2B");
+            styleSmallButton(confirm, "button-secondary");
 
             confirm.setOnAction(e -> {
                 Setting.PasswordChangeResult res =
@@ -414,31 +395,27 @@ public class SettingsScene extends BaseScene {
         box.setAlignment(Pos.CENTER_LEFT);
         box.setPadding(new Insets(18));
         box.setMaxWidth(460);
-        box.setStyle(
-                "-fx-background-color: #EDE7F7;" +
-                        "-fx-background-radius: 18;" +
-                        "-fx-border-radius: 18;" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0.25, 0, 6);"
-        );
+        box.getStyleClass().addAll("button-shape-round-large","button-tertiary","effect-1");
+
 
         Label title = new Label("Confirm Deletion");
-        title.setStyle("-fx-font-size: 18px; -fx-font-weight: 900; -fx-text-fill: #1F1F1F;");
+        title.getStyleClass().add("title-large");
 
         Label warning = new Label("This will permanently delete your account. (does nothing)");
-        warning.setStyle("-fx-font-size: 13px; -fx-font-weight: 800; -fx-text-fill: #2B2B2B;");
+        warning.getStyleClass().add("title-small");
 
         CheckBox understand = new CheckBox("I understand");
-        understand.setStyle("-fx-font-size: 13px; -fx-text-fill: #1F1F1F; -fx-font-weight: 700;");
+        understand.getStyleClass().add("title-small");
 
         Label status = new Label("Confirm will unlock in 5 seconds…");
-        status.setStyle("-fx-font-size: 12px; -fx-text-fill: #5A5A5A;");
+        status.getStyleClass().add("title-small");
 
         Button cancel = new Button("Cancel");
-        styleSmallButton(cancel, "#E8DDFB", "#2B2B2B");
+        styleSmallButton(cancel, "button-tertiary");
         cancel.setOnAction(e -> clearOverlay());
 
         Button confirm = new Button("Confirm (5)");
-        styleSmallButton(confirm, "#F4B7C0", "#2B2B2B");
+        styleSmallButton(confirm, "button-secondary");
         confirm.setDisable(true);
 
         final BooleanProperty checkboxSelected = understand.selectedProperty();
@@ -497,32 +474,29 @@ public class SettingsScene extends BaseScene {
             setPadding(new Insets(18));
             setMaxWidth(460);
             setAlignment(Pos.CENTER_LEFT);
-            setStyle(
-                    "-fx-background-color: #EDE7F7;" +
-                            "-fx-background-radius: 18;" +
-                            "-fx-border-radius: 18;" +
-                            "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0.25, 0, 6);"
-            );
+            getStyleClass().addAll("button-shape-round-large","button-tertiary","effect-1");
 
             Label title = new Label(titleText);
-            title.setStyle("-fx-font-size: 18px; -fx-font-weight: 900; -fx-text-fill: #1F1F1F;");
+            title.getStyleClass().addAll("title-large");
 
             Label msg = new Label(messageText);
-            msg.setStyle("-fx-font-size: 12px; -fx-text-fill: #5A5A5A;");
+            msg.getStyleClass().add("label-small");
+
 
             PasswordField pf = new PasswordField();
             pf.setPromptText("Enter password");
+            pf.getStyleClass().add("label-small");
             pf.setPrefHeight(40);
 
             Label status = new Label("");
-            status.setStyle("-fx-font-size: 12px; -fx-text-fill: #5A5A5A;");
+            status.getStyleClass().add("label-small");
 
             Button cancel = new Button("Cancel");
-            styleSmallButtonStatic(cancel, "#E8DDFB", "#2B2B2B");
+            styleSmallButtonStatic(cancel, "button-tertiary");
             cancel.setOnAction(e -> onResult.accept(new Setting.PermissionResult(false, "Cancelled.")));
 
             Button confirm = new Button("Confirm");
-            styleSmallButtonStatic(confirm, "#F4B7C0", "#2B2B2B");
+            styleSmallButtonStatic(confirm, "button-secondary");
 
             confirm.setOnAction(e -> {
                 Setting.PermissionResult res = verifier.apply(pf.getText());
@@ -538,48 +512,28 @@ public class SettingsScene extends BaseScene {
             getChildren().addAll(title, msg, pf, status, actions);
         }
 
-        private static void styleSmallButtonStatic(Button b, String bg, String fg) {
+        private static void styleSmallButtonStatic(Button b, String buttonStyle) {
             b.setPrefWidth(140);
             b.setPrefHeight(40);
-            b.setStyle(
-                    "-fx-background-color: " + bg + ";" +
-                            "-fx-text-fill: " + fg + ";" +
-                            "-fx-font-size: 14px;" +
-                            "-fx-font-weight: bold;" +
-                            "-fx-background-radius: 10;" +
-                            "-fx-border-radius: 10;"
-            );
+            b.getStyleClass().addAll(buttonStyle,"button-shape-rounded-small");
+
         }
     }
 
-    private Button makeActionButton(String text, String bg, String fg) {
+    private Button makeActionButton(String text, String buttonStyle) {
         Button b = new Button(text);
         b.setPrefWidth(BASE * 5);
         b.setPrefHeight(BASE * 1.35);
-
-        b.setStyle(
-                "-fx-background-color: " + bg + ";" +
-                        "-fx-text-fill: " + fg + ";" +
-                        "-fx-font-size: 15px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-border-radius: 10;"
-        );
+        b.getStyleClass().addAll("button-structure", buttonStyle, "button-shape-rounded", "padding");
 
         return b;
     }
 
-    private void styleSmallButton(Button b, String bg, String fg) {
+    private void styleSmallButton(Button b, String buttonStyle) {
         b.setPrefWidth(140);
         b.setPrefHeight(40);
-        b.setStyle(
-                "-fx-background-color: " + bg + ";" +
-                        "-fx-text-fill: " + fg + ";" +
-                        "-fx-font-size: 14px;" +
-                        "-fx-font-weight: bold;" +
-                        "-fx-background-radius: 10;" +
-                        "-fx-border-radius: 10;"
-        );
+        b.getStyleClass().addAll("button-primary", "button-shape-rounded");
+
     }
 
     private static class LabeledSwitch extends HBox {
@@ -589,18 +543,12 @@ public class SettingsScene extends BaseScene {
             super(12 * scale);
 
             Label titleLabel = new Label(setting.getTitle());
-            titleLabel.setStyle(
-                    "-fx-font-size: " + (16 * scale) + "px;" +
-                            "-fx-font-weight: 800;" +
-                            "-fx-text-fill: #1F1F1F;"
-            );
+            titleLabel.getStyleClass().addAll("title-medium-small-dark", "font-weight-1");
+
 
             Label descLabel = new Label(setting.getDescription());
             descLabel.setWrapText(true);
-            descLabel.setStyle(
-                    "-fx-font-size: " + (12 * scale) + "px;" +
-                            "-fx-text-fill: #5A5A5A;"
-            );
+            descLabel.getStyleClass().add("label-small");
 
             VBox textBox = new VBox(4 * scale, titleLabel, descLabel);
             textBox.setAlignment(Pos.CENTER_LEFT);
@@ -627,14 +575,10 @@ public class SettingsScene extends BaseScene {
             LabeledSwitch row = new LabeledSwitch(setting, scale);
             vbox.getChildren().add(row);
         }
+        vbox.getStyleClass().addAll("button-shape-rounded-large","effect-2", "root-light");
 
-        vbox.setStyle(
-                "-fx-background-color: #EDE7F7;" +
-                        "-fx-background-radius: " + (18 * scale) + ";" +
-                        "-fx-border-radius: " + (18 * scale) + ";" +
-                        "-fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0.2, 0, 4);"
-        );
 
         return vbox;
     }
+
 }

@@ -15,6 +15,7 @@ import uk.ac.soton.comp2300.ui.MainWindow;
 import java.util.ArrayList;
 import java.util.List;
 
+
 public class App extends Application {
     private static final Logger logger = LogManager.getLogger(App.class);
 

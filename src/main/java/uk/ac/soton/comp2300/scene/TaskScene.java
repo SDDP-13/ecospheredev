@@ -23,7 +23,8 @@ public class TaskScene extends BaseScene {
         this.dailyTasks = app.getTasks();
 
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: #EFEEF5;");
+        root.getStyleClass().add("root-light");
+       // root.setStyle("-fx-background-color: #EFEEF5;");
 
         Button btnBack = new Button("←");
         btnBack.setPrefSize(44, 44);
@@ -37,10 +38,12 @@ public class TaskScene extends BaseScene {
         container.setPadding(new Insets(20, 20, 20, 20));
 
         Label title = new Label("Daily Tasks");
-        title.setStyle("-fx-font-size: 32px; -fx-font-weight: 800; -fx-text-fill: #333;");
+        title.getStyleClass().add("title-xlarge");
+        //title.setStyle("-fx-font-size: 32px; -fx-font-weight: 800; -fx-text-fill: #333;");
 
         Label windowDesc = new Label("Tasks will reset at 08:00 GMT");
-        windowDesc.setStyle("-fx-font-size: 16px; -fx-text-fill: #666;");
+        windowDesc.getStyleClass().add("title-medium");
+        //windowDesc.setStyle("-fx-font-size: 16px; -fx-text-fill: #666;");
 
         VBox taskList = new VBox(15);
         taskList.setAlignment(Pos.TOP_CENTER);
@@ -60,7 +63,8 @@ public class TaskScene extends BaseScene {
 
     private HBox createTask(Task taskObj) {
         HBox taskCard = new HBox(15);
-        taskCard.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 12;");
+        taskCard.getStyleClass().add("card");
+        //taskCard.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 12;");
         taskCard.setMaxWidth(400);
         taskCard.setAlignment(Pos.CENTER_LEFT);
 
@@ -70,15 +74,18 @@ public class TaskScene extends BaseScene {
 
         // Using taskObj.getId() for the title as per your JSON
         Label title = new Label(taskObj.getId());
-        title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 20px; -fx-font-weight: bold;");
+        title.getStyleClass().addAll("title-large-font");
+       // title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 20px; -fx-font-weight: bold;");
 
         Label desc = new Label(taskObj.getDescription());
         desc.setWrapText(true);
         desc.setMaxWidth(250);
-        desc.setStyle("-fx-text-fill: #555; -fx-font-size: 13px;");
+        desc.getStyleClass().add("label-small");
+        //desc.setStyle("-fx-text-fill: #555; -fx-font-size: 13px;");
 
         Label rewardLabel = new Label("Rewards: Money 100, Wood 50, Metal 20");
-        rewardLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-weight: bold;");
+        rewardLabel.getStyleClass().add("label-small");
+        //rewardLabel.setStyle("-fx-text-fill: #888; -fx-font-size: 11px; -fx-font-weight: bold;");
 
         textContainer.getChildren().addAll(title, desc, rewardLabel);
 
@@ -133,7 +140,8 @@ public class TaskScene extends BaseScene {
     private void setBtnLocked(Button btn, String text) {
         btn.setText(text);
         btn.setDisable(true);
-        btn.setStyle("-fx-background-color: #fce4ec; -fx-text-fill: #d81b60; -fx-font-size: 11px; -fx-background-radius: 20; -fx-border-color: #f06292; -fx-border-radius: 20;");
+        btn.getStyleClass().addAll("button secondary", "button-shape-rounded-large", "border color");
+        //btn.setStyle("-fx-background-color: #fce4ec; -fx-text-fill: #d81b60; -fx-font-size: 11px; -fx-background-radius: 20; -fx-border-color: #f06292; -fx-border-radius: 20;");
     }
 
     private void setBtnClaimed(Button btn) {
@@ -145,7 +153,8 @@ public class TaskScene extends BaseScene {
     private void setBtnReady(Button btn) {
         btn.setText("CLAIM");
         btn.setDisable(false);
-        btn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 20; -fx-cursor: hand;");
+        btn.getStyleClass().add("button-claim");
+      //  btn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 20; -fx-cursor: hand;");
     }
 
     @Override public void initialise() {}

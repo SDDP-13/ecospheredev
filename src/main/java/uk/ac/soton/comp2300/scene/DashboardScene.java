@@ -16,7 +16,9 @@ public class DashboardScene extends BaseScene {
     public void build() {
         var app = App.getInstance();
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
-        root.setStyle("-fx-background-color: #F3EEF9;");
+
+        root.getStyleClass().add("root-light");
+
 
         // 1. Data Calculation
         int totalTasksAvailable = app.getTasks().size();
@@ -32,7 +34,9 @@ public class DashboardScene extends BaseScene {
 
         // 3. Title
         Label title = new Label("Dashboard");
-        title.setStyle("-fx-font-size: 28px; -fx-font-weight: bold;");
+
+        title.getStyleClass().add("title-xlarge");
+
 
         // 4. Progress Card
         VBox todayProgress = createProgressCard("Today's Progress", "Daily Tasks", progressPercentage, progressRatio);

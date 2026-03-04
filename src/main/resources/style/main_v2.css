@@ -1,0 +1,371 @@
+@import url('https://fonts.cdnfonts.com/css/impact');
+
+.mainPane {
+
+}
+
+.root-black {
+    -fx-background-color: black;
+}
+.root-dark {
+    -fx-background-color: -background;
+}
+.root-light {
+    -fx-background-color: -foreground;
+}
+.overlay-dim {
+    -fx-background-color: rgba(0,0,0,0.25);
+}
+.overlay-medium {
+    -fx-background-color: rgba(255,255,255,0.55);
+}
+.effect-1{
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0.25, 0, 6);
+}
+.effect-2 {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0.2, 0, 4);
+}
+
+.scroll-pane,
+.scroll-pane > .viewport {
+    -fx-background-color: -background;
+}
+
+
+
+
+.title-xlarge {
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-fill;
+}
+.title-xlarge-dark{
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-fill-dark;
+}
+.title-large {
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-fill;
+}
+.title-large-dark {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-fill-dark;
+}
+.title-large-dark-2 {
+    -fx-font-size: 18px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-fill-dark;
+}
+
+.title-xlarge-font {
+    -fx-font-family: "Arial";
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-fill;
+}
+.title-large-font {
+    -fx-font-family: "Arial";
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-fill;
+}
+.title-medium {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-fill;
+}
+.title-medium-fixed{
+    -fx-font-size: 14px;
+    -fx-text-fill: black;
+}
+.title-medium-dark {
+    -fx-font-size: 14px;
+    -fx-text-fill: -text-fill-dark;
+}
+.title-medium-dark{
+    -fx-text-fill: -text-fill-dark;
+    -fx-font-size: 13px;
+    -fx-font-weight: normal;
+}
+.title-medium-small-dark{
+    -fx-font-weight: 800;
+    -fx-font-size: 15px;
+    -fx-text-fill: -text-fill-dark;
+}
+.title-small {
+    -fx-text-fill: -text-fill;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+.label-medium {
+    -fx-font-size: 16px;
+    -fx-text-fill: -text-fill;
+}
+.label-small{
+    -fx-font-size: 12px;
+    -fx-text-fill: -text-fill;
+}
+.label-empty {
+    -fx-background-color: -foreground;
+    -fx-background-radius: 18;
+}
+
+
+.card {
+    -fx-background-color: -foreground;
+    -fx-border-color: -border;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-padding: 12;
+}
+.icon-surface {
+    -fx-background-color: -surface;
+    -fx-background-radius: 10;
+}
+.hover {
+    -fx-background-color: -hover;
+}
+.icon {
+    -fx-font-size: 28px;
+}
+.button {
+    -fx-background-color: -surface;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-fill;
+}
+.button-2 {
+    -fx-background-color: -surface;
+    -fx-text-fill: -text-fill;
+    -fx-font-weight: bold;
+    -fx-background-radius: 12;
+    -fx-padding: 8 16;
+}
+.button-structure {
+    -fx-cursor: hand;
+    -fx-border-width: 1;
+}
+.button-primary{
+    -fx-background-color: -surface;
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+.button-secondary {
+    -fx-background-color: -surface-2;
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 15px;
+}
+.button-tertiary {
+    -fx-background-color:-foreground;
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 15px;
+    -fx-font-weight: 800;
+}
+.button-password {
+    -fx-background-color: -surface;
+    -fx-text-fill: black;
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+.button-claim {
+    -fx-background-color: -background-green;
+    -fx-text-fill: -text-fill;
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+
+
+
+.button-shape-rounded-large{
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+}
+.button-shape-rounded {
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+}
+.button-shape-rounded-small{
+    -fx-border-radius: 10;
+    -fx-background-radius: 10;
+}
+.padding{
+    -fx-padding: 12;
+}
+.compact{
+    -fx-padding: 8 16;
+}
+.font-weight-1{
+    -fx-font-weight: 800;
+}
+.font-weight-2{
+    -fx-font-weight: bold;
+}
+
+.bg-transparent {
+    -fx-background-color: transparent;
+}
+.border-colour {
+    -fx-border-color: -surface;
+}
+
+/*Login Page Variables*/
+.login-scene .user-icon {
+    -fx-font-size: 60px;
+    -fx-text-fill: -text-fill;
+}
+.login-scene .forgot-pass {
+    -fx-text-fill: blue;
+    -fx-underline: true;
+}
+.login-scene .login-button {
+    -fx-background-color: -surface;
+    -fx-border-color:-border ;
+    -fx-text-fill: -text-fill;
+}
+.login-scene .create-account-button {
+    -fx-background-color: -surface;
+    -fx-background-radius: 15;
+    -fx-text-fill: -text-fill;
+}
+.login-scene .field {
+    -fx-background-color: -surface;
+    -fx-border-color: transparent transparent grey transparent;
+}
+.login-scene .sub-text {
+    -fx-font-size: 10px;
+    -fx-text-fill: grey;
+}
+
+.recommendation .tip {
+    -fx-background-color: -background;
+    -fx-text-fill: -text-fill;
+}
+
+.build-menu-card {
+    -fx-background-color: -build-menu-bg;
+    -fx-background-radius: 14;
+    -fx-padding: 10;
+    -fx-alignment: center-left;
+}
+.build-menu-card:hover {
+    -fx-background-color: -hover;
+}
+
+.build-menu-title {
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+.build-menu-cost {
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 12px;
+}
+
+.build-menu-image {
+    -fx-background-color: -surface;
+    -fx-background-radius: 10;
+}
+
+
+
+
+
+
+.helloText {
+    -fx-fill: -foreground;
+    -fx-font-family: 'Impact', sans-serif;
+    -fx-font-size: 48px;
+    -fx-font-weight: 700;
+    -fx-border-color: -border;
+    -fx-stroke: -stroke;
+    -fx-border-width: 2;
+}
+
+
+
+.hover-description {
+    -fx-background-color: -menu-hover-description;
+    -fx-text-fill: -text-fill;
+    -fx-padding: 5 12;
+    -fx-background-radius: 10;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
+
+/* Solar System Scene */
+.solar-system-scene .system-title {
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+
+/* Dashboard Scene */
+
+
+
+.menu-icon-button {
+    -fx-background-color: -menu-icon-bg;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+}
+.menu-icon-button:hover {
+    -fx-background-color: -menu-icon-hover;
+}
+.menu {
+    -fx-padding: 10;
+}
+.menu-dropdown-bg {
+    -fx-background-color: -menu-bg;
+    -fx-background-radius: 25;
+    -fx-alignment: center;
+}
+/* --redundant--
+
+.login-scene {
+    -fx-background-color: -background ;
+}
+
+.login-scene .login-title {
+    -fx-font-family: "Arial";
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-fill;
+}
+
+.login-scene .login-header {
+    -fx-font-family: "Arial";
+    -fx-font-size: 20px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -text-fill;
+}
+.build-scene .build-title {
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+.build-scene .menu-icon-button {
+    -fx-background-color: -menu-icon-bg;
+    -fx-background-radius: 50;
+    -fx-cursor: hand;
+}
+.dashboard-scene .dashboard-title {
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+}
+        ------from recommendations-------
+        Label title = new Label("Recommendations");
+        title.setStyle("-fx-font-size: 30px; -fx-font-weight: 800; -fx-text-fill: #1F1F1F;");
+        -----from recommendations----
+        content.setWrapText(true);
+        content.setStyle("-fx-font-size: 14px; -fx-text-fill: #333333;");
+        --------Schedules--------------
+        Label title = new Label("Schedules");
+        title.setStyle("-fx-font-size: 32px; -fx-font-weight: 800;");
+ */

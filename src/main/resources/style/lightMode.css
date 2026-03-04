@@ -1,0 +1,30 @@
+.root {
+
+    /*accent = container bg, outline = prominent borders, outlineVariant = soft border colour */
+    -background: rgba(160, 113, 239, 0.85);
+    -background-green: #4CAF50;
+    -build-menu-bg: rgba(172, 132, 239, 0.85);
+    -foreground: #F4F0FF;
+    -hover: #c5b4f3;
+    -surface: #DCD0FF;
+    -surface-2: #F4B7C0;
+    -border: #D1C4E9;
+    -stroke: black;
+    -menu-bg: rgba(150, 120, 200, 0.85);
+    -menu-icon-bg: white;
+    -menu-icon-hover: #e0e0e0;
+    -menu-hover-description: rgba(188, 144, 237, 0.9);
+    -text-fill: #1F1F1F;
+    -text-fill-dark: black;
+    -accent: #BBBBBB;
+    -outline: #1B153B;
+    -outlineVariant: #1A1A11;
+    -transparent: transparent;
+
+    /*
+    -background-colour: -background;
+    -text-colour: - foreground;
+
+     */
+
+}
