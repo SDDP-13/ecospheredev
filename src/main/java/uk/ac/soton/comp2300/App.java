@@ -62,12 +62,6 @@ public class App extends Application {
         return gameState.getTotalXp();
     }
 
-    public void addXp(int amount) {
-        if (gameState != null) {
-            gameState.addXp(amount);
-            logger.info("XP increased in GameState! New Total: " + gameState.getTotalXp());
-        }
-    }
 
     /**
      * Retrieves the daily tasks. If they don't exist yet, they are generated once.
@@ -243,5 +237,37 @@ public class App extends Application {
         double progressRatio = (double) xpInCurrentLevel / xpRequiredForThisLevel;
 
         return new double[]{level, xpInCurrentLevel, xpRequiredForThisLevel, progressRatio};
+    }
+    public void addXp(int amount) {
+        if (gameState != null) {
+            // 1. Get current level before adding XP
+            int levelBefore = (int) getLevelData()[0];
+
+            // 2. Add the XP to the saveable state
+            gameState.addXp(amount);
+            logger.info("XP increased! New Total: " + gameState.getTotalXp());
+
+            // 3. Get level after adding XP
+            int levelAfter = (int) getLevelData()[0];
+
+            // 4. Trigger popup if level increased
+            if (levelAfter > levelBefore) {
+                triggerLevelUpNotification(levelAfter);
+            }
+        }
+    }
+
+    private void triggerLevelUpNotification(int newLevel) {
+        var levelRecord = new uk.ac.soton.comp2300.event.NotificationRecord(
+                "LVL_UP_" + newLevel,
+                "Level Up!",
+                "Your eco-influence is growing. ⭐", // Updated description
+                java.time.LocalDateTime.now(),
+                uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT // Type is GAME_EVENT
+        );
+
+        if (notificationLogic != null && notificationLogic.getListener() != null) {
+            notificationLogic.getListener().onNotificationSent(levelRecord);
+        }
     }
 }

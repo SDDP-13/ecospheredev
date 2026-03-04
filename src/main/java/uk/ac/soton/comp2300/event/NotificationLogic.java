@@ -72,6 +72,10 @@ public class NotificationLogic {
             e.printStackTrace();
         }
     }
+    // Add this to NotificationLogic.java
+    public NotificationListenerInterface getListener() {
+        return listener;
+    }
 
 
 }
