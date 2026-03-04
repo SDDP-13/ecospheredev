@@ -25,7 +25,7 @@ public class App extends Application {
     private int money = 0;
     private int metal = 0;
     private int wood = 0;
-    private int totalXp = 0;
+    //private int totalXp = 0;
     private GameState gameState;
     private GameController gameController;
     private GameSaveManager saveManager;
@@ -58,13 +58,10 @@ public class App extends Application {
         open();
     }
     public int getTotalXp() {
-        return totalXp;
+        if (gameState == null) return 0;
+        return gameState.getTotalXp();
     }
 
-    public void addXp(int amount) {
-        this.totalXp += amount;
-        logger.info("XP increased! New Total: " + totalXp);
-    }
 
     /**
      * Retrieves the daily tasks. If they don't exist yet, they are generated once.
@@ -219,5 +216,58 @@ public class App extends Application {
     public void addReportSavings(EcoSavingsReport report) {
         this.totalCo2Saved += report.getCo2SavedKg();
         this.totalMoneySaved += report.getMoneySavedPounds();
+    }
+    /**
+     * Helper to calculate current level and progress based on total XP.
+     * Returns an array: [Current Level, XP in Current Level, XP Required for Next Level, Progress Ratio]
+     */
+    public double[] getLevelData() {
+        int totalXp = getTotalXp();
+        int level = 0;
+        int xpAtStartOfCurrentLevel = 0;
+
+        // Logic: Level 1 @ 200, Level 2 @ 600, etc.
+        while (totalXp >= xpAtStartOfCurrentLevel + (200 * (level + 1))) {
+            xpAtStartOfCurrentLevel += (200 * (level + 1));
+            level++;
+        }
+
+        int xpInCurrentLevel = totalXp - xpAtStartOfCurrentLevel;
+        int xpRequiredForThisLevel = 200 * (level + 1);
+        double progressRatio = (double) xpInCurrentLevel / xpRequiredForThisLevel;
+
+        return new double[]{level, xpInCurrentLevel, xpRequiredForThisLevel, progressRatio};
+    }
+    public void addXp(int amount) {
+        if (gameState != null) {
+            // 1. Get current level before adding XP
+            int levelBefore = (int) getLevelData()[0];
+
+            // 2. Add the XP to the saveable state
+            gameState.addXp(amount);
+            logger.info("XP increased! New Total: " + gameState.getTotalXp());
+
+            // 3. Get level after adding XP
+            int levelAfter = (int) getLevelData()[0];
+
+            // 4. Trigger popup if level increased
+            if (levelAfter > levelBefore) {
+                triggerLevelUpNotification(levelAfter);
+            }
+        }
+    }
+
+    private void triggerLevelUpNotification(int newLevel) {
+        var levelRecord = new uk.ac.soton.comp2300.event.NotificationRecord(
+                "LVL_UP_" + newLevel,
+                "Level Up!",
+                "Your eco-influence is growing. ⭐", // Updated description
+                java.time.LocalDateTime.now(),
+                uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT // Type is GAME_EVENT
+        );
+
+        if (notificationLogic != null && notificationLogic.getListener() != null) {
+            notificationLogic.getListener().onNotificationSent(levelRecord);
+        }
     }
 }

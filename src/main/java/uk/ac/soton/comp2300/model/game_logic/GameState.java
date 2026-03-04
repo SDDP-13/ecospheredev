@@ -13,6 +13,7 @@ public class GameState {
     private ResourceStack woodTotal;
     private ResourceStack metalTotal;
     private ResourceStack stoneTotal;
+    private int totalXp;
 
     public GameState() {
         this.planets = new ArrayList<Planet>();
@@ -20,6 +21,11 @@ public class GameState {
         this.woodTotal = new ResourceStack(Resource.WOOD, 0);
         this.metalTotal = new ResourceStack(Resource.METAL, 0);
         this.stoneTotal = new ResourceStack(Resource.STONE, 0);
+    }
+    public int getTotalXp() { return totalXp; }
+
+    public void addXp(int amount) {
+        this.totalXp += amount;
     }
 
     public void addResource(Resource type, int amount) {
