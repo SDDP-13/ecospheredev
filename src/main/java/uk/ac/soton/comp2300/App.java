@@ -205,4 +205,19 @@ public class App extends Application {
         };
         this.totalEnergySaved += saved;
     }
+
+    // Add to App.java
+    private double totalCo2Saved = 0.0;
+    private double totalMoneySaved = 0.0;
+
+    public double getTotalCo2Saved() { return totalCo2Saved; }
+    public double getTotalMoneySaved() { return totalMoneySaved; }
+
+    /**
+     * Updates global session totals using a report from the EcoSavingsService.
+     */
+    public void addReportSavings(EcoSavingsReport report) {
+        this.totalCo2Saved += report.getCo2SavedKg();
+        this.totalMoneySaved += report.getMoneySavedPounds();
+    }
 }
