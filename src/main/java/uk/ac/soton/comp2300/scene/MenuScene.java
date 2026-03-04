@@ -169,9 +169,9 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
         /** Build Menu */
         buildMenu = makeBuildMenu();
-        buildMenu.setTranslateY(350);
+        buildMenu.setTranslateY(260);
         StackPane.setAlignment(buildMenu, Pos.BOTTOM_CENTER);
-        StackPane.setMargin(buildMenu, new Insets(0,0,70,0));
+        StackPane.setMargin(buildMenu, new Insets(0,0,10,0));
 
 
         root.getChildren().addAll(starField, planetLayer, resourceContainer, menuDrawer, botMenuActions, labelOverlay, buildMenu);
@@ -220,7 +220,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         if (buildmenuOpen) {
             move.setToY(0);
         } else {
-            move.setToY(350);
+            move.setToY(260);
         }
 
         move.play();
@@ -235,11 +235,26 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
     private VBox makeBuildMenu () {
         VBox menu = new VBox(8);
         menu.setPrefHeight(240);
-        menu.setMaxHeight(260);
+        menu.setMinHeight(240);
+        menu.setMaxHeight(240);
         menu.getStyleClass().add("card");
 
         Label title = new Label("Build Menu");
-        title.getStyleClass().add("title-large-font");
+        title.getStyleClass().addAll("title-medium", "font-weight-2");
+
+        Button collapseBtn = new Button ("▾");
+        collapseBtn.getStyleClass().add("menu-icon-button");
+        collapseBtn.setPrefSize(28,28);
+        collapseBtn.setOnAction(e->toggleBuildMenu());
+
+        Region headerSpace = new Region();
+        HBox.setHgrow(headerSpace, Priority.ALWAYS);
+
+        HBox header = new HBox (8, title, headerSpace, collapseBtn);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setPadding(new Insets(0,0,4,0));
+
+
 
         VBox buildList = new VBox(10);
         buildList.getStyleClass().addAll("title-medium", "button-shape-rounded");
@@ -248,6 +263,10 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         scrollPane.setFitToWidth(true);
         scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+
+// Optional: avoid scrollpane trying to size itself to content height
+        scrollPane.setPrefViewportHeight(140);
 
         buildList.getChildren().add(buildEntry("Lumber Mill", "Cost: 🔘 40  🪵 10  🟡 0"));
         buildList.getChildren().add(buildEntry("Quarry", "Cost: 🔘 80  🪵 30  🟡 200"));
@@ -257,7 +276,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         buildList.getChildren().add(buildEntry("Space Port", "Cost: 🔘 5500  🪵 1000  🟡 100"));
         buildList.getChildren().add(buildEntry("Research Lab", "Cost: 🔘 800  🪵 25  🟡 1000"));
 
-        menu.getChildren().addAll(title, scrollPane);
+        menu.getChildren().addAll(header, scrollPane);
         return menu;
 
     }
