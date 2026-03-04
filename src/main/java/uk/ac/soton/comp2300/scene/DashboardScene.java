@@ -161,7 +161,7 @@ public class DashboardScene extends BaseScene {
                 createImpactRow("Carbon Offset", String.format("%.2f kg", app.getTotalCo2Saved()), "#1B5E20")
         );
 
-        // --- SECTION 4: RESOURCES & XP ---
+// --- SECTION 4: RESOURCES DATA ---
         GridPane resourceGrid = new GridPane();
         resourceGrid.setHgap(15); resourceGrid.setVgap(15);
         resourceGrid.setAlignment(Pos.CENTER);
@@ -170,9 +170,34 @@ public class DashboardScene extends BaseScene {
         resourceGrid.add(createResourceBox("Wood", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD), "🪵"), 0, 1);
         resourceGrid.add(createResourceBox("Stone", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE), "🪨"), 1, 1);
 
-        VBox xpBox = createResourceBox("Total Xp", app.getTotalXp(), "⭐");
-        xpBox.setPrefWidth(335);
+// --- SECTION 5: XP DATA & LEVEL BAR ---
+        double[] levelData = app.getLevelData(); // Call the helper
+        int level = (int) levelData[0];
+        int xpInCurrentLevel = (int) levelData[1];
+        int xpRequiredForThisLevel = (int) levelData[2];
+        double levelProgress = levelData[3];
 
+        VBox xpBox = new VBox(10);
+        xpBox.setPrefWidth(335);
+        xpBox.setAlignment(Pos.CENTER);
+        xpBox.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
+
+        Label xpTitle = new Label("Total XP: " + String.format("%,d", app.getTotalXp()));
+        xpTitle.setStyle("-fx-font-size: 18px; -fx-font-weight: bold; -fx-text-fill: #4A148C;");
+
+        Label levelLabel = new Label("Level " + level);
+        levelLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: #7B1FA2;");
+
+        ProgressBar levelBar = new ProgressBar(levelProgress);
+        levelBar.setPrefWidth(280);
+        levelBar.setStyle("-fx-accent: #FFD54F;");
+
+        Label nextLevelInfo = new Label(xpInCurrentLevel + " / " + xpRequiredForThisLevel + " XP to next level");
+        nextLevelInfo.setStyle("-fx-font-size: 10px; -fx-text-fill: #888;");
+
+        xpBox.getChildren().addAll(xpTitle, levelLabel, levelBar, nextLevelInfo);
+        // --- FINAL ASSEMBLY ---
         content.getChildren().addAll(title, toggleBar, weeklyProgressCard, deviceChartCard, ecoImpactCard, resourceGrid, xpBox);
 
         Button backBtn = new Button("←");

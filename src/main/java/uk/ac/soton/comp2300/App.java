@@ -223,4 +223,25 @@ public class App extends Application {
         this.totalCo2Saved += report.getCo2SavedKg();
         this.totalMoneySaved += report.getMoneySavedPounds();
     }
+    /**
+     * Helper to calculate current level and progress based on total XP.
+     * Returns an array: [Current Level, XP in Current Level, XP Required for Next Level, Progress Ratio]
+     */
+    public double[] getLevelData() {
+        int totalXp = getTotalXp();
+        int level = 0;
+        int xpAtStartOfCurrentLevel = 0;
+
+        // Logic: Level 1 @ 200, Level 2 @ 600, etc.
+        while (totalXp >= xpAtStartOfCurrentLevel + (200 * (level + 1))) {
+            xpAtStartOfCurrentLevel += (200 * (level + 1));
+            level++;
+        }
+
+        int xpInCurrentLevel = totalXp - xpAtStartOfCurrentLevel;
+        int xpRequiredForThisLevel = 200 * (level + 1);
+        double progressRatio = (double) xpInCurrentLevel / xpRequiredForThisLevel;
+
+        return new double[]{level, xpInCurrentLevel, xpRequiredForThisLevel, progressRatio};
+    }
 }
