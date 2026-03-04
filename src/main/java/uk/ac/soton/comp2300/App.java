@@ -25,7 +25,7 @@ public class App extends Application {
     private int money = 0;
     private int metal = 0;
     private int wood = 0;
-    private int totalXp = 0;
+    //private int totalXp = 0;
     private GameState gameState;
     private GameController gameController;
     private GameSaveManager saveManager;
@@ -58,12 +58,15 @@ public class App extends Application {
         open();
     }
     public int getTotalXp() {
-        return totalXp;
+        if (gameState == null) return 0;
+        return gameState.getTotalXp();
     }
 
     public void addXp(int amount) {
-        this.totalXp += amount;
-        logger.info("XP increased! New Total: " + totalXp);
+        if (gameState != null) {
+            gameState.addXp(amount);
+            logger.info("XP increased in GameState! New Total: " + gameState.getTotalXp());
+        }
     }
 
     /**
