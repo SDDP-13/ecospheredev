@@ -44,9 +44,11 @@ public class NotificationPopup {
         btnCheck.setStyle("-fx-background-color: transparent; -fx-font-size: 20px; -fx-cursor: hand; -fx-padding: 0 5 0 0;");
 
 
+// Inside NotificationPopup.java -> btnCheck.setOnAction handler
         btnCheck.setOnAction(e -> {
             var app = uk.ac.soton.comp2300.App.getInstance();
             var repo = app.getRepository();
+            var controller = app.getGameController(); // Access game controller
             String deviceName = record.title();
 
             for (var note : repo.getAllNotifications()) {
@@ -56,6 +58,7 @@ public class NotificationPopup {
                 }
             }
 
+            // Dynamic Energy Calculations
             double energy = app.getEnergySavedForDevice(deviceName);
             double calculatedMoney = energy * 0.15;
             double calculatedCo2 = energy * 0.2;
@@ -63,9 +66,16 @@ public class NotificationPopup {
             uk.ac.soton.comp2300.model.EcoSavingsReport report =
                     new uk.ac.soton.comp2300.model.EcoSavingsReport(calculatedMoney, calculatedCo2);
 
-            app.addReportSavings(report); // Sends data to Dashboard
+            app.addReportSavings(report);
             app.incrementCompletedTasks();
             app.addXp(20);
+
+            // --- UPDATED GAME REWARDS VIA CONTROLLER ---
+            // Awarding game resources through the controller to update GameState
+            controller.addResource(uk.ac.soton.comp2300.model.Resource.MONEY, 100);
+            controller.addResource(uk.ac.soton.comp2300.model.Resource.WOOD, 50);
+            controller.addResource(uk.ac.soton.comp2300.model.Resource.METAL, 20);
+            controller.addResource(uk.ac.soton.comp2300.model.Resource.STONE, 10);
 
             popup.hide();
         });
