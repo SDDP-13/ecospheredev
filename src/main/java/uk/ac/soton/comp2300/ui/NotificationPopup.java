@@ -43,7 +43,7 @@ public class NotificationPopup {
         Button btnCheck = new Button("✓");
         btnCheck.setStyle("-fx-background-color: transparent; -fx-font-size: 20px; -fx-cursor: hand; -fx-padding: 0 5 0 0;");
 
-// Inside NotificationPopup.java btnCheck.setOnAction
+
         btnCheck.setOnAction(e -> {
             var app = uk.ac.soton.comp2300.App.getInstance();
             var repo = app.getRepository();
@@ -56,12 +56,10 @@ public class NotificationPopup {
                 }
             }
 
-            // --- NEW FIX ---
             double energy = app.getEnergySavedForDevice(deviceName);
             double calculatedMoney = energy * 0.15;
             double calculatedCo2 = energy * 0.2;
 
-            // Use the NEW constructor to fix the "Cannot resolve" error
             uk.ac.soton.comp2300.model.EcoSavingsReport report =
                     new uk.ac.soton.comp2300.model.EcoSavingsReport(calculatedMoney, calculatedCo2);
 
