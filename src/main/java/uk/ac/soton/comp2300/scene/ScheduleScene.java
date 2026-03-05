@@ -28,6 +28,7 @@ public class ScheduleScene extends BaseScene {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
         root.getStyleClass().add("root-light");
 
+        // --- Header Buttons ---
         Button backBtn = new Button("←");
         backBtn.setPrefSize(44, 44);
         backBtn.getStyleClass().add("menu-icon-button");
@@ -42,27 +43,30 @@ public class ScheduleScene extends BaseScene {
         StackPane.setAlignment(recBtn, Pos.TOP_RIGHT);
         StackPane.setMargin(recBtn, new Insets(20));
 
-        Tooltip recommendTip = new Tooltip("Recommendations");
-        recommendTip.setShowDelay(javafx.util.Duration.ZERO);
-        recommendTip.getStyleClass().add("tip");
-        recBtn.setTooltip(recommendTip);
-
         Label title = new Label("Schedules");
         title.getStyleClass().add("title-xlarge-dark");
         StackPane.setAlignment(title, Pos.TOP_CENTER);
         StackPane.setMargin(title, new Insets(20, 0, 0, 0));
 
+        // --- Scrollable List Setup ---
+        scheduleList = new VBox(15);
+        scheduleList.setAlignment(Pos.TOP_CENTER);
+        scheduleList.setPadding(new Insets(10));
+
+        ScrollPane scrollPane = new ScrollPane(scheduleList);
+        scrollPane.setFitToWidth(true);
+        // REMOVED: Fixed PrefHeight
+        // ADDED: VGrow to take up all available vertical space
+        VBox.setVgrow(scrollPane, Priority.ALWAYS);
+        scrollPane.setStyle("-fx-background: transparent; -fx-background-color: transparent; -fx-border-color: transparent;");
+
         Label emptyLabel = new Label("No schedules yet");
         emptyLabel.getStyleClass().add("label-medium");
 
         emptyBox = new VBox(emptyLabel);
-        emptyBox.setAlignment(Pos.CENTER_LEFT);
+        emptyBox.setAlignment(Pos.CENTER);
         emptyBox.setPadding(new Insets(20));
         emptyBox.getStyleClass().add("label-empty");
-
-        scheduleList = new VBox(15);
-        scheduleList.setPadding(new Insets(10));
-        scheduleList.setMaxWidth(400);
 
         Button addBtn = new Button("+ Add Schedule");
         addBtn.setPrefWidth(260);
@@ -70,9 +74,11 @@ public class ScheduleScene extends BaseScene {
         addBtn.getStyleClass().add("button");
         addBtn.setOnAction(e -> showSchedulePopup(null));
 
-        VBox content = new VBox(20, emptyBox, scheduleList, addBtn);
+        // --- Main Layout ---
+        // The ScrollPane now expands between the title and the add button
+        VBox content = new VBox(20, emptyBox, scrollPane, addBtn);
         content.setAlignment(Pos.TOP_CENTER);
-        content.setPadding(new Insets(120, 20, 20, 20));
+        content.setPadding(new Insets(100, 20, 40, 20)); // Added bottom padding for the button
 
         root.getChildren().addAll(content, title, backBtn, recBtn);
 
