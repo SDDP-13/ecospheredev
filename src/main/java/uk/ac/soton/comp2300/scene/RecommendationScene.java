@@ -61,6 +61,10 @@ public class RecommendationScene extends BaseScene {
         content.setWrapText(true);
         content.getStyleClass().add("title-medium");
 
+        content.setStyle("-fx-text-fill: black;");
+
+        title.setStyle("-fx-text-fill: black;");
+
 
 
         VBox deviceList = new VBox(15);
@@ -116,6 +120,8 @@ public class RecommendationScene extends BaseScene {
 
         Label name = new Label(deviceName);
         name.getStyleClass().addAll("label-medium", "font-weight-2");
+
+        name.setStyle("-fx-text-fill: black;");
 
         Button recBtn = new Button("Get Recommendation");
         recBtn.getStyleClass().add("button-small"); // Assuming you have a small button style

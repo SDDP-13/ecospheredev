@@ -5,7 +5,7 @@
     -background-green: #1e6522;
     -build-menu-bg: rgba(98, 70, 154, 0.85);
     -foreground: rgba(81, 50, 133, 0.85);
-    -hover: #8256f8;
+    -hover: #c5b4f3;
     -surface: #a072eb;
     -surface-2: #b15b68;
     -border: #865fcd;
@@ -29,4 +29,8 @@
 /* Schedule box text */
 .root .task-time-label {
     -fx-text-fill: white !important;
+}
+/* Recommendationss */
+.recommendation-text-black {
+    -fx-text-fill: black !important;
 }
