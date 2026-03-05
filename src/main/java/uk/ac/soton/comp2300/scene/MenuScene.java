@@ -197,7 +197,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
      */
     private Button createMenuButton(String imageName) {
         Button btn = new Button();
-        // Buttons remain 45x45 as per your original layout
+        // Buttons remain at your specified 45x45 size
         btn.setPrefSize(45, 45);
         btn.getStyleClass().add("menu-icon-button");
 
@@ -206,10 +206,12 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
             if (stream != null) {
                 javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView(new javafx.scene.image.Image(stream));
 
-                iconView.setFitWidth(32);
-                iconView.setFitHeight(32);
+                // SCALE INCREASE: Setting these to 40 ensures they fill the button circle
+                iconView.setFitWidth(40);
+                iconView.setFitHeight(40);
                 iconView.setPreserveRatio(true);
 
+                // Keeps the PNG edges sharp when scaling
                 iconView.setSmooth(true);
 
                 btn.setGraphic(iconView);
@@ -347,34 +349,93 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
     }
 
-    private HBox buildEntry(BuildingType type){
-        Label label = new Label (type.name().replace("_"," "));
-        label.getStyleClass().addAll("title");
-        Label resourceCost = new Label(format(type.getPrice()));
-        resourceCost.getStyleClass().add("cost");
+    private HBox buildEntry(BuildingType type) {
+        // 1. Convert Enum name (e.g., TOWN) to Filename (Town.png)
+        String rawName = type.name().toLowerCase();
+        String[] parts = rawName.split("_");
+        StringBuilder sb = new StringBuilder();
+        for (String part : parts) {
+            sb.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+        }
+        String buildingImgName = sb.toString() + ".png"; // Results in "Town.png"
 
-        VBox output = new VBox (4,label, resourceCost);
+        Label label = new Label(sb.toString()); // Display name for the card
+        label.getStyleClass().add("title-large-dark");
 
-        Region image = new Region();
-        image.setPrefSize(56, 56);
-        image.getStyleClass().addAll("image");
+        // 2. Load the Icon
+        javafx.scene.image.ImageView buildingIcon = new javafx.scene.image.ImageView();
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + buildingImgName);
+            if (stream != null) {
+                buildingIcon.setImage(new javafx.scene.image.Image(stream));
+                buildingIcon.setFitWidth(50);
+                buildingIcon.setPreserveRatio(true);
+                buildingIcon.setSmooth(true);
+            } else {
+                // Debugging hint: print exactly what file the code is looking for
+                System.err.println("FAILED to find image at: /images/" + buildingImgName);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-        HBox resourceCard = new HBox(12, image, output);
-        resourceCard.getStyleClass().addAll("build-menu-card");
-        resourceCard.setMaxWidth(Double.MAX_VALUE);
+        // 3. Assemble the card
+        HBox resourceCost = formatWithIcons(type.getPrice());
+        VBox textContent = new VBox(4, label, resourceCost);
 
-        Button button = new Button();
-        button.setGraphic(resourceCard);
-        button.setMaxWidth(Double.MAX_VALUE);
-        button.getStyleClass().addAll("build-menu-card", "build-menu-card:hover");
+        HBox resourceCard = new HBox(15, buildingIcon, textContent);
+        resourceCard.setAlignment(Pos.CENTER_LEFT);
+        resourceCard.setPadding(new Insets(12));
+        resourceCard.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 3);");
 
+        // Locked/Buildable check
         boolean buildable = App.getInstance().getGameController().buildable(type);
         if (!buildable) {
-            button.setDisable(true);
-            resourceCard.getStyleClass().add("greyed-out");
+            resourceCard.setOpacity(0.5);
+            resourceCard.setDisable(true);
         }
 
         return resourceCard;
+    }
+    /**
+     * Renders resource costs using PNG icons instead of emojis
+     */
+    private HBox formatWithIcons(List<ResourceStack> prices) {
+        HBox container = new HBox(10);
+        container.setAlignment(Pos.CENTER_LEFT);
+
+        for (ResourceStack cost : prices) {
+            if (cost.getAmount() > 0) {
+                String iconFile = switch (cost.getType()) {
+                    case MONEY -> "Coin.png";
+                    case METAL -> "Metal.png";
+                    case WOOD -> "Wood.png";
+                    case STONE -> "Stone.png";
+                    default -> "";
+                };
+
+                HBox item = new HBox(4);
+                item.setAlignment(Pos.CENTER_LEFT);
+
+                javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
+                try {
+                    var stream = getClass().getResourceAsStream("/images/" + iconFile);
+                    if (stream != null) {
+                        iconView.setImage(new javafx.scene.image.Image(stream));
+                        iconView.setFitWidth(14);
+                        iconView.setPreserveRatio(true);
+                    }
+                } catch (Exception e) {}
+
+                Label val = new Label(String.valueOf(cost.getAmount()));
+                val.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+
+                item.getChildren().addAll(iconView, val);
+                container.getChildren().add(item);
+            }
+        }
+        return container;
     }
 
     /**--------Formats resource values into string------*/
