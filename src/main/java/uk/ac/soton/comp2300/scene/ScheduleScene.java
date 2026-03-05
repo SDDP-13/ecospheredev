@@ -116,10 +116,9 @@ public class ScheduleScene extends BaseScene {
             var stream = getClass().getResourceAsStream("/images/" + imageName);
             if (stream != null) {
                 deviceIcon.setImage(new javafx.scene.image.Image(stream));
-                deviceIcon.setFitWidth(40); // Slightly smaller to fit inside the 60px square
+                deviceIcon.setFitWidth(40);
                 deviceIcon.setPreserveRatio(true);
 
-                // Apply white tint for dark mode icons
                 if (root.getStyleClass().contains("dark-mode")) {
                     javafx.scene.effect.ColorAdjust whiteTint = new javafx.scene.effect.ColorAdjust();
                     whiteTint.setBrightness(1.0);
@@ -130,11 +129,9 @@ public class ScheduleScene extends BaseScene {
             System.err.println("Could not load schedule icon: " + imageName);
         }
 
-        // --- NEW: White Square Container ---
         StackPane iconContainer = new StackPane(deviceIcon);
         iconContainer.setPrefSize(60, 60);
         iconContainer.setMinSize(60, 60);
-        // Fixed white background that ignores dark mode
         iconContainer.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
                 "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
 
@@ -164,11 +161,29 @@ public class ScheduleScene extends BaseScene {
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
+        // --- Action Buttons Section ---
+        VBox actionButtons = new VBox(8);
+        actionButtons.setAlignment(Pos.CENTER);
+
         Button editBtn = new Button("Edit");
+        editBtn.setPrefWidth(60);
+        editBtn.getStyleClass().add("button-small");
         editBtn.setOnAction(e -> showSchedulePopup(task));
 
-        // Added iconContainer instead of deviceIcon
-        taskBox.getChildren().addAll(iconContainer, textBox, spacer, editBtn);
+        // NEW: Delete Button with red styling
+        Button deleteBtn = new Button("✕");
+        deleteBtn.setPrefWidth(60);
+        deleteBtn.setStyle("-fx-background-color: #ffcdd2; -fx-text-fill: #c62828; " +
+                "-fx-font-weight: bold; -fx-cursor: hand; -fx-background-radius: 5;");
+
+        deleteBtn.setOnAction(e -> {
+            // Simply remove the task from the manager
+            ScheduleManager.getTasks().remove(task);
+        });
+
+        actionButtons.getChildren().addAll(editBtn, deleteBtn);
+
+        taskBox.getChildren().addAll(iconContainer, textBox, spacer, actionButtons);
         return taskBox;
     }
     private void showSchedulePopup(ScheduleTask taskToEdit) {
