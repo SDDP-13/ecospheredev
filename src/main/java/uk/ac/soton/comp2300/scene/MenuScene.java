@@ -81,10 +81,10 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
         // Displaying resources with the same formatting as the Dashboard
         resourceContainer.getChildren().addAll(
-                createResourceBox("🟡", String.format("%,d", gold), "#d4af37"),
-                createResourceBox("🔘", String.format("%,d", metal), "#a0a0a0"),
-                createResourceBox("🪵", String.format("%,d", wood), "#8b4513"),
-                createResourceBox("🪨", String.format("%,d", stone), "#708090") // Added Stone
+                createResourceBox("Coin.png", String.format("%,d", gold), "#d4af37"),
+                createResourceBox("Metal.png", String.format("%,d", metal), "#a0a0a0"),
+                createResourceBox("Wood.png", String.format("%,d", wood), "#8b4513"),
+                createResourceBox("Stone.png", String.format("%,d", stone), "#708090")
         );
 
         Label hoverLabel = new Label("");
@@ -109,14 +109,14 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         dropDownItems.setManaged(false);
 
 
-        Button btnNotifications = new Button("🕒");
-        Button btnDashboard = new Button("📈");
-        Button btnSchedule = new Button("📅");
-        Button btnTasks = new Button("✅");
-        Button btnSettings = new Button("⚙");
-        Button btnHelp = new Button("❓");
-        Button btnSolar = new Button("☀️");
-        Button btnBuild = new Button("🏗️");
+        Button btnNotifications = createMenuButton("Notification.png");
+        Button btnDashboard = createMenuButton("Dashboard.png");
+        Button btnSchedule = createMenuButton("Schedule.png");
+        Button btnTasks = createMenuButton("Tasks.png");
+        Button btnSettings = createMenuButton("Settings.png");
+        Button btnHelp = createMenuButton("Help.png");
+        Button btnSolar = createMenuButton("SolarSystem.png");
+        Button btnBuild = createMenuButton("Build.png");
 
         Button[] allButtons = {btnNotifications, btnDashboard, btnSchedule, btnTasks, btnSettings, btnHelp, btnSolar, btnBuild};
         String[] descriptions = {"Notifications", "Dashboard", "Schedules", "Tasks", "Settings", "Help", "Solar System", "Build Mode"};
@@ -189,6 +189,37 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
         root.getChildren().addAll(starField, planetLayer, resourceContainer, menuDrawer, botMenuActions, labelOverlay, buildMenu);
     }
+    /**
+     * Helper to create a button with a custom PNG icon for the menu drawer.
+     */
+    /**
+     * Helper to create a button with a larger custom PNG icon.
+     */
+    private Button createMenuButton(String imageName) {
+        Button btn = new Button();
+        // Buttons remain 45x45 as per your original layout
+        btn.setPrefSize(45, 45);
+        btn.getStyleClass().add("menu-icon-button");
+
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView(new javafx.scene.image.Image(stream));
+
+                iconView.setFitWidth(32);
+                iconView.setFitHeight(32);
+                iconView.setPreserveRatio(true);
+
+                iconView.setSmooth(true);
+
+                btn.setGraphic(iconView);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load menu icon: " + imageName);
+        }
+
+        return btn;
+    }
 
     @Override
     public void onNotificationSent(NotificationRecord record) {
@@ -201,22 +232,37 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
     /**
      * Helper to create compact resource tracker boxes matching the lo-fi prototype.
      */
-    private HBox createResourceBox(String icon, String amount, String color) {
-        HBox box = new HBox(5);
+    /**
+     * Updated helper to use custom PNG icons for the resource tracker.
+     */
+    private HBox createResourceBox(String imageName, String amount, String color) {
+        HBox box = new HBox(8); // Increased spacing slightly for icons
         box.setPadding(new Insets(3, 10, 3, 10));
         box.setAlignment(Pos.CENTER_LEFT);
-        box.setMinWidth(120);
-        box.setMaxWidth(120);
+        box.setMinWidth(125);
+        box.setMaxWidth(125);
         box.setStyle("-fx-background-color: " + color + "cc; -fx-background-radius: 15;");
 
-        Label iconLabel = new Label(icon);
+        // NEW: Load custom PNG icon from resources
+        javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                iconView.setImage(new javafx.scene.image.Image(stream));
+                iconView.setFitWidth(18); // Scaled for the compact HUD
+                iconView.setPreserveRatio(true);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load menu resource icon: " + imageName);
+        }
+
         Label val = new Label(amount);
         val.getStyleClass().add("title-small");
+        val.setStyle("-fx-text-fill: white;"); // Ensure visibility on colored backgrounds
 
-        box.getChildren().addAll(iconLabel, val);
+        box.getChildren().addAll(iconView, val);
         return box;
     }
-
     @Override
     public void initialise() {
         uk.ac.soton.comp2300.App.getInstance().getNotificationLogic().setListener(this);

@@ -92,11 +92,31 @@ public class ScheduleScene extends BaseScene {
     }
 
     private HBox createTaskBox(ScheduleTask task) {
-        HBox taskBox = new HBox(20);
+        HBox taskBox = new HBox(15);
         taskBox.setAlignment(Pos.CENTER_LEFT);
         taskBox.setPadding(new Insets(15));
-        taskBox.setMaxWidth(350);
+        taskBox.setMaxWidth(380);
         taskBox.getStyleClass().add("label-empty");
+
+        // --- UPDATED: Image logic to share WashingMachine.png with Dryer ---
+        String deviceName = task.getDeviceName();
+        String imageName = deviceName.replace(" ", "") + ".png";
+
+        if (deviceName.equalsIgnoreCase("Dryer")) {
+            imageName = "WashingMachine.png";
+        }
+
+        javafx.scene.image.ImageView deviceIcon = new javafx.scene.image.ImageView();
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                deviceIcon.setImage(new javafx.scene.image.Image(stream));
+                deviceIcon.setFitWidth(50);
+                deviceIcon.setPreserveRatio(true);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load schedule icon: " + imageName);
+        }
 
         VBox textBox = new VBox(5);
         var app = uk.ac.soton.comp2300.App.getInstance();
@@ -108,12 +128,10 @@ public class ScheduleScene extends BaseScene {
                 task.getTime().getHour(),
                 task.getTime().getMinute()));
 
-        // Get base energy constant for the device type
         double energy = app.getEnergySavedForDevice(task.getDeviceName());
         double expectedMoney = energy * 0.15;
         double expectedCo2 = energy * 0.2;
 
-        //Expected Savings Label
         Label savingsLabel = new Label(String.format("Expected: £%.2f | %.2f kg CO2", expectedMoney, expectedCo2));
         savingsLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #2E7D32; -fx-font-style: italic; -fx-font-weight: bold;");
 
@@ -128,14 +146,9 @@ public class ScheduleScene extends BaseScene {
         Button editBtn = new Button("Edit");
         editBtn.setOnAction(e -> showSchedulePopup(task));
 
-        Button removeBtn = new Button("🗑");
-        removeBtn.getStyleClass().add("menu-icon-button");
-        removeBtn.setOnAction(e -> ScheduleManager.removeTask(task));
-
-        taskBox.getChildren().addAll(textBox, spacer, editBtn, removeBtn);
+        taskBox.getChildren().addAll(deviceIcon, textBox, spacer, editBtn);
         return taskBox;
     }
-
     private void showSchedulePopup(ScheduleTask taskToEdit) {
 
         Stage popup = new Stage();

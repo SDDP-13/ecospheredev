@@ -30,6 +30,25 @@ public class NotificationPopup {
         container.setPadding(new Insets(15));
         container.setPrefWidth(320);
 
+        String deviceName = record.title();
+        String imageName = deviceName.replace(" ", "") + ".png";
+
+        if (deviceName.equalsIgnoreCase("Dryer")) {
+            imageName = "WashingMachine.png";
+        }
+
+        javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
+        try {
+            var stream = NotificationPopup.class.getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                iconView.setImage(new javafx.scene.image.Image(stream));
+                iconView.setFitWidth(45);
+                iconView.setPreserveRatio(true);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load notification icon: " + imageName);
+        }
+
         Label title = new Label(record.title());
         title.setStyle("-fx-font-weight: bold; -fx-text-fill: #311B92;");
 
@@ -46,24 +65,19 @@ public class NotificationPopup {
         HBox actions = new HBox(10);
         actions.setAlignment(Pos.CENTER_LEFT);
 
-        // --- BUTTONS ---
         Button btnClose = new Button("✕");
         btnClose.setStyle("-fx-background-color: transparent; -fx-font-size: 16px; -fx-cursor: hand;");
         btnClose.setOnAction(e -> popup.hide());
 
-        // Logically branch based on Notification Type
         if (record.type() == uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT) {
-            // NEW: Dashboard button for Level Up
             Button btnDashboard = new Button("Dashboard");
             btnDashboard.setStyle("-fx-background-color: #DCD0FF; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11px;");
             btnDashboard.setOnAction(e -> {
                 popup.hide();
                 mainWindow.loadScene(new uk.ac.soton.comp2300.scene.DashboardScene(mainWindow));
             });
-
             actions.getChildren().addAll(btnDashboard, btnClose);
         } else {
-            // Standard View All button for Appliances
             Button btnViewAll = new Button("View All");
             btnViewAll.setStyle("-fx-background-color: #DCD0FF; -fx-background-radius: 8; -fx-cursor: hand; -fx-font-size: 11px;");
             btnViewAll.setOnAction(e -> {
@@ -73,12 +87,11 @@ public class NotificationPopup {
 
             Button btnCheck = new Button("✓");
             btnCheck.setStyle("-fx-background-color: transparent; -fx-font-size: 20px; -fx-cursor: hand; -fx-padding: 0 5 0 0;");
-
             btnCheck.setOnAction(e -> {
                 var app = uk.ac.soton.comp2300.App.getInstance();
                 var repo = app.getRepository();
                 var controller = app.getGameController();
-                String deviceName = record.title();
+                String name = record.title();
 
                 for (var note : repo.getAllNotifications()) {
                     if (note.getId().equals(record.id())) {
@@ -86,26 +99,21 @@ public class NotificationPopup {
                         break;
                     }
                 }
-
                 app.addReportSavings(new uk.ac.soton.comp2300.model.EcoSavingsReport(
-                        app.getEnergySavedForDevice(deviceName) * 0.15,
-                        app.getEnergySavedForDevice(deviceName) * 0.2));
-
+                        app.getEnergySavedForDevice(name) * 0.15,
+                        app.getEnergySavedForDevice(name) * 0.2));
                 app.incrementCompletedTasks();
                 app.addXp(20);
-
                 controller.addResource(uk.ac.soton.comp2300.model.Resource.MONEY, 100);
                 controller.addResource(uk.ac.soton.comp2300.model.Resource.WOOD, 50);
                 controller.addResource(uk.ac.soton.comp2300.model.Resource.METAL, 20);
                 controller.addResource(uk.ac.soton.comp2300.model.Resource.STONE, 10);
-
                 popup.hide();
             });
-
             actions.getChildren().addAll(btnCheck, btnViewAll, btnClose);
         }
 
-        container.getChildren().addAll(title, message, actions);
+        container.getChildren().addAll(iconView, title, message, actions);
         popup.getContent().add(container);
 
         popup.setX(stage.getX() + 20);

@@ -91,22 +91,38 @@ public class RecommendationScene extends BaseScene {
         box.setAlignment(Pos.CENTER_LEFT);
         box.setPadding(new Insets(15));
         box.setMaxWidth(350);
-        box.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+        box.setStyle("-fx-background-color: white; -fx-background-radius: 10; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 5, 0, 0, 2);");
 
-        Region icon = new Region();
-        icon.setPrefSize(40, 40);
-        icon.setStyle("-fx-background-color: #DCD0FF; -fx-background-radius: 10;");
+        String imageName = deviceName.replace(" ", "") + ".png";
+
+        if (deviceName.equalsIgnoreCase("Dryer") || deviceName.equalsIgnoreCase("Tumble Dryer")) {
+            imageName = "WashingMachine.png";
+        }
+
+        javafx.scene.image.ImageView deviceIcon = new javafx.scene.image.ImageView();
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                deviceIcon.setImage(new javafx.scene.image.Image(stream));
+                deviceIcon.setFitWidth(40);
+                deviceIcon.setPreserveRatio(true);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load recommendation icon: " + imageName);
+        }
 
         VBox textBox = new VBox(5);
 
         Label name = new Label(deviceName);
         name.getStyleClass().addAll("label-medium", "font-weight-2");
-       // name.setStyle("-fx-font-size: 16pxl -fx-font-weight: bold;");
 
         Button recBtn = new Button("Get Recommendation");
+        recBtn.getStyleClass().add("button-small"); // Assuming you have a small button style
         recBtn.setOnAction(e -> showRecommendationPopup(deviceName));
+
         textBox.getChildren().addAll(name, recBtn);
-        box.getChildren().addAll(icon, textBox);
+        box.getChildren().addAll(deviceIcon, textBox);
         return box;
     }
 
