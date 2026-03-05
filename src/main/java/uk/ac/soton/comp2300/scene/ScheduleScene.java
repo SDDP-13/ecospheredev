@@ -98,7 +98,6 @@ public class ScheduleScene extends BaseScene {
         taskBox.setMaxWidth(380);
         taskBox.getStyleClass().add("label-empty");
 
-        // ---Image logic to share WashingMachine.png with Dryer ---
         String deviceName = task.getDeviceName();
         String imageName = deviceName.replace(" ", "") + ".png";
 
@@ -111,12 +110,27 @@ public class ScheduleScene extends BaseScene {
             var stream = getClass().getResourceAsStream("/images/" + imageName);
             if (stream != null) {
                 deviceIcon.setImage(new javafx.scene.image.Image(stream));
-                deviceIcon.setFitWidth(50);
+                deviceIcon.setFitWidth(40); // Slightly smaller to fit inside the 60px square
                 deviceIcon.setPreserveRatio(true);
+
+                // Apply white tint for dark mode icons
+                if (root.getStyleClass().contains("dark-mode")) {
+                    javafx.scene.effect.ColorAdjust whiteTint = new javafx.scene.effect.ColorAdjust();
+                    whiteTint.setBrightness(1.0);
+                    deviceIcon.setEffect(whiteTint);
+                }
             }
         } catch (Exception e) {
             System.err.println("Could not load schedule icon: " + imageName);
         }
+
+        // --- NEW: White Square Container ---
+        StackPane iconContainer = new StackPane(deviceIcon);
+        iconContainer.setPrefSize(60, 60);
+        iconContainer.setMinSize(60, 60);
+        // Fixed white background that ignores dark mode
+        iconContainer.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.1), 5, 0, 0, 2);");
 
         VBox textBox = new VBox(5);
         var app = uk.ac.soton.comp2300.App.getInstance();
@@ -127,7 +141,6 @@ public class ScheduleScene extends BaseScene {
         Label time = new Label(String.format("Set for: %02d:%02d",
                 task.getTime().getHour(),
                 task.getTime().getMinute()));
-
         time.getStyleClass().add("task-time-label");
 
         double energy = app.getEnergySavedForDevice(task.getDeviceName());
@@ -148,7 +161,8 @@ public class ScheduleScene extends BaseScene {
         Button editBtn = new Button("Edit");
         editBtn.setOnAction(e -> showSchedulePopup(task));
 
-        taskBox.getChildren().addAll(deviceIcon, textBox, spacer, editBtn);
+        // Added iconContainer instead of deviceIcon
+        taskBox.getChildren().addAll(iconContainer, textBox, spacer, editBtn);
         return taskBox;
     }
     private void showSchedulePopup(ScheduleTask taskToEdit) {

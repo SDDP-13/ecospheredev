@@ -101,11 +101,9 @@ public class NotificationScene extends BaseScene implements NotificationListener
         HBox mainLayout = new HBox(12);
         mainLayout.setAlignment(Pos.CENTER_LEFT);
 
-        // --- NEW: Load Custom Appliance Icon (Matches Popup/Schedule) ---
         String deviceName = record.title();
         String imageName = deviceName.replace(" ", "") + ".png";
 
-        // Match Dryer to WashingMachine icon as requested previously
         if (deviceName.equalsIgnoreCase("Dryer") || deviceName.equalsIgnoreCase("Tumble Dryer")) {
             imageName = "WashingMachine.png";
         }
@@ -115,10 +113,10 @@ public class NotificationScene extends BaseScene implements NotificationListener
             var stream = getClass().getResourceAsStream("/images/" + imageName);
             if (stream != null) {
                 iconView.setImage(new javafx.scene.image.Image(stream));
-                iconView.setFitWidth(45);
+                iconView.setFitWidth(35); // Scaled for the square
                 iconView.setPreserveRatio(true);
 
-                // --- Change icon to white in dark mode ---
+                // Apply white tint for dark mode icons
                 if (root.getStyleClass().contains("dark-mode")) {
                     javafx.scene.effect.ColorAdjust whiteTint = new javafx.scene.effect.ColorAdjust();
                     whiteTint.setBrightness(1.0);
@@ -129,9 +127,15 @@ public class NotificationScene extends BaseScene implements NotificationListener
             System.err.println("Could not load scene icon: " + imageName);
         }
 
-        // Text Content
-        VBox contentBox = new VBox(2);
+        // --- NEW: White Square Container ---
+        StackPane iconContainer = new StackPane(iconView);
+        iconContainer.setPrefSize(55, 55);
+        iconContainer.setMinSize(55, 55);
+        // Permanent white background
+        iconContainer.setStyle("-fx-background-color: white; -fx-background-radius: 10; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.08), 4, 0, 0, 2);");
 
+        VBox contentBox = new VBox(2);
         Label title = new Label(record.title());
         title.getStyleClass().add("title-large");
 
@@ -143,7 +147,6 @@ public class NotificationScene extends BaseScene implements NotificationListener
 
         contentBox.getChildren().addAll(title, instructionLabel);
 
-        // Right Side: Time and Actions
         VBox rightBox = new VBox(2);
         rightBox.setAlignment(Pos.TOP_RIGHT);
 
@@ -168,8 +171,8 @@ public class NotificationScene extends BaseScene implements NotificationListener
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        // Add the iconView to the layout instead of the old iconContainer
-        mainLayout.getChildren().addAll(iconView, contentBox, spacer, rightBox);
+        // Replaced direct iconView with the new iconContainer
+        mainLayout.getChildren().addAll(iconContainer, contentBox, spacer, rightBox);
         card.getChildren().add(mainLayout);
 
         return card;
