@@ -197,7 +197,6 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
      */
     private Button createMenuButton(String imageName) {
         Button btn = new Button();
-        // Buttons remain at your specified 45x45 size
         btn.setPrefSize(45, 45);
         btn.getStyleClass().add("menu-icon-button");
 
@@ -206,12 +205,10 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
             if (stream != null) {
                 javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView(new javafx.scene.image.Image(stream));
 
-                // SCALE INCREASE: Setting these to 40 ensures they fill the button circle
                 iconView.setFitWidth(40);
                 iconView.setFitHeight(40);
                 iconView.setPreserveRatio(true);
 
-                // Keeps the PNG edges sharp when scaling
                 iconView.setSmooth(true);
 
                 btn.setGraphic(iconView);
@@ -245,7 +242,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         box.setMaxWidth(125);
         box.setStyle("-fx-background-color: " + color + "cc; -fx-background-radius: 15;");
 
-        // NEW: Load custom PNG icon from resources
+        // Load custom PNG icon from resources
         javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
         try {
             var stream = getClass().getResourceAsStream("/images/" + imageName);
@@ -357,7 +354,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         for (String part : parts) {
             sb.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
         }
-        String buildingImgName = sb.toString() + ".png"; // Results in "Town.png"
+        String buildingImgName = sb.toString() + ".png";
 
         Label label = new Label(sb.toString()); // Display name for the card
         label.getStyleClass().add("title-large-dark");
@@ -372,7 +369,6 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
                 buildingIcon.setPreserveRatio(true);
                 buildingIcon.setSmooth(true);
             } else {
-                // Debugging hint: print exactly what file the code is looking for
                 System.err.println("FAILED to find image at: /images/" + buildingImgName);
             }
         } catch (Exception e) {
