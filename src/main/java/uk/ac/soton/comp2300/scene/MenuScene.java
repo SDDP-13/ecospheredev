@@ -105,14 +105,14 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         dropDownItems.setManaged(false);
 
 
-        Button btnNotifications = new Button("🕒");
-        Button btnDashboard = new Button("📈");
-        Button btnSchedule = new Button("📅");
-        Button btnTasks = new Button("✅");
-        Button btnSettings = new Button("⚙");
-        Button btnHelp = new Button("❓");
-        Button btnSolar = new Button("☀️");
-        Button btnBuild = new Button("🏗️");
+        Button btnNotifications = createMenuButton("Notification.png");
+        Button btnDashboard = createMenuButton("Dashboard.png");
+        Button btnSchedule = createMenuButton("Schedule.png");
+        Button btnTasks = createMenuButton("Tasks.png");
+        Button btnSettings = createMenuButton("Settings.png");
+        Button btnHelp = createMenuButton("Help.png");
+        Button btnSolar = createMenuButton("SolarSystem.png");
+        Button btnBuild = createMenuButton("Build.png");
 
         Button[] allButtons = {btnNotifications, btnDashboard, btnSchedule, btnTasks, btnSettings, btnHelp, btnSolar, btnBuild};
         String[] descriptions = {"Notifications", "Dashboard", "Schedules", "Tasks", "Settings", "Help", "Solar System", "Build Mode"};
@@ -184,6 +184,37 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
 
         root.getChildren().addAll(starField, planetLayer, resourceContainer, menuDrawer, botMenuActions, labelOverlay, buildMenu);
+    }
+    /**
+     * Helper to create a button with a custom PNG icon for the menu drawer.
+     */
+    /**
+     * Helper to create a button with a larger custom PNG icon.
+     */
+    private Button createMenuButton(String imageName) {
+        Button btn = new Button();
+        // Buttons remain 45x45 as per your original layout
+        btn.setPrefSize(45, 45);
+        btn.getStyleClass().add("menu-icon-button");
+
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView(new javafx.scene.image.Image(stream));
+
+                iconView.setFitWidth(32);
+                iconView.setFitHeight(32);
+                iconView.setPreserveRatio(true);
+
+                iconView.setSmooth(true);
+
+                btn.setGraphic(iconView);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load menu icon: " + imageName);
+        }
+
+        return btn;
     }
 
     @Override
