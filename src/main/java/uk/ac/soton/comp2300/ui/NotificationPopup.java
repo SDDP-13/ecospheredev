@@ -30,7 +30,6 @@ public class NotificationPopup {
         container.setPadding(new Insets(15));
         container.setPrefWidth(320);
 
-        // --- UPDATED: Image logic to share WashingMachine.png with Dryer ---
         String deviceName = record.title();
         String imageName = deviceName.replace(" ", "") + ".png";
 

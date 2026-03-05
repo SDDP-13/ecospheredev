@@ -191,10 +191,10 @@ public class DashboardScene extends BaseScene {
         GridPane resourceGrid = new GridPane();
         resourceGrid.setHgap(15); resourceGrid.setVgap(15);
         resourceGrid.setAlignment(Pos.CENTER);
-        resourceGrid.add(createResourceBox("Gold", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY), "🟡"), 0, 0);
-        resourceGrid.add(createResourceBox("Metal", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL), "🔘"), 1, 0);
-        resourceGrid.add(createResourceBox("Wood", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD), "🪵"), 0, 1);
-        resourceGrid.add(createResourceBox("Stone", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE), "🪨"), 1, 1);
+        resourceGrid.add(createResourceBox("Gold", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY), "Coin.png"), 0, 0);
+        resourceGrid.add(createResourceBox("Metal", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL), "Metal.png"), 1, 0);
+        resourceGrid.add(createResourceBox("Wood", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD), "Wood.png"), 0, 1);
+        resourceGrid.add(createResourceBox("Stone", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE), "Stone.png"), 1, 1);
 
         // ASSEMBLY
         content.getChildren().addAll(title, xpBox, toggleBar, weeklyProgressCard, deviceChartCard, ecoImpactCard, resourceGrid);
@@ -261,17 +261,31 @@ public class DashboardScene extends BaseScene {
         return card;
     }
 
-    private VBox createResourceBox(String name, int amount, String icon) {
+    private VBox createResourceBox(String name, int amount, String imageName) {
         VBox box = new VBox(5);
         box.setPrefSize(160, 95);
         box.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; " +
                 "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
-        Label iconLbl = new Label(icon);
+
+        javafx.scene.image.ImageView resourceIcon = new javafx.scene.image.ImageView();
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                resourceIcon.setImage(new javafx.scene.image.Image(stream));
+                resourceIcon.setFitWidth(25);
+                resourceIcon.setPreserveRatio(true);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load resource icon: " + imageName);
+        }
+
         Label nameLbl = new Label(name);
         nameLbl.setStyle("-fx-text-fill: #888; -fx-font-size: 12px;");
+
         Label valLbl = new Label(String.format("%,d", amount));
         valLbl.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #4A148C;");
-        box.getChildren().addAll(iconLbl, nameLbl, valLbl);
+
+        box.getChildren().addAll(resourceIcon, nameLbl, valLbl);
         return box;
     }
 
