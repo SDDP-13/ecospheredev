@@ -101,13 +101,26 @@ public class NotificationScene extends BaseScene implements NotificationListener
         HBox mainLayout = new HBox(12);
         mainLayout.setAlignment(Pos.CENTER_LEFT);
 
-        // Icon Container
-        StackPane iconContainer = new StackPane();
-        iconContainer.setPrefSize(55, 55);
-        iconContainer.getStyleClass().add("icon-surface");
-        Label icon = new Label(getIconForDevice(record.title()));
-        icon.getStyleClass().add("icon");
-        iconContainer.getChildren().add(icon);
+        // --- NEW: Load Custom Appliance Icon (Matches Popup/Schedule) ---
+        String deviceName = record.title();
+        String imageName = deviceName.replace(" ", "") + ".png";
+
+        // Match Dryer to WashingMachine icon as requested previously
+        if (deviceName.equalsIgnoreCase("Dryer") || deviceName.equalsIgnoreCase("Tumble Dryer")) {
+            imageName = "WashingMachine.png";
+        }
+
+        javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                iconView.setImage(new javafx.scene.image.Image(stream));
+                iconView.setFitWidth(45);
+                iconView.setPreserveRatio(true);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load scene icon: " + imageName);
+        }
 
         // Text Content
         VBox contentBox = new VBox(2);
@@ -148,12 +161,12 @@ public class NotificationScene extends BaseScene implements NotificationListener
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
 
-        mainLayout.getChildren().addAll(iconContainer, contentBox, spacer, rightBox);
+        // Add the iconView to the layout instead of the old iconContainer
+        mainLayout.getChildren().addAll(iconView, contentBox, spacer, rightBox);
         card.getChildren().add(mainLayout);
 
         return card;
     }
-
     /**
      * Helper to determine if an appliance should be turned 'on' or 'off'.
      */
