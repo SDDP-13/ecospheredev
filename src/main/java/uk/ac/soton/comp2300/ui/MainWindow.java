@@ -9,6 +9,8 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.App;
 import uk.ac.soton.comp2300.event.NotificationRecord;
+import uk.ac.soton.comp2300.model.LightDarkTheme;
+import uk.ac.soton.comp2300.model.Setting;
 import uk.ac.soton.comp2300.scene.BaseScene;
 
 public class MainWindow {
@@ -23,6 +25,7 @@ public class MainWindow {
         this.width = width;
         this.height = height;
         this.stage = stage;
+        Setting.init();
 
         setupStage();
         setupResources();
@@ -48,6 +51,7 @@ public class MainWindow {
         newScene.build();
         currentScene = newScene;
         scene = newScene.setScene();
+        LightDarkTheme.applyTheme(scene, Setting.isDarkMode());
         stage.setScene(scene);
 
         Platform.runLater(() -> currentScene.initialise());
@@ -55,6 +59,7 @@ public class MainWindow {
 
     public void setupDefaultScene() {
         this.scene = new Scene(new Pane(), width, height, Color.BLACK);
+        LightDarkTheme.applyTheme(scene, Setting.isDarkMode());
         stage.setScene(this.scene);
     }
 
