@@ -49,7 +49,7 @@ public class PlanetView {
         planetGroup = new Group();
         sphere = new Sphere(planetRadius);
 
-        Image planetTexture = new Image(getClass().getResourceAsStream("/images/Alpine-EQUIRECTANGULAR-1-2048x1024.png"));
+        Image planetTexture = new Image(getClass().getResourceAsStream("/images/planet_texture_1.png"));
 
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(planetTexture);
