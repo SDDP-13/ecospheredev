@@ -22,9 +22,6 @@ public class App extends Application {
     private final int width = 450;
     private final int height = 800;
 
-    private int money = 0;
-    private int metal = 0;
-    private int wood = 0;
     //private int totalXp = 0;
     private GameState gameState;
     private GameController gameController;
@@ -154,20 +151,15 @@ public class App extends Application {
         return this.notificationLogic;
     }
 
-    public int getMoney() { return money; }
-    public int getMetal() { return metal; }
-    public int getWood() { return wood; }
+    // minor patch to sync with Game state
+    public int getMoney() { return gameController.getGameState().getResourceAmount(Resource.MONEY); }
+    public int getMetal() { return gameController.getGameState().getResourceAmount(Resource.METAL); }
+    public int getWood() { return gameController.getGameState().getResourceAmount(Resource.WOOD); }
 
     public void addResources(uk.ac.soton.comp2300.model.Resource type, int amount) {
         if (type == null) return;
-
-        switch (type) {
-            case MONEY -> this.money += amount;
-            case WOOD -> this.wood += amount;
-            case METAL -> this.metal += amount;
-            default -> System.out.println("Unknown resource type: " + type);
-        }
-        System.out.println("Updated resources | M:" + money + " W:" + wood + " Met:" + metal);
+        if (gameController == null) {System.out.println("[WARNING] game controller not exists"); return;}
+        System.out.println("Updated resources | M:" + getMoney() + " W:" + getWood() + " Met:" + getMetal());
     }
     public double getEnergySavedForDevice(String deviceName) {
         if (deviceName == null) return 0.5; // Default value for "Other"
