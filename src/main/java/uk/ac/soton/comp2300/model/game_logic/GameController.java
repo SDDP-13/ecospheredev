@@ -65,4 +65,9 @@ public class GameController {
 
     public GameState getGameState() { return state; }
 
+    /**---------Returns whether a building is allowed to be built or not.------------*/
+    public boolean buildable(BuildingType type) {
+        return state.sufficientResources(type.getPrice());
+    }
+
 }

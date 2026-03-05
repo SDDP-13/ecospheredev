@@ -11,8 +11,12 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import uk.ac.soton.comp2300.App;
 import uk.ac.soton.comp2300.event.NotificationListenerInterface;
+import uk.ac.soton.comp2300.model.ResourceStack;
+import uk.ac.soton.comp2300.model.game_logic.BuildingType;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
+
+import java.util.List;
 import java.util.Random;
 import uk.ac.soton.comp2300.event.NotificationRecord;
 import uk.ac.soton.comp2300.ui.NotificationPopup;
@@ -301,10 +305,8 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         collapseBtn.getStyleClass().add("menu-icon-button");
         collapseBtn.setPrefSize(28,28);
         collapseBtn.setOnAction(e->toggleBuildMenu());
-
         Region headerSpace = new Region();
         HBox.setHgrow(headerSpace, Priority.ALWAYS);
-
         HBox header = new HBox (8, title, headerSpace, collapseBtn);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(0,0,4,0));
@@ -320,9 +322,18 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
         VBox.setVgrow(scrollPane, Priority.ALWAYS);
 
-// Optional: avoid scrollpane trying to size itself to content height
+
         scrollPane.setPrefViewportHeight(140);
 
+        buildList.getChildren().add(buildEntry(BuildingType.LUMBER_MILL));
+        buildList.getChildren().add(buildEntry(BuildingType.QUARRY));
+        buildList.getChildren().add(buildEntry(BuildingType.MINE));
+        buildList.getChildren().add(buildEntry(BuildingType.TOWN));
+        buildList.getChildren().add(buildEntry(BuildingType.MARKET));
+        buildList.getChildren().add(buildEntry(BuildingType.SPACEPORT));
+        buildList.getChildren().add(buildEntry(BuildingType.RESEARCH_LAB));
+
+        /*
         buildList.getChildren().add(buildEntry("Lumber Mill", "Cost: 🔘 40  🪵 10  🟡 0"));
         buildList.getChildren().add(buildEntry("Quarry", "Cost: 🔘 80  🪵 30  🟡 200"));
         buildList.getChildren().add(buildEntry("Mine", "Cost: 🔘 20  🪵 200  🟡 10"));
@@ -330,28 +341,59 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         buildList.getChildren().add(buildEntry("Market", "Cost: 🔘 200  🪵 30  🟡 500"));
         buildList.getChildren().add(buildEntry("Space Port", "Cost: 🔘 5500  🪵 1000  🟡 100"));
         buildList.getChildren().add(buildEntry("Research Lab", "Cost: 🔘 800  🪵 25  🟡 1000"));
-
+        */
         menu.getChildren().addAll(header, scrollPane);
         return menu;
 
     }
 
-    private HBox buildEntry(String name, String cost){
-        Label label = new Label (name);
-        label.getStyleClass().addAll("build-menu-title");
-        Label resourceCost = new Label(cost);
-        resourceCost.getStyleClass().add("build-menu-cost");
+    private HBox buildEntry(BuildingType type){
+        Label label = new Label (type.name().replace("_"," "));
+        label.getStyleClass().addAll("title");
+        Label resourceCost = new Label(format(type.getPrice()));
+        resourceCost.getStyleClass().add("cost");
 
         VBox output = new VBox (4,label, resourceCost);
 
         Region image = new Region();
         image.setPrefSize(56, 56);
-        image.getStyleClass().addAll("build-menu-image");
+        image.getStyleClass().addAll("image");
 
-        HBox card = new HBox(12, image, output);
-        card.getStyleClass().addAll("build-menu-card");
-        card.setMaxWidth(Double.MAX_VALUE);
-        return card;
+        HBox resourceCard = new HBox(12, image, output);
+        resourceCard.getStyleClass().addAll("build-menu-card");
+        resourceCard.setMaxWidth(Double.MAX_VALUE);
 
+        Button button = new Button();
+        button.setGraphic(resourceCard);
+        button.setMaxWidth(Double.MAX_VALUE);
+        button.getStyleClass().addAll("build-menu-card", "build-menu-card:hover");
+
+        boolean buildable = App.getInstance().getGameController().buildable(type);
+        if (!buildable) {
+            button.setDisable(true);
+            resourceCard.getStyleClass().add("greyed-out");
+        }
+
+        return resourceCard;
     }
+
+    /**--------Formats resource values into string------*/
+    private String format(List<ResourceStack> prices){
+        int money = 0;
+        int metal = 0;
+        int wood = 0;
+        int stone = 0;
+
+        for(ResourceStack value : prices) {
+            switch(value.getType()){
+                case MONEY -> money = value.getAmount();
+                case METAL -> metal = value.getAmount();
+                case WOOD -> wood = value.getAmount();
+                case STONE -> stone = value.getAmount();
+            }
+
+        }
+        return String.format("Cost: 🔘 %d  🪵 %d  🟡 %d  🪨 %d", metal, wood, money, stone);
+    }
+
 }

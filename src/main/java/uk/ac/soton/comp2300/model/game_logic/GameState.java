@@ -50,5 +50,17 @@ public class GameState {
     public List<Planet> getPlanets() { return planets; }
     public void setSelectedPlanet(Planet selectedPlanet) { this.selectedPlanet = selectedPlanet; }
     public Planet getSelectedPlanet() { return selectedPlanet; }
+
+
+
+    /**--------Checks if player has sufficient resources to build item*/
+    public boolean sufficientResources (List<ResourceStack> costs) {
+        for (ResourceStack cost : costs) {
+            if (getResourceAmount(cost.getType()) < cost.getAmount()) return false;
+        }
+        return true;
+    }
+
 }
+
 

@@ -114,7 +114,7 @@
 
 
 .card {
-    -fx-background-color: -foreground;
+    -fx-background-color: -hover;
     -fx-border-color: -border;
     -fx-border-radius: 12;
     -fx-background-radius: 12;
@@ -271,10 +271,26 @@
     -fx-background-color: -surface;
     -fx-background-radius: 10;
 }
+.greyed-out {
+    -fx-opacity:0.4;
+    -fx-background-color: -build-menu-bg, rgba(120,120,120,0.5);
+    -fx-effect: innershadow(gaussian, rgba(0,0,0,0.3),0,0,0,0);
+}
 
+.build-menu .title {
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+}
 
-
-
+.build-menu .cost {
+    -fx-text-fill: -text-fill;
+    -fx-font-size: 12px;
+}
+.build-menu .image{
+    -fx-background-color: -surface;
+    -fx-background-radius: 10;
+}
 
 
 .helloText {
