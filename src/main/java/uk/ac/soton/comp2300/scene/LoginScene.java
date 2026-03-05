@@ -34,6 +34,7 @@ public class LoginScene extends BaseScene {
         loginHeader.getStyleClass().add("title-large-font");
 
         VBox userBox = createInputField("Player1", "Enter your username");
+        //userBox.getStyleClass().add();
         VBox passBox = createInputField("Pass1", "Enter your password");
 
         Hyperlink forgotPass = new Hyperlink("Forgot your password?");

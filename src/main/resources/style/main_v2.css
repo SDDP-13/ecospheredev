@@ -95,8 +95,18 @@
     -fx-font-size: 15px;
     -fx-text-fill: -text-fill-dark;
 }
+.title-medium-small{
+    -fx-font-weight: 800;
+    -fx-font-size: 15px;
+    -fx-text-fill: -text-fill;
+}
 .title-small {
     -fx-text-fill: -text-fill;
+    -fx-font-weight: bold;
+    -fx-font-size: 12px;
+}
+.title-small-dark {
+    -fx-text-fill: -text-fill-dark;
     -fx-font-weight: bold;
     -fx-font-size: 12px;
 }
@@ -215,7 +225,7 @@
 }
 
 /*Login Page Variables*/
-.login-scene .user-icon {
+.user-icon {
     -fx-font-size: 60px;
     -fx-text-fill: -text-fill;
 }
@@ -223,23 +233,23 @@
     -fx-text-fill: blue;
     -fx-underline: true;
 }
-.login-scene .login-button {
+.login-button {
     -fx-background-color: -surface;
     -fx-border-color:-border ;
     -fx-text-fill: -text-fill;
 }
-.login-scene .create-account-button {
+.create-account-button {
     -fx-background-color: -surface;
     -fx-background-radius: 15;
     -fx-text-fill: -text-fill;
 }
-.login-scene .field {
-    -fx-background-color: -surface;
+.field {
+    -fx-background-color: white;
     -fx-border-color: transparent transparent grey transparent;
 }
-.login-scene .sub-text {
+.sub-text {
     -fx-font-size: 10px;
-    -fx-text-fill: grey;
+    -fx-text-fill: -text-fill;
 }
 
 .recommendation .tip {

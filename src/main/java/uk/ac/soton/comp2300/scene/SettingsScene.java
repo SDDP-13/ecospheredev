@@ -197,11 +197,11 @@ public class SettingsScene extends BaseScene {
             VBox text = new VBox(3);
 
             Label l = new Label(label);
-            l.getStyleClass().addAll("title-small");
+            l.getStyleClass().addAll("title-small-dark");
 
 
             Label v = new Label(value);
-            v.getStyleClass().addAll("title-small");
+            v.getStyleClass().addAll("title-small-dark");
 
 
             text.getChildren().addAll(l, v);
@@ -543,7 +543,7 @@ public class SettingsScene extends BaseScene {
             super(12 * scale);
 
             Label titleLabel = new Label(setting.getTitle());
-            titleLabel.getStyleClass().addAll("title-medium-small-dark", "font-weight-1");
+            titleLabel.getStyleClass().addAll("title-medium-small", "font-weight-1");
 
 
             Label descLabel = new Label(setting.getDescription());
