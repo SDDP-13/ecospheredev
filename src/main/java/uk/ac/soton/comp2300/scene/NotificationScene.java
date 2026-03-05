@@ -117,6 +117,13 @@ public class NotificationScene extends BaseScene implements NotificationListener
                 iconView.setImage(new javafx.scene.image.Image(stream));
                 iconView.setFitWidth(45);
                 iconView.setPreserveRatio(true);
+
+                // --- Change icon to white in dark mode ---
+                if (root.getStyleClass().contains("dark-mode")) {
+                    javafx.scene.effect.ColorAdjust whiteTint = new javafx.scene.effect.ColorAdjust();
+                    whiteTint.setBrightness(1.0);
+                    iconView.setEffect(whiteTint);
+                }
             }
         } catch (Exception e) {
             System.err.println("Could not load scene icon: " + imageName);

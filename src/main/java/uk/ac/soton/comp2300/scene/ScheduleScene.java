@@ -98,7 +98,7 @@ public class ScheduleScene extends BaseScene {
         taskBox.setMaxWidth(380);
         taskBox.getStyleClass().add("label-empty");
 
-        // --- UPDATED: Image logic to share WashingMachine.png with Dryer ---
+        // ---Image logic to share WashingMachine.png with Dryer ---
         String deviceName = task.getDeviceName();
         String imageName = deviceName.replace(" ", "") + ".png";
 
@@ -127,6 +127,8 @@ public class ScheduleScene extends BaseScene {
         Label time = new Label(String.format("Set for: %02d:%02d",
                 task.getTime().getHour(),
                 task.getTime().getMinute()));
+
+        time.getStyleClass().add("task-time-label");
 
         double energy = app.getEnergySavedForDevice(task.getDeviceName());
         double expectedMoney = energy * 0.15;

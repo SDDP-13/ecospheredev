@@ -1,12 +1,12 @@
 .root {
 
     /*accent = container bg, outline = prominent borders, outlineVariant = soft border colour */
-    -background: rgba(160, 113, 239, 0.85);
+    -background: rgb(197, 180, 243); /*Log in and settings */
     -background-green: #4CAF50;
     -build-menu-bg: rgba(172, 132, 239, 0.85);
     -foreground: #F4F0FF;
     -hover: #c5b4f3;
-    -surface: #DCD0FF;
+    -surface: #DCD0FF; /* Log out button.. etc*/
     -surface-2: #F4B7C0;
     -border: #D1C4E9;
     -stroke: black;
@@ -27,4 +27,8 @@
 
      */
 
+}
+/* Default for Light Mode Schedule box text*/
+.root .task-time-label {
+    -fx-text-fill: -text-fill-dark;
 }
