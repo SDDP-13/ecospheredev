@@ -2,6 +2,9 @@ package uk.ac.soton.comp2300;
 
 import com.google.gson.GsonBuilder;
 import javafx.application.Application;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -262,4 +265,5 @@ public class App extends Application {
             notificationLogic.getListener().onNotificationSent(levelRecord);
         }
     }
+
 }

@@ -60,10 +60,11 @@ public class PlanetView {
         planetGroup.getTransforms().addAll(rotateX, rotateY);
         initBuildCursor();
 
-
+        /*
         addCubeOnSurface(0, 0, Color.RED);
         addCubeOnSurface(Math.PI, 0, Color.BLUE);
         addCubeOnSurface(Math.PI / 2, Math.PI, Color.GREEN);
+        */
 
         for (BuildingData building : model.getBuildingData()) {
             renderBuilding(building);
