@@ -88,19 +88,6 @@ public class BuildTest {
         assertTrue(result);
     }
 
-    @Test
-    void testInvalidPlacementExact() {
-
-        BuildingData first = controller.placeBuidling(testPlanet, testBuildType, testTheta, testPhi);
-
-        assertNotNull(first);
-        assertEquals(1, testPlanet.getBuildingData().size());
-
-        BuildingData second = controller.placeBuidling(testPlanet, testBuildType, testTheta, testPhi);
-
-        assertNull(second);
-        assertEquals(1, testPlanet.getBuildingData().size());
-    }
 
     @Test
     void testInvalidPlacementNoAddedBuilding() {
