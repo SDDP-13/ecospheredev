@@ -183,6 +183,7 @@ public class DashboardScene extends BaseScene {
         impactTitle.setStyle("-fx-font-weight: 800; -fx-font-size: 18px; -fx-text-fill: #2E7D32;");
         ecoImpactCard.getChildren().addAll(
                 impactTitle,
+                createImpactRow("Energy Saved", String.format("%.2f kWh", app.getTotalEnergySaved()), "#2E7D32"),
                 createImpactRow("Money Saved", String.format("£%.2f", app.getTotalMoneySaved()), "#43A047"),
                 createImpactRow("Carbon Offset", String.format("%.2f kg", app.getTotalCo2Saved()), "#1B5E20")
         );

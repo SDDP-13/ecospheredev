@@ -199,14 +199,8 @@ public class NotificationScene extends BaseScene implements NotificationListener
                     note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED);
                     app.incrementCompletedTasks();
 
-                    double energy = app.getEnergySavedForDevice(note.getTitle());
-                    double money = energy * 0.15; // Estimated pence conversion
-                    double co2 = energy * 0.2;    // Estimated kg conversion
-
-                    var report = new uk.ac.soton.comp2300.model.EcoSavingsReport(money, co2);
+                    var report = app.getSavingsReportForDevice(note.getTitle());
                     app.addReportSavings(report); // This updates the Dashboard variables
-
-                    app.addEnergySavings(note.getTitle());
                 } else {
                     note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TIMED_OUT);
                 }

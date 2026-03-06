@@ -1,5 +1,3 @@
-
-
 import org.junit.jupiter.api.Test;
 import uk.ac.soton.comp2300.model.EcoSavingsReport;
 import uk.ac.soton.comp2300.model.energy.CostAndCarbonResult;
@@ -15,9 +13,9 @@ public class SavingsCalculationTest {
     @Test
     void testHighEnergyDeviceImpact() {
         // Simulating a high-energy device (e.g., Dryer)
-        // Peak: 5.0 kWh, £0.75 cost, 1.0kg CO2
+        // Peak: 5.0 kWh, GBP 0.75 cost, 1.0kg CO2
         CostAndCarbonResult peak = new CostAndCarbonResult(5.0, 0.75, 1.0);
-        // Scheduled: 5.0 kWh, £0.45 cost, 0.6kg CO2
+        // Scheduled: 5.0 kWh, GBP 0.45 cost, 0.6kg CO2
         CostAndCarbonResult scheduled = new CostAndCarbonResult(5.0, 0.45, 0.6);
 
         EcoSavingsReport report = new EcoSavingsReport(scheduled, peak, 0.30, 0.4, null);
@@ -30,7 +28,7 @@ public class SavingsCalculationTest {
     @Test
     void testNegativeSavingsScenario() {
         // Testing a scenario where scheduled time is actually worse than baseline
-        // Peak (Baseline): £0.20 | Scheduled: £0.30
+        // Peak (Baseline): GBP 0.20 | Scheduled: GBP 0.30
         CostAndCarbonResult peak = new CostAndCarbonResult(1.0, 0.20, 0.2);
         CostAndCarbonResult scheduled = new CostAndCarbonResult(1.0, 0.30, 0.3);
 
@@ -51,8 +49,8 @@ public class SavingsCalculationTest {
         EcoSavingsReport report = new EcoSavingsReport(scheduled, peak, complexValue, 0.0, null);
 
         // Simulate the Dashboard's formatting logic
-        String displayedMoney = String.format("£%.2f", report.getMoneySavedPounds());
+        String displayedMoney = String.format("\u00A3%.2f", report.getMoneySavedPounds());
 
-        assertEquals("£0.13", displayedMoney, "Dashboard rounding logic mismatch");
+        assertEquals("\u00A30.13", displayedMoney, "Dashboard rounding logic mismatch");
     }
 }

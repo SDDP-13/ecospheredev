@@ -7,6 +7,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.layout.*;
 import javafx.stage.Stage;
+import uk.ac.soton.comp2300.model.EcoSavingsReport;
 import uk.ac.soton.comp2300.model.ScheduleManager;
 import uk.ac.soton.comp2300.model.ScheduleTask;
 import uk.ac.soton.comp2300.ui.MainPane;
@@ -146,9 +147,9 @@ public class ScheduleScene extends BaseScene {
                 task.getTime().getMinute()));
         time.getStyleClass().add("task-time-label");
 
-        double energy = app.getEnergySavedForDevice(task.getDeviceName());
-        double expectedMoney = energy * 0.15;
-        double expectedCo2 = energy * 0.2;
+        EcoSavingsReport savingsReport = app.getSavingsReportForTask(task);
+        double expectedMoney = Math.max(0.0, savingsReport.getMoneySavedPounds());
+        double expectedCo2 = Math.max(0.0, savingsReport.getCo2SavedKg());
 
         Label savingsLabel = new Label(String.format("Expected: £%.2f | %.2f kg CO2", expectedMoney, expectedCo2));
         savingsLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #2E7D32; -fx-font-style: italic; -fx-font-weight: bold;");

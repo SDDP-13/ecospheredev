@@ -99,9 +99,7 @@ public class NotificationPopup {
                         break;
                     }
                 }
-                app.addReportSavings(new uk.ac.soton.comp2300.model.EcoSavingsReport(
-                        app.getEnergySavedForDevice(name) * 0.15,
-                        app.getEnergySavedForDevice(name) * 0.2));
+                app.addReportSavings(app.getSavingsReportForDevice(name));
                 app.incrementCompletedTasks();
                 app.addXp(20);
                 controller.addResource(uk.ac.soton.comp2300.model.Resource.MONEY, 100);

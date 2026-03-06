@@ -10,13 +10,20 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.event.NotificationLogic;
 import uk.ac.soton.comp2300.model.*;
+import uk.ac.soton.comp2300.model.energy.EnergyLabel;
 import uk.ac.soton.comp2300.model.game_logic.*;
 import uk.ac.soton.comp2300.scene.LoginScene;
 import uk.ac.soton.comp2300.scene.MenuScene;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 
 public class App extends Application {
@@ -42,6 +49,8 @@ public class App extends Application {
 
     private NotificationLogic notificationLogic;
     private NotificationRepository repository;
+    private final EcoSavingsService ecoSavingsService = new EcoSavingsService();
+    private final Map<String, EcoSavingsReport> savingsReportCache = new HashMap<>();
 
     public static void main(String[] args) {
         logger.info("Starting client");
@@ -164,8 +173,65 @@ public class App extends Application {
         if (gameController == null) {System.out.println("[WARNING] game controller not exists"); return;}
         System.out.println("Updated resources | M:" + getMoney() + " W:" + getWood() + " Met:" + getMetal());
     }
+
+    public EcoSavingsReport getSavingsReportForTask(ScheduleTask task) {
+        if (task == null || task.getDeviceName() == null || task.getDeviceName().isBlank()) {
+            return buildFallbackReport("Other");
+        }
+
+        LocalTime time = task.getTime() != null ? task.getTime() : LocalTime.now().withSecond(0).withNano(0);
+        Duration duration = task.getDuration() != null ? task.getDuration() : Duration.ofHours(1);
+        LocalDate todayUk = LocalDate.now(ZoneId.of("Europe/London"));
+        String cacheKey = (task.getDeviceName() + "|" + time + "|" + duration.toMinutes() + "|" + todayUk).toLowerCase();
+
+        EcoSavingsReport cached = savingsReportCache.get(cacheKey);
+        if (cached != null) return cached;
+
+        try {
+            ScheduleTask normalizedTask = new ScheduleTask(task.getDeviceName(), time, duration, task.getDescription());
+            EcoSavingsReport report = ecoSavingsService.calculate(normalizedTask, EnergyLabel.A);
+            savingsReportCache.put(cacheKey, report);
+            return report;
+        } catch (Exception e) {
+            logger.warn("Using fallback savings for device '{}': {}", task.getDeviceName(), e.getMessage());
+            EcoSavingsReport fallback = buildFallbackReport(task.getDeviceName());
+            savingsReportCache.put(cacheKey, fallback);
+            return fallback;
+        }
+    }
+
+    public EcoSavingsReport getSavingsReportForDevice(String deviceName) {
+        ScheduleTask defaultTask = new ScheduleTask(
+                deviceName == null ? "Other" : deviceName,
+                LocalTime.now().withSecond(0).withNano(0),
+                Duration.ofHours(1),
+                "Auto generated"
+        );
+        return getSavingsReportForTask(defaultTask);
+    }
+
     public double getEnergySavedForDevice(String deviceName) {
-        if (deviceName == null) return 0.5; // Default value for "Other"
+        EcoSavingsReport report = getSavingsReportForDevice(deviceName);
+        double energyEquivalent = report.getMoneySavedPounds() / 0.15;
+        return Math.max(0.0, energyEquivalent);
+    }
+    private double totalEnergySaved = 0.0;
+
+    public double getTotalEnergySaved() {
+        return totalEnergySaved;
+    }
+
+    public void addEnergySavings(String deviceName) {
+        this.totalEnergySaved += getEnergySavedForDevice(deviceName);
+    }
+
+    private EcoSavingsReport buildFallbackReport(String deviceName) {
+        double energy = legacyEnergySavedForDevice(deviceName);
+        return new EcoSavingsReport(energy * 0.15, energy * 0.2);
+    }
+
+    private double legacyEnergySavedForDevice(String deviceName) {
+        if (deviceName == null) return 0.5;
 
         return switch (deviceName.toLowerCase()) {
             case "washing machine" -> 1.2;
@@ -177,25 +243,6 @@ public class App extends Application {
             case "garden lights" -> 0.8;
             default -> 0.5;
         };
-    }
-    private double totalEnergySaved = 0.0;
-
-    public double getTotalEnergySaved() {
-        return totalEnergySaved;
-    }
-
-    public void addEnergySavings(String deviceName) {
-        double saved = switch (deviceName.toLowerCase()) {
-            case "washing machine" -> 1.2;
-            case "dishwasher" -> 1.5;
-            case "dryer" -> 2.5;
-            case "radiator" -> 3.0;
-            case "air conditioner" -> 4.5;
-            case "tv" -> 0.3;
-            case "garden lights" -> 0.8;
-            default -> 0.5; // For "Other" devices
-        };
-        this.totalEnergySaved += saved;
     }
 
     // Add to App.java
@@ -209,8 +256,15 @@ public class App extends Application {
      * Updates global session totals using a report from the EcoSavingsService.
      */
     public void addReportSavings(EcoSavingsReport report) {
-        this.totalCo2Saved += report.getCo2SavedKg();
-        this.totalMoneySaved += report.getMoneySavedPounds();
+        if (report == null) return;
+
+        double moneySaved = Math.max(0.0, report.getMoneySavedPounds());
+        double co2Saved = Math.max(0.0, report.getCo2SavedKg());
+        double energySaved = moneySaved / 0.15;
+
+        this.totalMoneySaved += moneySaved;
+        this.totalCo2Saved += co2Saved;
+        this.totalEnergySaved += energySaved;
     }
     /**
      * Helper to calculate current level and progress based on total XP.
