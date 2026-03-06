@@ -6,6 +6,7 @@ module uk.ac.soton.comp2211 {
     requires org.apache.logging.log4j;
     requires javafx.graphics;
     requires com.google.gson;
+    requires com.fasterxml.jackson.databind;
     requires java.net.http;
     requires jdk.compiler;
     opens uk.ac.soton.comp2300.ui to javafx.fxml;
@@ -16,6 +17,7 @@ module uk.ac.soton.comp2211 {
     exports uk.ac.soton.comp2300.component;
     exports uk.ac.soton.comp2300.model;
     exports uk.ac.soton.comp2300.model.energy;
+    exports uk.ac.soton.comp2300.recommendation_logic;
     opens uk.ac.soton.comp2300.component to javafx.fxml;
     opens uk.ac.soton.comp2300.model to com.google.gson;
     opens uk.ac.soton.comp2300.model.game_logic to com.google.gson;

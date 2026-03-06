@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 import javafx.scene.layout.Region;
+import uk.ac.soton.comp2300.recommendation_logic.RecommendationService;
 
 public class RecommendationScene extends BaseScene {
 
@@ -133,10 +134,13 @@ public class RecommendationScene extends BaseScene {
     }
 
     private void showRecommendationPopup(String deviceName) {
+        RecommendationService recommendationService = new RecommendationService();
+        String message = recommendationService.getRecommendation(deviceName);
+
         Alert alert = new Alert(Alert.AlertType.INFORMATION);
         alert.setTitle("Recommendation");
         alert.setHeaderText(deviceName);
-        alert.setContentText("...");
+        alert.setContentText(message);
         alert.showAndWait();
     }
 
