@@ -32,8 +32,6 @@ import javafx.util.Duration;
 public class MenuScene extends BaseScene implements NotificationListenerInterface {
 
     private HBox botMenuActions;
-    private VBox buildMenu;
-    private boolean buildmenuOpen = false;
 
     public MenuScene(MainWindow mainWindow) {
         super(mainWindow);
@@ -42,6 +40,10 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
     @Override
     public void build() {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
+
+        var app = uk.ac.soton.comp2300.App.getInstance();
+        // Access the game state to get accurate resource counts
+        var state = app.getGameController().getGameState();
 
         Pane starField = new Pane();
         starField.getStyleClass().add("root-black");
@@ -56,7 +58,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         planetButton.setGraphic(planet);
         planetButton.setStyle("-fx-background-color: transparent;");
         planetButton.setPickOnBounds(false);
-        planetButton.setOnAction((e) -> {mainWindow.loadScene(new PlanetScene(mainWindow, App.getInstance().getGameController().getGameState().getSelectedPlanet()));});
+        //planetButton.setOnAction((e) -> {mainWindow.loadScene(new PlanetScene(mainWindow, state.getSelectedPlanet()));});
         StackPane planetLayer = new StackPane(planetButton);
         planetLayer.setAlignment(Pos.BOTTOM_CENTER);
         planetLayer.setPadding(new Insets(0, 0, -60, 0));
@@ -64,9 +66,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         planetLayer.setMaxHeight(Region.USE_PREF_SIZE);
         StackPane.setAlignment(planetLayer, Pos.BOTTOM_CENTER);
 
-        var app = uk.ac.soton.comp2300.App.getInstance();
-        // Access the game state to get accurate resource counts
-        var state = app.getGameController().getGameState();
+
 
         VBox resourceContainer = new VBox(8);
         resourceContainer.setPadding(new Insets(15));
@@ -116,10 +116,10 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         Button btnSettings = createMenuButton("Settings.png");
         Button btnHelp = createMenuButton("Help.png");
         Button btnSolar = createMenuButton("SolarSystem.png");
-        Button btnBuild = createMenuButton("Build.png");
+        Button btnPlanet = createMenuButton("Build.png");
 
-        Button[] allButtons = {btnNotifications, btnDashboard, btnSchedule, btnTasks, btnSettings, btnHelp, btnSolar, btnBuild};
-        String[] descriptions = {"Notifications", "Dashboard", "Schedules", "Tasks", "Settings", "Help", "Solar System", "Build Mode"};
+        Button[] allButtons = {btnNotifications, btnDashboard, btnSchedule, btnTasks, btnSettings, btnHelp, btnSolar, btnPlanet};
+        String[] descriptions = {"Notifications", "Dashboard", "Schedules", "Tasks", "Settings", "Help", "Solar System", "Planet"};
 
         for (int i = 0; i < allButtons.length; i++) {
             Button b = allButtons[i];
@@ -134,8 +134,8 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
                 if (desc.equals("Solar System")) {
                     hoverLabel.setLayoutX(bounds.getMinX());
                     hoverLabel.setLayoutY(bounds.getMinY() - 40);
-                } else if (desc.equals("Build Mode")) {
-                    hoverLabel.setLayoutX(bounds.getMinX() - 40);
+                } else if (desc.equals("Planet")) {
+                    hoverLabel.setLayoutX(bounds.getMinX() - 10);
                     hoverLabel.setLayoutY(bounds.getMinY() - 40);
                 } else {
                     // Position for side drawer buttons
@@ -156,8 +156,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
         /** Logic for the bottom menu buttons*/
         btnSolar.setOnAction(e -> mainWindow.loadScene(new SolarSystemScene(mainWindow)));
-        btnBuild.setOnAction(e-> toggleBuildMenu());
-        //btnBuild.setOnAction(e -> mainWindow.loadScene(new BuildScene(mainWindow)));
+        btnPlanet.setOnAction((e) -> {mainWindow.loadScene(new PlanetScene(mainWindow));});;
 
         menuToggle.setOnAction(e -> {
             boolean visible = !dropDownItems.isVisible();
@@ -174,20 +173,16 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         botMenuActions.setMaxHeight(Region.USE_PREF_SIZE);
         Region spacer = new Region();
         HBox.setHgrow(spacer, Priority.ALWAYS);
-        botMenuActions.getChildren().addAll(btnSolar, spacer, btnBuild);
+        botMenuActions.getChildren().addAll(btnSolar, spacer, btnPlanet);
         StackPane.setAlignment(botMenuActions, Pos.BOTTOM_CENTER);
 
         Pane labelOverlay = new Pane(hoverLabel);
         labelOverlay.setMouseTransparent(true);
 
-        /** Build Menu */
-        buildMenu = makeBuildMenu();
-        buildMenu.setTranslateY(260);
-        StackPane.setAlignment(buildMenu, Pos.BOTTOM_CENTER);
-        StackPane.setMargin(buildMenu, new Insets(0,0,10,0));
 
 
-        root.getChildren().addAll(starField, planetLayer, resourceContainer, menuDrawer, botMenuActions, labelOverlay, buildMenu);
+
+        root.getChildren().addAll(starField, planetLayer, resourceContainer, menuDrawer, botMenuActions, labelOverlay);
     }
     /**
      * Helper to create a button with a custom PNG icon for the menu drawer.
@@ -269,170 +264,6 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
 
 
-    /** 3 Methods which handle build menu: toggleBuildMenu, makeBuildMenu, buildEntry */
-    private void toggleBuildMenu() {
-        buildmenuOpen = !buildmenuOpen;
-
-        TranslateTransition move = new TranslateTransition(Duration.millis(250), buildMenu);
-        move.setInterpolator(Interpolator.EASE_BOTH);
-        if (buildmenuOpen) {
-            move.setToY(0);
-        } else {
-            move.setToY(260);
-        }
-
-        move.play();
-
-       // buildMenu.setVisible(buildmenuOpen);
-       // buildMenu.setManaged(buildmenuOpen);
-
-        //bottomActions.setVisible(!buildmenuOpen);
-       // bottomActions.setManaged((!buildmenuOpen));
-    }
-
-    private VBox makeBuildMenu () {
-        VBox menu = new VBox(8);
-        menu.setPrefHeight(240);
-        menu.setMinHeight(240);
-        menu.setMaxHeight(240);
-        menu.getStyleClass().add("card");
-
-        Label title = new Label("Build Menu");
-        title.getStyleClass().addAll("title-medium", "font-weight-2");
-
-        Button collapseBtn = new Button ("▾");
-        collapseBtn.getStyleClass().add("menu-icon-button");
-        collapseBtn.setPrefSize(28,28);
-        collapseBtn.setOnAction(e->toggleBuildMenu());
-        Region headerSpace = new Region();
-        HBox.setHgrow(headerSpace, Priority.ALWAYS);
-        HBox header = new HBox (8, title, headerSpace, collapseBtn);
-        header.setAlignment(Pos.CENTER_LEFT);
-        header.setPadding(new Insets(0,0,4,0));
-
-
-
-        VBox buildList = new VBox(10);
-        buildList.getStyleClass().addAll("title-medium", "button-shape-rounded");
-
-        ScrollPane scrollPane = new ScrollPane(buildList);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setHbarPolicy(ScrollPane.ScrollBarPolicy.NEVER);
-        scrollPane.setVbarPolicy(ScrollPane.ScrollBarPolicy.AS_NEEDED);
-        VBox.setVgrow(scrollPane, Priority.ALWAYS);
-
-
-        scrollPane.setPrefViewportHeight(140);
-
-        buildList.getChildren().add(buildEntry(BuildingType.LUMBER_MILL));
-        buildList.getChildren().add(buildEntry(BuildingType.QUARRY));
-        buildList.getChildren().add(buildEntry(BuildingType.MINE));
-        buildList.getChildren().add(buildEntry(BuildingType.TOWN));
-        buildList.getChildren().add(buildEntry(BuildingType.MARKET));
-        buildList.getChildren().add(buildEntry(BuildingType.SPACEPORT));
-        buildList.getChildren().add(buildEntry(BuildingType.RESEARCH_LAB));
-
-        /*
-        buildList.getChildren().add(buildEntry("Lumber Mill", "Cost: 🔘 40  🪵 10  🟡 0"));
-        buildList.getChildren().add(buildEntry("Quarry", "Cost: 🔘 80  🪵 30  🟡 200"));
-        buildList.getChildren().add(buildEntry("Mine", "Cost: 🔘 20  🪵 200  🟡 10"));
-        buildList.getChildren().add(buildEntry("Town", "Cost: 🔘 50  🪵 350  🟡 50"));
-        buildList.getChildren().add(buildEntry("Market", "Cost: 🔘 200  🪵 30  🟡 500"));
-        buildList.getChildren().add(buildEntry("Space Port", "Cost: 🔘 5500  🪵 1000  🟡 100"));
-        buildList.getChildren().add(buildEntry("Research Lab", "Cost: 🔘 800  🪵 25  🟡 1000"));
-        */
-        menu.getChildren().addAll(header, scrollPane);
-        return menu;
-
-    }
-
-    private HBox buildEntry(BuildingType type) {
-        // 1. Convert Enum name (e.g., TOWN) to Filename (Town.png)
-        String rawName = type.name().toLowerCase();
-        String[] parts = rawName.split("_");
-        StringBuilder sb = new StringBuilder();
-        for (String part : parts) {
-            sb.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
-        }
-        String buildingImgName = sb.toString() + ".png";
-
-        Label label = new Label(sb.toString()); // Display name for the card
-        label.getStyleClass().add("title-large-dark");
-
-        // 2. Load the Icon
-        javafx.scene.image.ImageView buildingIcon = new javafx.scene.image.ImageView();
-        try {
-            var stream = getClass().getResourceAsStream("/images/" + buildingImgName);
-            if (stream != null) {
-                buildingIcon.setImage(new javafx.scene.image.Image(stream));
-                buildingIcon.setFitWidth(50);
-                buildingIcon.setPreserveRatio(true);
-                buildingIcon.setSmooth(true);
-            } else {
-                System.err.println("FAILED to find image at: /images/" + buildingImgName);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-
-        // 3. Assemble the card
-        HBox resourceCost = formatWithIcons(type.getPrice());
-        VBox textContent = new VBox(4, label, resourceCost);
-
-        HBox resourceCard = new HBox(15, buildingIcon, textContent);
-        resourceCard.setAlignment(Pos.CENTER_LEFT);
-        resourceCard.setPadding(new Insets(12));
-        resourceCard.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 3);");
-
-        // Locked/Buildable check
-        boolean buildable = App.getInstance().getGameController().buildable(type);
-        if (!buildable) {
-            resourceCard.setOpacity(0.5);
-            resourceCard.setDisable(true);
-        }
-
-        return resourceCard;
-    }
-    /**
-     * Renders resource costs using PNG icons instead of emojis
-     */
-    private HBox formatWithIcons(List<ResourceStack> prices) {
-        HBox container = new HBox(10);
-        container.setAlignment(Pos.CENTER_LEFT);
-
-        for (ResourceStack cost : prices) {
-            if (cost.getAmount() > 0) {
-                String iconFile = switch (cost.getType()) {
-                    case MONEY -> "Coin.png";
-                    case METAL -> "Metal.png";
-                    case WOOD -> "Wood.png";
-                    case STONE -> "Stone.png";
-                    default -> "";
-                };
-
-                HBox item = new HBox(4);
-                item.setAlignment(Pos.CENTER_LEFT);
-
-                javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
-                try {
-                    var stream = getClass().getResourceAsStream("/images/" + iconFile);
-                    if (stream != null) {
-                        iconView.setImage(new javafx.scene.image.Image(stream));
-                        iconView.setFitWidth(14);
-                        iconView.setPreserveRatio(true);
-                    }
-                } catch (Exception e) {}
-
-                Label val = new Label(String.valueOf(cost.getAmount()));
-                val.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
-
-                item.getChildren().addAll(iconView, val);
-                container.getChildren().add(item);
-            }
-        }
-        return container;
-    }
 
     /**--------Formats resource values into string------*/
     private String format(List<ResourceStack> prices){
