@@ -20,5 +20,6 @@ module uk.ac.soton.comp2211 {
     opens uk.ac.soton.comp2300.model to com.google.gson;
     opens uk.ac.soton.comp2300.model.game_logic to com.google.gson;
     opens uk.ac.soton.comp2300;
+    exports uk.ac.soton.comp2300.model.game_logic;
 
 }
