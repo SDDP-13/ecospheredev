@@ -15,8 +15,10 @@ module uk.ac.soton.comp2211 {
     exports uk.ac.soton.comp2300.event;
     exports uk.ac.soton.comp2300.component;
     exports uk.ac.soton.comp2300.model;
+    exports uk.ac.soton.comp2300.model.energy;
     opens uk.ac.soton.comp2300.component to javafx.fxml;
     opens uk.ac.soton.comp2300.model to com.google.gson;
     opens uk.ac.soton.comp2300.model.game_logic to com.google.gson;
     opens uk.ac.soton.comp2300;
+
 }
