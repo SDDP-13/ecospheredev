@@ -9,6 +9,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.*;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 // uses https://api.carbonintensity.org.uk/ for carbon intensity data (gCO2/kWh) in the UK
@@ -105,5 +106,40 @@ public class CarbonIntensityClient {
         double sum = 0.0;
         for (IntensitySlot s : slots) sum += s.kgPerKwh;
         return sum / slots.size();
+    }
+
+    /**
+     * Infer carbon peak as the highest-intensity contiguous 3-hour block (6 half-hour slots).
+     */
+    public PeakWindow inferPeakWindowForDate(LocalDate date, ZoneId zone) throws Exception {
+        List<IntensitySlot> day = loadDay(date, zone);
+        if (day.isEmpty()) {
+            return new PeakWindow(LocalTime.of(16, 0), LocalTime.of(19, 0));
+        }
+
+        day.sort(Comparator.comparing(s -> s.from));
+
+        int windowSlots = Math.min(6, day.size());
+        int bestStartIdx = 0;
+        double bestTotalIntensity = Double.NEGATIVE_INFINITY;
+
+        for (int i = 0; i <= day.size() - windowSlots; i++) {
+            double totalIntensity = 0.0;
+            for (int j = 0; j < windowSlots; j++) {
+                totalIntensity += day.get(i + j).kgPerKwh;
+            }
+            if (totalIntensity > bestTotalIntensity) {
+                bestTotalIntensity = totalIntensity;
+                bestStartIdx = i;
+            }
+        }
+
+        LocalTime start = day.get(bestStartIdx).from.withZoneSameInstant(zone).toLocalTime();
+        LocalTime end = day.get(bestStartIdx + windowSlots - 1).to.withZoneSameInstant(zone).toLocalTime();
+
+        if (!start.isBefore(end)) {
+            return new PeakWindow(LocalTime.of(16, 0), LocalTime.of(19, 0));
+        }
+        return new PeakWindow(start, end);
     }
 }

@@ -33,7 +33,6 @@ public class EcoSavingsService {
     private static final Path ASSETS_DIR = Path.of("assets");
 
     public EcoSavingsReport calculate(ScheduleTask task, EnergyLabel label) throws Exception {
-
         if (task == null) throw new IllegalArgumentException("task is null");
         if (task.getTime() == null) throw new IllegalArgumentException("task.time is null");
         if (task.getDuration() == null) throw new IllegalArgumentException("task.duration is null");
@@ -49,17 +48,10 @@ public class EcoSavingsService {
         CarbonIntensityClient carbon = new CarbonIntensityClient(ASSETS_DIR);
         carbon.updateDaily(today);
 
-        // peak window cache, only compute when JSON updated OR cache missing
+        // peak baseline now uses carbon intensity, not price
         PeakWindowCache peakCache = new PeakWindowCache(ASSETS_DIR);
-        PeakWindow peakWindow;
-
-        boolean peakMissing = !peakCache.exists(DEFAULT_REGION, today);
-        if (ratesResult.isDownloaded() || peakMissing) {
-            peakWindow = rates.inferPeakWindowForDate(today, ZONE);
-            peakCache.write(DEFAULT_REGION, today, peakWindow);
-        } else {
-            peakWindow = peakCache.read(DEFAULT_REGION, today);
-        }
+        PeakWindow peakWindow = carbon.inferPeakWindowForDate(today, ZONE);
+        peakCache.write("CARBON", today, peakWindow);
 
         // build device, will be replace soon once we change the ScheduleScene.java to pass in device type directly
         ApplianceType type = DeviceTypeMapper.fromDeviceName(task.getDeviceName());
@@ -77,10 +69,17 @@ public class EcoSavingsService {
         CostAndCarbonService calc = new CostAndCarbonService(rates, carbon, ZONE);
 
         CostAndCarbonResult current = calc.calculate(device, scheduledStart, task.getDuration());
-        CostAndCarbonResult peak = calc.calculate(device, peakStart, task.getDuration());
+        CostAndCarbonResult rawPeak = calc.calculate(device, peakStart, task.getDuration());
+
+        // Carbon-derived peak keeps CO2 baseline aligned to carbon objective.
+        CostAndCarbonResult peak = new CostAndCarbonResult(
+                rawPeak.getKwh(),
+                Math.max(rawPeak.getCostPounds(), current.getCostPounds()),
+                rawPeak.getCo2Kg()
+        );
 
         double moneySaved = peak.getCostPounds() - current.getCostPounds();
-        double co2Saved = peak.getCo2Kg() - current.getCo2Kg();
+        double co2Saved = Math.max(0.0, peak.getCo2Kg() - current.getCo2Kg());
 
         return new EcoSavingsReport(current, peak, moneySaved, co2Saved, peakWindow);
     }

@@ -185,11 +185,12 @@ public class App extends Application {
         String cacheKey = (task.getDeviceName() + "|" + time + "|" + duration.toMinutes() + "|" + todayUk).toLowerCase();
 
         EcoSavingsReport cached = savingsReportCache.get(cacheKey);
+        System.out.println("Cached?" + (cached != null));
         if (cached != null) return cached;
 
         try {
             ScheduleTask normalizedTask = new ScheduleTask(task.getDeviceName(), time, duration, task.getDescription());
-            EcoSavingsReport report = ecoSavingsService.calculate(normalizedTask, EnergyLabel.A);
+            EcoSavingsReport report = ecoSavingsService.calculate(normalizedTask, EnergyLabel.F);
             savingsReportCache.put(cacheKey, report);
             return report;
         } catch (Exception e) {

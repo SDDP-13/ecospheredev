@@ -15,7 +15,7 @@ public class ScheduleTask {
 
     // created a sub fn here to avoid destory origin ui, will be remove soon plz use the new one
     public ScheduleTask(String deviceName, LocalTime time, String description) {
-        this(deviceName, time, Duration.ofHours(1), description);
+        this(deviceName, time, Duration.ofHours(24), description);
     }
 
     public ScheduleTask(String deviceName, LocalTime time, Duration duration, String description) {
