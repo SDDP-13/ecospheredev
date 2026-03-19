@@ -54,6 +54,25 @@ public class PlanetScene extends BaseScene {
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
         root.setStyle("-fx-background-color: white;");
 
+        // --- RESOURCE HUD (Top Right) ---
+        VBox resourceContainer = new VBox(8);
+        resourceContainer.setPadding(new Insets(15));
+        resourceContainer.setAlignment(Pos.TOP_RIGHT);
+        resourceContainer.setPickOnBounds(false); // Allows clicking through HUD for 3D rotation
+
+        int gold = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY);
+        int metal = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL);
+        int wood = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD);
+        int stone = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE);
+
+        resourceContainer.getChildren().addAll(
+                createResourceBox("Coin.png", String.format("%,d", gold), "#d4af37"),
+                createResourceBox("Metal.png", String.format("%,d", metal), "#a0a0a0"),
+                createResourceBox("Wood.png", String.format("%,d", wood), "#8b4513"),
+                createResourceBox("Stone.png", String.format("%,d", stone), "#708090")
+        );
+        StackPane.setAlignment(resourceContainer, Pos.TOP_RIGHT);
+
         Button btnBack = new Button("←");
         btnBack.setPrefSize(44, 44);
         btnBack.getStyleClass().add("menu-icon-button");
@@ -76,7 +95,6 @@ public class PlanetScene extends BaseScene {
         btnBuild.setOnMouseExited(e -> hoverLabel.setVisible(false));
         StackPane.setAlignment(btnBuild, Pos.BOTTOM_RIGHT);
         StackPane.setMargin(btnBuild, new Insets(20));
-        //btnBuild.setOnAction(e -> buildModeActive = !buildModeActive);
         btnBuild.setOnAction(e-> toggleBuildMenu());
 
         /** Build Menu */
@@ -139,11 +157,15 @@ public class PlanetScene extends BaseScene {
             double theta = planetView.getCursorTheta();
             double phi = planetView.getCursorPhi();
             BuildingData newBuild = controller.placeBuidling(planetModel, selectedBuildingType, theta, phi);
-            if (newBuild != null) planetView.renderBuilding(newBuild);
+            if (newBuild != null) {
+                planetView.renderBuilding(newBuild);
+                // Refresh scene to update resource trackers after building
+                mainWindow.loadScene(new PlanetScene(mainWindow));
+            }
         });
 
 
-        root.getChildren().addAll(starField, subScene, btnBack, btnBuild, hoverLabel, buildMenu);
+        root.getChildren().addAll(starField, subScene, btnBack, btnBuild, hoverLabel, buildMenu, resourceContainer);
     }
 
 
@@ -182,12 +204,6 @@ public class PlanetScene extends BaseScene {
         }
 
         move.play();
-
-        // buildMenu.setVisible(buildmenuOpen);
-        // buildMenu.setManaged(buildmenuOpen);
-
-        //bottomActions.setVisible(!buildmenuOpen);
-        // bottomActions.setManaged((!buildmenuOpen));
     }
 
     private VBox makeBuildMenu () {
@@ -232,22 +248,12 @@ public class PlanetScene extends BaseScene {
         buildList.getChildren().add(buildEntry(BuildingType.SPACEPORT));
         buildList.getChildren().add(buildEntry(BuildingType.RESEARCH_LAB));
 
-        /*
-        buildList.getChildren().add(buildEntry("Lumber Mill", "Cost: 🔘 40  🪵 10  🟡 0"));
-        buildList.getChildren().add(buildEntry("Quarry", "Cost: 🔘 80  🪵 30  🟡 200"));
-        buildList.getChildren().add(buildEntry("Mine", "Cost: 🔘 20  🪵 200  🟡 10"));
-        buildList.getChildren().add(buildEntry("Town", "Cost: 🔘 50  🪵 350  🟡 50"));
-        buildList.getChildren().add(buildEntry("Market", "Cost: 🔘 200  🪵 30  🟡 500"));
-        buildList.getChildren().add(buildEntry("Space Port", "Cost: 🔘 5500  🪵 1000  🟡 100"));
-        buildList.getChildren().add(buildEntry("Research Lab", "Cost: 🔘 800  🪵 25  🟡 1000"));
-        */
         menu.getChildren().addAll(header, scrollPane);
         return menu;
 
     }
 
     private HBox buildEntry(BuildingType type) {
-        // 1. Convert Enum name (e.g., TOWN) to Filename (Town.png)
         String rawName = type.name().toLowerCase();
         String[] parts = rawName.split("_");
         StringBuilder sb = new StringBuilder();
@@ -256,10 +262,9 @@ public class PlanetScene extends BaseScene {
         }
         String buildingImgName = sb.toString() + ".png";
 
-        Label label = new Label(sb.toString()); // Display name for the card
+        Label label = new Label(sb.toString());
         label.getStyleClass().add("title-large-dark");
 
-        // 2. Load the Icon
         javafx.scene.image.ImageView buildingIcon = new javafx.scene.image.ImageView();
         try {
             var stream = getClass().getResourceAsStream("/images/" + buildingImgName);
@@ -268,14 +273,9 @@ public class PlanetScene extends BaseScene {
                 buildingIcon.setFitWidth(50);
                 buildingIcon.setPreserveRatio(true);
                 buildingIcon.setSmooth(true);
-            } else {
-                System.err.println("FAILED to find image at: /images/" + buildingImgName);
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        } catch (Exception e) {}
 
-        // 3. Assemble the card
         HBox resourceCost = formatWithIcons(type.getPrice());
         VBox textContent = new VBox(4, label, resourceCost);
 
@@ -285,20 +285,17 @@ public class PlanetScene extends BaseScene {
         resourceCard.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
                 "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 3);");
 
-        // Locked/Buildable check
         boolean buildable = App.getInstance().getGameController().buildable(type);
         if (!buildable) {
             resourceCard.setOpacity(0.5);
             resourceCard.setDisable(true);
         }
+        resourceCard.setOnMouseClicked(e -> selectedBuildingType = type);
 
         return resourceCard;
     }
 
 
-    /**
-     * Renders resource costs using PNG icons instead of emojis
-     */
     private HBox formatWithIcons(List<ResourceStack> prices) {
         HBox container = new HBox(10);
         container.setAlignment(Pos.CENTER_LEFT);
@@ -334,6 +331,31 @@ public class PlanetScene extends BaseScene {
             }
         }
         return container;
+    }
+
+    /** Helper method to create resource boxes */
+    private HBox createResourceBox(String imageName, String amount, String color) {
+        HBox box = new HBox(8);
+        box.setPadding(new Insets(3, 10, 3, 10));
+        box.setAlignment(Pos.CENTER_LEFT);
+        box.setMinWidth(115);
+        box.setMaxWidth(115);
+        box.setStyle("-fx-background-color: " + color + "cc; -fx-background-radius: 15;");
+
+        javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                iconView.setImage(new javafx.scene.image.Image(stream));
+                iconView.setFitWidth(18);
+                iconView.setPreserveRatio(true);
+            }
+        } catch (Exception e) {}
+
+        Label val = new Label(amount);
+        val.setStyle("-fx-font-size: 12px; -fx-text-fill: white; -fx-font-weight: bold;");
+        box.getChildren().addAll(iconView, val);
+        return box;
     }
 
 
