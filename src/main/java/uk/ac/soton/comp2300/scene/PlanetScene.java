@@ -163,7 +163,7 @@ public class PlanetScene extends BaseScene {
         ProgressBar levelBar = new ProgressBar(levelProgress);
         levelBar.setPrefWidth(115);
         levelBar.setPrefHeight(10);
-        levelBar.setStyle("-fx-accent: #FFD54F;"); // Golden color matching Dashboard
+        levelBar.setStyle("-fx-accent: #FFD54F;");
         levelBox.getChildren().addAll(levelLabel, levelBar);
 
 // 2. Resource Section
@@ -178,11 +178,8 @@ public class PlanetScene extends BaseScene {
         );
 
         hudContainer.getChildren().addAll(levelBox, resourceContainer);
-
-// IMPORTANT: Set the alignment of the hudContainer within the root StackPane
         StackPane.setAlignment(hudContainer, Pos.TOP_RIGHT);
 
-// Assembly: Starfield (Background) -> SubScene (3D Planet) -> UI Buttons/Menus -> HUD (Top Layer)
         root.getChildren().addAll(starField, subScene, btnBack, btnBuild, hoverLabel, buildMenu, hudContainer);    }
 
     /** Helper method to create resource boxes */

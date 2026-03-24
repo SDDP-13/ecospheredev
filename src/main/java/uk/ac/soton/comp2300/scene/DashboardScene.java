@@ -10,10 +10,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import uk.ac.soton.comp2300.App;
+import uk.ac.soton.comp2300.model.Notification;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DashboardScene extends BaseScene {
@@ -146,32 +148,51 @@ public class DashboardScene extends BaseScene {
 
         // --- SECTION 3: APPLIANCE PIE CHART ---
         VBox deviceChartCard = createChartContainer("Appliance Schedule Split");
+
         Map<String, Integer> counts = new HashMap<>();
-        for (var note : app.getRepository().getAllNotifications()) {
+        List<Notification> allNotes = app.getRepository().getAllNotifications();
+        int totalSchedules = allNotes.size();
+
+        for (var note : allNotes) {
             counts.put(note.getTitle(), counts.getOrDefault(note.getTitle(), 0) + 1);
         }
+
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
-        counts.forEach((name, count) -> pieData.add(new PieChart.Data(name, count)));
+
+// 1. Chart Data
+        counts.forEach((name, count) -> {
+            double percentage = (totalSchedules > 0) ? ((double) count / totalSchedules) * 100 : 0;
+            // The name of the Data object is what appears as the chart label
+            PieChart.Data data = new PieChart.Data(String.format("%.1f%%", percentage), count);
+            pieData.add(data);
+        });
 
         PieChart pieChart = new PieChart(pieData);
         pieChart.setPrefSize(250, 180);
-        pieChart.setLabelsVisible(false);
+        pieChart.setLabelsVisible(true);
         pieChart.setLegendVisible(false);
 
+// 2. Legend Logic: Labels show the appliance name
         FlowPane legend = new FlowPane(10, 10);
         legend.setAlignment(Pos.CENTER);
         String[] colors = {"#E64A19", "#FFA000", "#7B1FA2", "#388E3C", "#1976D2"};
+
+        String[] originalNames = counts.keySet().toArray(new String[0]);
+
         int i = 0;
         for (PieChart.Data data : pieData) {
             HBox item = new HBox(5);
             item.setAlignment(Pos.CENTER_LEFT);
             Circle circle = new Circle(5, Color.web(colors[i % colors.length]));
-            Label lbl = new Label(data.getName());
+            
+            Label lbl = new Label(originalNames[i]);
             lbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+
             item.getChildren().addAll(circle, lbl);
             legend.getChildren().add(item);
             i++;
         }
+
         deviceChartCard.getChildren().addAll(pieChart, legend);
 
         // --- SECTION 4: ECO IMPACT ---
