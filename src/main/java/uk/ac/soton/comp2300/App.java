@@ -1,10 +1,6 @@
 package uk.ac.soton.comp2300;
 
-import com.google.gson.GsonBuilder;
 import javafx.application.Application;
-import javafx.geometry.Pos;
-import javafx.scene.control.Label;
-import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -13,7 +9,6 @@ import uk.ac.soton.comp2300.model.*;
 import uk.ac.soton.comp2300.model.energy.EnergyLabel;
 import uk.ac.soton.comp2300.model.game_logic.*;
 import uk.ac.soton.comp2300.scene.LoginScene;
-import uk.ac.soton.comp2300.scene.MenuScene;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
 import java.time.Duration;
@@ -302,22 +297,45 @@ public class App extends Application {
 
             // 4. Trigger popup if level increased
             if (levelAfter > levelBefore) {
-                triggerLevelUpNotification(levelAfter);
+                String rewardMessage = giveReward(levelBefore, levelAfter);
+
+                triggerLevelUpNotification(levelAfter, rewardMessage);
+
             }
         }
     }
 
-    private void triggerLevelUpNotification(int newLevel) {
+    //Finds and applies in game reward, returns message for each reward.
+    private String giveReward(int levelBefore, int levelAfter) {
+        Planet planet = App.getInstance().getGameController()
+                .getGameState().getSelectedPlanet();
+
+        int selector = Items.selectRewardLvl(levelAfter);
+        Items rewardItem = Items.selectItem(selector);
+
+        rewardItem.applyItem(planet);
+        return rewardItem.getMessage();
+    }
+
+    private void triggerLevelUpNotification(int newLevel, String rewardMsg) {
         var levelRecord = new uk.ac.soton.comp2300.event.NotificationRecord(
                 "LVL_UP_" + newLevel,
                 "Level Up!",
-                "Your eco-influence is growing. ⭐", // Updated description
+                "Your eco-influence is growing. ⭐" + "\n" + rewardMsg , // Updated description
                 java.time.LocalDateTime.now(),
                 uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT // Type is GAME_EVENT
         );
 
         if (notificationLogic != null && notificationLogic.getListener() != null) {
             notificationLogic.getListener().onNotificationSent(levelRecord);
+        }
+    }
+
+    private void rewardsSystem (int levelBefore, int levelAfter ){
+        int lvlDiff = levelAfter - levelBefore;
+
+        for (int i = 0;  i >= lvlDiff ; i++){
+           int lvlReward = levelBefore + 1;
         }
     }
 

@@ -32,4 +32,9 @@ public class Planet {
     public List<BuildingData> getBuildingData() { return buildingData; }
     public void addBuilding(BuildingData bData) { buildingData.add(bData); }
     public Map<Resource, Double> getProductionMultipliers() { return productionMultipliers; }
+
+    public void changeMultiplier(Resource res, double change) {
+        double multiplier = productionMultipliers.getOrDefault(res, 1.0);
+        productionMultipliers.put(res, multiplier * change);
+    }
 }
