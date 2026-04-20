@@ -65,6 +65,9 @@ public class App extends Application {
         instance = this;
         this.stage = stage;
 
+        // Prevents the app from shutting down background tasks when minimized
+        javafx.application.Platform.setImplicitExit(false);
+
         setupNotificationLogic();
         setupGameLogic();
         open();
@@ -128,6 +131,9 @@ public class App extends Application {
 
         this.notificationLogic = new NotificationLogic(repository, record -> {
             logger.info("New notification sent: " + record.title());
+            javafx.application.Platform.runLater(() -> {
+                showSystemNotification(record.title(), record.message());
+            });
         });
 
         notificationLogic.start();
@@ -291,13 +297,13 @@ public class App extends Application {
         this.completedScheduledTasks++;
 
         // 2. Increment the value for today's bar in the Task Chart
-        String today = LocalDate.now().toString(); // e.g., "2026-04-20"
-        double currentDayTotal = dailySavingsMap.getOrDefault(today, 0.0);
+        //String today = LocalDate.now().toString(); // e.g., "2026-04-20"
+        //double currentDayTotal = dailySavingsMap.getOrDefault(today, 0.0);
 
         // We add a value (e.g., 20.0) so the bar grows by 20% per task completed
-        dailySavingsMap.put(today, currentDayTotal + 20.0);
+        //dailySavingsMap.put(today, currentDayTotal + 20.0);
 
-        logger.info("Task completed! Day total for " + today + " is now: " + dailySavingsMap.get(today));
+        //logger.info("Task completed! Day total for " + today + " is now: " + dailySavingsMap.get(today));
     }
     /**
      * Helper to calculate current level and progress based on total XP.
@@ -357,4 +363,34 @@ public class App extends Application {
         return dailySavingsMap;
     }
 
+    public void showSystemNotification(String title, String message) {
+        // Check if the OS allows tray icons
+        if (!java.awt.SystemTray.isSupported()) {
+            logger.warn("SystemTray not supported on this OS");
+            return;
+        }
+
+        try {
+            java.awt.SystemTray tray = java.awt.SystemTray.getSystemTray();
+
+            java.net.URL imageLoc = getClass().getResource("/images/Coin.png");
+            java.awt.Image image = java.awt.Toolkit.getDefaultToolkit().getImage(imageLoc);
+
+            java.awt.TrayIcon trayIcon = new java.awt.TrayIcon(image, "Ecosphere");
+            trayIcon.setImageAutoSize(true);
+
+            tray.add(trayIcon);
+
+            // Trigger the outside of the software notification
+            trayIcon.displayMessage(title, message, java.awt.TrayIcon.MessageType.INFO);
+
+            // Remove the icon after 5 seconds so they don't clutter the taskbar
+            new java.util.Timer().schedule(new java.util.TimerTask() {
+                @Override public void run() { tray.remove(trayIcon); }
+            }, 5000);
+
+        } catch (Exception e) {
+            logger.error("Failed to trigger Windows notification: " + e.getMessage());
+        }
+    }
 }
