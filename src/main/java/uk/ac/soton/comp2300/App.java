@@ -51,6 +51,9 @@ public class App extends Application {
     private NotificationRepository repository;
     private final EcoSavingsService ecoSavingsService = new EcoSavingsService();
     private final Map<String, EcoSavingsReport> savingsReportCache = new HashMap<>();
+    private final Map<String, Double> dailySavingsMap = new HashMap<>();
+
+    private final Map<String, Double> dailyTaskCompletionMap = new HashMap<>();
 
     public static void main(String[] args) {
         logger.info("Starting client");
@@ -84,6 +87,7 @@ public class App extends Application {
     }
 
     public void incrementCompletedTasks() {
+
         this.completedScheduledTasks++;
         logger.info("Total completed tasks: " + completedScheduledTasks);
     }
@@ -98,6 +102,19 @@ public class App extends Application {
             }
         }
         return count;
+    }
+    /** Call this when a task from the TASK SCENE is completed */
+    /** Call this when a task from the TASK SCENE is completed */
+    public void addTaskCompletion() {
+        String today = LocalDate.now().toString();
+        double current = dailyTaskCompletionMap.getOrDefault(today, 0.0);
+
+        // Increase by 1
+        dailyTaskCompletionMap.put(today, current + 1.0);
+    }
+
+    public Map<String, Double> getDailyTaskCompletionMap() {
+        return dailyTaskCompletionMap;
     }
     private void setupNotificationLogic() {
         this.repository = new NotificationRepository() {
@@ -256,6 +273,9 @@ public class App extends Application {
     /**
      * Updates global session totals using a report from the EcoSavingsService.
      */
+    /**
+     * Updates global session totals and tracks completion for dashboard charts.
+     */
     public void addReportSavings(EcoSavingsReport report) {
         if (report == null) return;
 
@@ -266,6 +286,18 @@ public class App extends Application {
         this.totalMoneySaved += moneySaved;
         this.totalCo2Saved += co2Saved;
         this.totalEnergySaved += energySaved;
+
+        // 1. Increment the counter for the bottom Weekly Progress bar
+        this.completedScheduledTasks++;
+
+        // 2. Increment the value for today's bar in the Task Chart
+        String today = LocalDate.now().toString(); // e.g., "2026-04-20"
+        double currentDayTotal = dailySavingsMap.getOrDefault(today, 0.0);
+
+        // We add a value (e.g., 20.0) so the bar grows by 20% per task completed
+        dailySavingsMap.put(today, currentDayTotal + 20.0);
+
+        logger.info("Task completed! Day total for " + today + " is now: " + dailySavingsMap.get(today));
     }
     /**
      * Helper to calculate current level and progress based on total XP.
@@ -311,14 +343,18 @@ public class App extends Application {
         var levelRecord = new uk.ac.soton.comp2300.event.NotificationRecord(
                 "LVL_UP_" + newLevel,
                 "Level Up!",
-                "Your eco-influence is growing. ⭐", // Updated description
+                "Your eco-influence is growing. ⭐",
                 java.time.LocalDateTime.now(),
-                uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT // Type is GAME_EVENT
+                uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT
         );
 
         if (notificationLogic != null && notificationLogic.getListener() != null) {
             notificationLogic.getListener().onNotificationSent(levelRecord);
         }
+
+    }
+    public Map<String, Double> getDailySavingsMap() {
+        return dailySavingsMap;
     }
 
 }

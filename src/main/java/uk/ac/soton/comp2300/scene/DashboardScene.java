@@ -88,8 +88,14 @@ public class DashboardScene extends BaseScene {
         week12.setStyle("-fx-text-fill: #7986CB; -fx-cursor: hand;");
         toggleBar.getChildren().addAll(day7, week4, week12);
 
-        // --- SECTION 2: TASKS CHART & APPLIANCE PROGRESS ---
-        int dailyTasksDone = app.getCompletedScheduledTasks();
+// --- SECTION 2: TASKS CHART & APPLIANCE PROGRESS ---
+        // 1. Calculate current week range (Monday to Sunday)
+        java.time.LocalDate now = java.time.LocalDate.now();
+        java.time.LocalDate monday = now.with(java.time.DayOfWeek.MONDAY);
+        java.time.LocalDate sunday = now.with(java.time.DayOfWeek.SUNDAY);
+        String weekRange = String.format("%s - %s", monday, sunday);
+
+        // 2. Weekly Progress Logic (KEPT AS REQUESTED)
         long completedAppliances = app.getRepository().getAllNotifications().stream()
                 .filter(n -> n.getStatus() == uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED)
                 .count();
@@ -97,10 +103,14 @@ public class DashboardScene extends BaseScene {
         int weeklyTarget = 35;
         double progressRatio = Math.min(1.0, (double) completedAppliances / weeklyTarget);
 
-        VBox weeklyProgressCard = createChartContainer("Tasks completed (%)");
+        // Header displays the date range
+        VBox weeklyProgressCard = createChartContainer("Daily Task Activity (" + weekRange + ")");
 
         CategoryAxis xAxis = new CategoryAxis();
-        NumberAxis yAxis = new NumberAxis(0, 100, 20);
+
+        // Change Y-axis: Min 0, Max 7, Step 1
+        NumberAxis yAxis = new NumberAxis(0, 7, 1);
+        yAxis.setLabel("Tasks Done");
 
         // Dark Purple Axis Styling
         String axisStyle = "-fx-tick-label-fill: #311B92; " +
@@ -108,7 +118,6 @@ public class DashboardScene extends BaseScene {
                 "-fx-tick-mark-stroke: #311B92; " +
                 "-fx-axis-line-stroke: #311B92; " +
                 "-fx-axis-line-stroke-width: 2px;";
-
         xAxis.setStyle(axisStyle);
         yAxis.setStyle(axisStyle);
 
@@ -118,14 +127,20 @@ public class DashboardScene extends BaseScene {
         weeklyChart.setHorizontalGridLinesVisible(true);
         weeklyChart.setVerticalGridLinesVisible(false);
 
+        // 3. Populate Chart: Pulls specifically from Task Scene completions
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.getData().add(new XYChart.Data<>("Mon", 30));
-        series.getData().add(new XYChart.Data<>("Tue", 55));
-        series.getData().add(new XYChart.Data<>("Wed", 28));
-        series.getData().add(new XYChart.Data<>("Thu", dailyTasksDone));
-        series.getData().add(new XYChart.Data<>("Fri", 0));
-        series.getData().add(new XYChart.Data<>("Sat", 0));
-        series.getData().add(new XYChart.Data<>("Sun", 0));
+        Map<String, Double> taskData = app.getDailyTaskCompletionMap();
+        String[] dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+
+        for (int j = 0; j < 7; j++) {
+            java.time.LocalDate currentDayDate = monday.plusDays(j);
+            String dateKey = currentDayDate.toString(); // YYYY-MM-DD
+
+            // This value increases when App.addTaskCompletion is called
+            double value = taskData.getOrDefault(dateKey, 0.0);
+
+            series.getData().add(new XYChart.Data<>(dayNames[j], value));
+        }
         weeklyChart.getData().add(series);
 
         VBox weeklyStats = new VBox(8);
@@ -206,7 +221,11 @@ public class DashboardScene extends BaseScene {
                 impactTitle,
                 createImpactRow("Energy Saved", String.format("%.2f kWh", app.getTotalEnergySaved()), "#2E7D32"),
                 createImpactRow("Money Saved", String.format("£%.2f", app.getTotalMoneySaved()), "#43A047"),
-                createImpactRow("Carbon Offset", String.format("%.2f kg", app.getTotalCo2Saved()), "#1B5E20")
+                createImpactRow("Carbon Offset", String.format("%.2f kg", app.getTotalCo2Saved()), "#1B5E20"),
+                createImpactRow("Peak Savings Day", app.getDailySavingsMap().entrySet().stream()
+                        .max(Map.Entry.comparingByValue())
+                        .map(Map.Entry::getKey)
+                        .orElse("No data"), "#E64A19") //
         );
 
         // --- SECTION 5: RESOURCES DATA (AT BOTTOM) ---

@@ -124,10 +124,9 @@ public class TaskScene extends BaseScene {
             taskObj.toggleRewardCollected();
             var app = uk.ac.soton.comp2300.App.getInstance();
 
-            // Use the controller to update the model state
-            var controller = app.getGameController();
+            app.addTaskCompletion();
 
-            // Grant 100 XP
+            var controller = app.getGameController();
             app.addXp(100);
 
             for (var stack : taskObj.getRewards()) {
