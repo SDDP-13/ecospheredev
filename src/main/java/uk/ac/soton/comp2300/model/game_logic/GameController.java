@@ -70,4 +70,13 @@ public class GameController {
         return state.sufficientResources(type.getPrice());
     }
 
+
+    //    private void addPlacedBuildingMultiplier (Planet planet, BuildingType buildingType) {
+//        switch(buildingType) {
+//            case LUMBER_MILL -> planet.
+//        }
+//
+//    }
+
+
 }
