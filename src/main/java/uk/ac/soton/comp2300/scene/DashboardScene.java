@@ -95,7 +95,7 @@ public class DashboardScene extends BaseScene {
         java.time.LocalDate sunday = now.with(java.time.DayOfWeek.SUNDAY);
         String weekRange = String.format("%s - %s", monday, sunday);
 
-        // 2. Weekly Progress Logic (KEPT AS REQUESTED)
+        // 2. Weekly Progress Logic
         long completedAppliances = app.getRepository().getAllNotifications().stream()
                 .filter(n -> n.getStatus() == uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED)
                 .count();
