@@ -9,6 +9,7 @@ module uk.ac.soton.comp2211 {
     requires com.fasterxml.jackson.databind;
     requires java.net.http;
     requires jdk.compiler;
+    requires java.desktop;
     opens uk.ac.soton.comp2300.ui to javafx.fxml;
     exports uk.ac.soton.comp2300;
     exports uk.ac.soton.comp2300.ui;

@@ -10,10 +10,12 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import uk.ac.soton.comp2300.App;
+import uk.ac.soton.comp2300.model.Notification;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class DashboardScene extends BaseScene {
@@ -86,8 +88,14 @@ public class DashboardScene extends BaseScene {
         week12.setStyle("-fx-text-fill: #7986CB; -fx-cursor: hand;");
         toggleBar.getChildren().addAll(day7, week4, week12);
 
-        // --- SECTION 2: TASKS CHART & APPLIANCE PROGRESS ---
-        int dailyTasksDone = app.getCompletedScheduledTasks();
+// --- SECTION 2: TASKS CHART & APPLIANCE PROGRESS ---
+        // 1. Calculate current week range (Monday to Sunday)
+        java.time.LocalDate now = java.time.LocalDate.now();
+        java.time.LocalDate monday = now.with(java.time.DayOfWeek.MONDAY);
+        java.time.LocalDate sunday = now.with(java.time.DayOfWeek.SUNDAY);
+        String weekRange = String.format("%s - %s", monday, sunday);
+
+        // 2. Weekly Progress Logic
         long completedAppliances = app.getRepository().getAllNotifications().stream()
                 .filter(n -> n.getStatus() == uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED)
                 .count();
@@ -95,10 +103,14 @@ public class DashboardScene extends BaseScene {
         int weeklyTarget = 35;
         double progressRatio = Math.min(1.0, (double) completedAppliances / weeklyTarget);
 
-        VBox weeklyProgressCard = createChartContainer("Tasks completed (%)");
+        // Header displays the date range
+        VBox weeklyProgressCard = createChartContainer("Daily Task Activity (" + weekRange + ")");
 
         CategoryAxis xAxis = new CategoryAxis();
-        NumberAxis yAxis = new NumberAxis(0, 100, 20);
+
+        // Change Y-axis: Min 0, Max 7, Step 1
+        NumberAxis yAxis = new NumberAxis(0, 7, 1);
+        yAxis.setLabel("Tasks Done");
 
         // Dark Purple Axis Styling
         String axisStyle = "-fx-tick-label-fill: #311B92; " +
@@ -106,7 +118,6 @@ public class DashboardScene extends BaseScene {
                 "-fx-tick-mark-stroke: #311B92; " +
                 "-fx-axis-line-stroke: #311B92; " +
                 "-fx-axis-line-stroke-width: 2px;";
-
         xAxis.setStyle(axisStyle);
         yAxis.setStyle(axisStyle);
 
@@ -116,14 +127,20 @@ public class DashboardScene extends BaseScene {
         weeklyChart.setHorizontalGridLinesVisible(true);
         weeklyChart.setVerticalGridLinesVisible(false);
 
+        // 3. Populate Chart: Pulls specifically from Task Scene completions
         XYChart.Series<String, Number> series = new XYChart.Series<>();
-        series.getData().add(new XYChart.Data<>("Mon", 30));
-        series.getData().add(new XYChart.Data<>("Tue", 55));
-        series.getData().add(new XYChart.Data<>("Wed", 28));
-        series.getData().add(new XYChart.Data<>("Thu", dailyTasksDone));
-        series.getData().add(new XYChart.Data<>("Fri", 0));
-        series.getData().add(new XYChart.Data<>("Sat", 0));
-        series.getData().add(new XYChart.Data<>("Sun", 0));
+        Map<String, Double> taskData = app.getDailyTaskCompletionMap();
+        String[] dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+
+        for (int j = 0; j < 7; j++) {
+            java.time.LocalDate currentDayDate = monday.plusDays(j);
+            String dateKey = currentDayDate.toString(); // YYYY-MM-DD
+
+            // This value increases when App.addTaskCompletion is called
+            double value = taskData.getOrDefault(dateKey, 0.0);
+
+            series.getData().add(new XYChart.Data<>(dayNames[j], value));
+        }
         weeklyChart.getData().add(series);
 
         VBox weeklyStats = new VBox(8);
@@ -146,32 +163,51 @@ public class DashboardScene extends BaseScene {
 
         // --- SECTION 3: APPLIANCE PIE CHART ---
         VBox deviceChartCard = createChartContainer("Appliance Schedule Split");
+
         Map<String, Integer> counts = new HashMap<>();
-        for (var note : app.getRepository().getAllNotifications()) {
+        List<Notification> allNotes = app.getRepository().getAllNotifications();
+        int totalSchedules = allNotes.size();
+
+        for (var note : allNotes) {
             counts.put(note.getTitle(), counts.getOrDefault(note.getTitle(), 0) + 1);
         }
+
         ObservableList<PieChart.Data> pieData = FXCollections.observableArrayList();
-        counts.forEach((name, count) -> pieData.add(new PieChart.Data(name, count)));
+
+// 1. Chart Data
+        counts.forEach((name, count) -> {
+            double percentage = (totalSchedules > 0) ? ((double) count / totalSchedules) * 100 : 0;
+            // The name of the Data object is what appears as the chart label
+            PieChart.Data data = new PieChart.Data(String.format("%.1f%%", percentage), count);
+            pieData.add(data);
+        });
 
         PieChart pieChart = new PieChart(pieData);
         pieChart.setPrefSize(250, 180);
-        pieChart.setLabelsVisible(false);
+        pieChart.setLabelsVisible(true);
         pieChart.setLegendVisible(false);
 
+// 2. Legend Logic: Labels show the appliance name
         FlowPane legend = new FlowPane(10, 10);
         legend.setAlignment(Pos.CENTER);
         String[] colors = {"#E64A19", "#FFA000", "#7B1FA2", "#388E3C", "#1976D2"};
+
+        String[] originalNames = counts.keySet().toArray(new String[0]);
+
         int i = 0;
         for (PieChart.Data data : pieData) {
             HBox item = new HBox(5);
             item.setAlignment(Pos.CENTER_LEFT);
             Circle circle = new Circle(5, Color.web(colors[i % colors.length]));
-            Label lbl = new Label(data.getName());
+            
+            Label lbl = new Label(originalNames[i]);
             lbl.setStyle("-fx-font-size: 11px; -fx-text-fill: #666;");
+
             item.getChildren().addAll(circle, lbl);
             legend.getChildren().add(item);
             i++;
         }
+
         deviceChartCard.getChildren().addAll(pieChart, legend);
 
         // --- SECTION 4: ECO IMPACT ---
@@ -185,20 +221,62 @@ public class DashboardScene extends BaseScene {
                 impactTitle,
                 createImpactRow("Energy Saved", String.format("%.2f kWh", app.getTotalEnergySaved()), "#2E7D32"),
                 createImpactRow("Money Saved", String.format("£%.2f", app.getTotalMoneySaved()), "#43A047"),
-                createImpactRow("Carbon Offset", String.format("%.2f kg", app.getTotalCo2Saved()), "#1B5E20")
+                createImpactRow("Carbon Offset", String.format("%.2f kg", app.getTotalCo2Saved()), "#1B5E20"),
+                createImpactRow("Peak Savings Day", app.getDailySavingsMap().entrySet().stream()
+                        .max(Map.Entry.comparingByValue())
+                        .map(Map.Entry::getKey)
+                        .orElse("No data"), "#E64A19") //
         );
+        // --- SECTION 5: RESOURCES GAINED ---
+        VBox resourcesSection = new VBox(15);
+        resourcesSection.setAlignment(Pos.CENTER);
+        VBox.setMargin(resourcesSection, new Insets(30, 0, 0, 0));
+        Label resHeader = new Label("Resources Gained:");
+        resHeader.getStyleClass().add("title-medium");
+        resHeader.setStyle("-fx-text-fill: #2E7D32; -fx-font-weight: bold;");
 
-        // --- SECTION 5: RESOURCES DATA (AT BOTTOM) ---
         GridPane resourceGrid = new GridPane();
         resourceGrid.setHgap(15); resourceGrid.setVgap(15);
         resourceGrid.setAlignment(Pos.CENTER);
+
         resourceGrid.add(createResourceBox("Gold", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY), "Coin.png"), 0, 0);
         resourceGrid.add(createResourceBox("Metal", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL), "Metal.png"), 1, 0);
         resourceGrid.add(createResourceBox("Wood", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD), "Wood.png"), 0, 1);
         resourceGrid.add(createResourceBox("Stone", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE), "Stone.png"), 1, 1);
 
+        resourcesSection.getChildren().addAll(resHeader, resourceGrid);
+
+        // --- SECTION 6: STRUCTURES BUILT ---
+        VBox structuresSection = new VBox(15);
+        structuresSection.setAlignment(Pos.CENTER);
+
+        Label structHeader = new Label("Structures Built:");
+        structHeader.getStyleClass().add("title-medium");
+        structHeader.setStyle("-fx-text-fill: #1565C0; -fx-font-weight: bold;");
+
+        GridPane structGrid = new GridPane();
+        structGrid.setHgap(15); structGrid.setVgap(15);
+        structGrid.setAlignment(Pos.CENTER);
+        var buildings = state.getSelectedPlanet().getBuildingData();
+
+        // Row 0
+        structGrid.add(createResourceBox("Towns", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.TOWN).count(), "Town.png"), 0, 0);
+        structGrid.add(createResourceBox("Lumber Mills", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.LUMBER_MILL).count(), "LumberMill.png"), 1, 0);
+
+        // Row 1
+        structGrid.add(createResourceBox("Quarries", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.QUARRY).count(), "Quarry.png"), 0, 1);
+        structGrid.add(createResourceBox("Mines", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.MINE).count(), "Mine.png"), 1, 1);
+
+        // Row 2
+        structGrid.add(createResourceBox("Markets", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.MARKET).count(), "Market.png"), 0, 2);
+        structGrid.add(createResourceBox("Labs", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.RESEARCH_LAB).count(), "ResearchLab.png"), 1, 2);
+
+        // Row 3 (Standalone)
+        structGrid.add(createResourceBox("Spaceports", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.SPACEPORT).count(), "Spaceport.png"), 0, 3);
+
+        structuresSection.getChildren().addAll(structHeader, structGrid);
         // ASSEMBLY
-        content.getChildren().addAll(title, xpBox, toggleBar, weeklyProgressCard, deviceChartCard, ecoImpactCard, resourceGrid);
+        content.getChildren().addAll(title, xpBox, toggleBar, weeklyProgressCard, deviceChartCard, ecoImpactCard, resourcesSection, structuresSection);
 
         // Navigation
         Button backBtn = new Button("←");

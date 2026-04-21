@@ -9,6 +9,7 @@ import javafx.geometry.Pos;
 import javafx.scene.*;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
@@ -142,8 +143,68 @@ public class PlanetScene extends BaseScene {
             if (newBuild != null) planetView.renderBuilding(newBuild);
         });
 
+// --- HUD CONTAINER (LEVEL + RESOURCES) ---
+        VBox hudContainer = new VBox(12);
+        hudContainer.setPadding(new Insets(15));
+        hudContainer.setAlignment(Pos.TOP_RIGHT); // Aligns levelBox and resourceContainer to the right side of the VBox
+        hudContainer.setPickOnBounds(false); // Allows clicking through the HUD to rotate the planet
 
-        root.getChildren().addAll(starField, subScene, btnBack, btnBuild, hoverLabel, buildMenu);
+// 1. Level Data Section
+        double[] levelData = app.getLevelData();
+        int levelNum = (int) levelData[0];
+        double levelProgress = levelData[3];
+
+        VBox levelBox = new VBox(4);
+        levelBox.setAlignment(Pos.TOP_RIGHT); // Aligns label and bar to the right within the levelBox
+        Label levelLabel = new Label("Level " + levelNum);
+        levelLabel.setStyle("-fx-font-weight: bold; -fx-text-fill: white; -fx-font-size: 13px; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 5, 0, 0, 0);");
+
+        ProgressBar levelBar = new ProgressBar(levelProgress);
+        levelBar.setPrefWidth(115);
+        levelBar.setPrefHeight(10);
+        levelBar.setStyle("-fx-accent: #FFD54F;");
+        levelBox.getChildren().addAll(levelLabel, levelBar);
+
+// 2. Resource Section
+        VBox resourceContainer = new VBox(8);
+        resourceContainer.setAlignment(Pos.TOP_RIGHT); // Aligns the resource boxes to the right
+
+        resourceContainer.getChildren().addAll(
+                createResourceBox("Coin.png", String.format("%,d", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY)), "#d4af37"),
+                createResourceBox("Metal.png", String.format("%,d", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL)), "#a0a0a0"),
+                createResourceBox("Wood.png", String.format("%,d", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD)), "#8b4513"),
+                createResourceBox("Stone.png", String.format("%,d", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE)), "#708090")
+        );
+
+        hudContainer.getChildren().addAll(levelBox, resourceContainer);
+        StackPane.setAlignment(hudContainer, Pos.TOP_RIGHT);
+
+        root.getChildren().addAll(starField, subScene, btnBack, btnBuild, hoverLabel, buildMenu, hudContainer);    }
+
+    /** Helper method to create resource boxes */
+    private HBox createResourceBox(String imageName, String amount, String color) {
+        HBox box = new HBox(8);
+        box.setPadding(new Insets(3, 10, 3, 10));
+        box.setAlignment(Pos.CENTER_LEFT);
+        box.setMinWidth(115);
+        box.setMaxWidth(115);
+        box.setStyle("-fx-background-color: " + color + "cc; -fx-background-radius: 15;");
+
+        javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                iconView.setImage(new javafx.scene.image.Image(stream));
+                iconView.setFitWidth(18);
+                iconView.setPreserveRatio(true);
+            }
+        } catch (Exception e) {}
+
+        Label val = new Label(amount);
+        val.setStyle("-fx-font-size: 12px; -fx-text-fill: white; -fx-font-weight: bold;");
+        box.getChildren().addAll(iconView, val);
+        return box;
     }
 
 
