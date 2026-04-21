@@ -227,18 +227,56 @@ public class DashboardScene extends BaseScene {
                         .map(Map.Entry::getKey)
                         .orElse("No data"), "#E64A19") //
         );
+        // --- SECTION 5: RESOURCES GAINED ---
+        VBox resourcesSection = new VBox(15);
+        resourcesSection.setAlignment(Pos.CENTER);
+        VBox.setMargin(resourcesSection, new Insets(30, 0, 0, 0));
+        Label resHeader = new Label("Resources Gained:");
+        resHeader.getStyleClass().add("title-medium");
+        resHeader.setStyle("-fx-text-fill: #2E7D32; -fx-font-weight: bold;");
 
-        // --- SECTION 5: RESOURCES DATA (AT BOTTOM) ---
         GridPane resourceGrid = new GridPane();
         resourceGrid.setHgap(15); resourceGrid.setVgap(15);
         resourceGrid.setAlignment(Pos.CENTER);
+
         resourceGrid.add(createResourceBox("Gold", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY), "Coin.png"), 0, 0);
         resourceGrid.add(createResourceBox("Metal", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL), "Metal.png"), 1, 0);
         resourceGrid.add(createResourceBox("Wood", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD), "Wood.png"), 0, 1);
         resourceGrid.add(createResourceBox("Stone", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE), "Stone.png"), 1, 1);
 
+        resourcesSection.getChildren().addAll(resHeader, resourceGrid);
+
+        // --- SECTION 6: STRUCTURES BUILT ---
+        VBox structuresSection = new VBox(15);
+        structuresSection.setAlignment(Pos.CENTER);
+
+        Label structHeader = new Label("Structures Built:");
+        structHeader.getStyleClass().add("title-medium");
+        structHeader.setStyle("-fx-text-fill: #1565C0; -fx-font-weight: bold;");
+
+        GridPane structGrid = new GridPane();
+        structGrid.setHgap(15); structGrid.setVgap(15);
+        structGrid.setAlignment(Pos.CENTER);
+        var buildings = state.getSelectedPlanet().getBuildingData();
+
+        // Row 0
+        structGrid.add(createResourceBox("Towns", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.TOWN).count(), "Town.png"), 0, 0);
+        structGrid.add(createResourceBox("Lumber Mills", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.LUMBER_MILL).count(), "LumberMill.png"), 1, 0);
+
+        // Row 1
+        structGrid.add(createResourceBox("Quarries", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.QUARRY).count(), "Quarry.png"), 0, 1);
+        structGrid.add(createResourceBox("Mines", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.MINE).count(), "Mine.png"), 1, 1);
+
+        // Row 2
+        structGrid.add(createResourceBox("Markets", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.MARKET).count(), "Market.png"), 0, 2);
+        structGrid.add(createResourceBox("Labs", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.RESEARCH_LAB).count(), "ResearchLab.png"), 1, 2);
+
+        // Row 3 (Standalone)
+        structGrid.add(createResourceBox("Spaceports", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.SPACEPORT).count(), "Spaceport.png"), 0, 3);
+
+        structuresSection.getChildren().addAll(structHeader, structGrid);
         // ASSEMBLY
-        content.getChildren().addAll(title, xpBox, toggleBar, weeklyProgressCard, deviceChartCard, ecoImpactCard, resourceGrid);
+        content.getChildren().addAll(title, xpBox, toggleBar, weeklyProgressCard, deviceChartCard, ecoImpactCard, resourcesSection, structuresSection);
 
         // Navigation
         Button backBtn = new Button("←");
