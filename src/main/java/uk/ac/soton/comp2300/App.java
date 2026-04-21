@@ -393,4 +393,8 @@ public class App extends Application {
             logger.error("Failed to trigger Windows notification: " + e.getMessage());
         }
     }
+    public int getBuildingsPlacedCount() {
+        if (gameState == null) return 0;
+        return gameState.getBuildingsPlaced(); //
+    }
 }

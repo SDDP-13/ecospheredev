@@ -62,6 +62,7 @@ public class TaskScene extends BaseScene {
     }
 
     private HBox createTask(Task taskObj) {
+        var app = uk.ac.soton.comp2300.App.getInstance();
         HBox taskCard = new HBox(15);
         taskCard.getStyleClass().add("card");
         //taskCard.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 12;");
@@ -110,6 +111,23 @@ public class TaskScene extends BaseScene {
             }
         }
 
+        // Build a structure (1) Check - Requires 1 building
+        if (taskObj.getId().equals("Build a structure (1)")) {
+            int buildCount = app.getBuildingsPlacedCount();
+            if (buildCount < 1) {
+                isLocked = true;
+                setBtnLocked(claimBtn, "LOCKED (0/1)");
+            }
+        }
+        // Build a structure (2) Check - Requires 5 buildings
+        else if (taskObj.getId().equals("Build a structure (2)")) {
+            int buildCount = app.getBuildingsPlacedCount();
+            if (buildCount < 5) {
+                isLocked = true;
+                setBtnLocked(claimBtn, "LOCKED (" + buildCount + "/5)");
+            }
+        }
+
         if (!isLocked) {
             if (taskObj.getRewardCollected()) {
                 setBtnClaimed(claimBtn);
@@ -122,7 +140,6 @@ public class TaskScene extends BaseScene {
             if (taskObj.getRewardCollected()) return;
 
             taskObj.toggleRewardCollected();
-            var app = uk.ac.soton.comp2300.App.getInstance();
 
             app.addTaskCompletion();
 
