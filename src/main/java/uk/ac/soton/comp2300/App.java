@@ -2,6 +2,7 @@ package uk.ac.soton.comp2300;
 
 import com.google.gson.GsonBuilder;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
@@ -65,8 +66,21 @@ public class App extends Application {
         instance = this;
         this.stage = stage;
 
-        // Prevents the app from shutting down background tasks when minimized
-        javafx.application.Platform.setImplicitExit(false);
+        // This prevents the app from closing when minimized,
+        // but requires manual handling for the 'X' button.
+
+        stage.setOnCloseRequest(e -> {
+            logger.info("Closing application...");
+
+            try {
+                stop(); // save + shutdown logic
+            } catch (Exception ex) {
+                logger.error("Error during shutdown: " + ex.getMessage());
+            }
+
+            Platform.exit();
+            System.exit(0);
+        });
 
         setupNotificationLogic();
         setupGameLogic();
@@ -164,12 +178,17 @@ public class App extends Application {
 
     @Override
     public void stop() {
-        logger.info("Shutting down");
-        if (notificationLogic != null) {
-            notificationLogic.shutdown();
+        logger.info("Saving and stopping background threads...");
+        try {
+            if (notificationLogic != null) {
+                notificationLogic.shutdown();
+            }
+            if (saveManager != null && gameState != null) {
+                saveManager.saveGame(gameState);
+            }
+        } catch (Exception e) {
+            logger.error("Stop sequence encountered an error: " + e.getMessage());
         }
-
-        saveManager.saveGame(gameState);
     }
 
     public static App getInstance() {
@@ -385,10 +404,9 @@ public class App extends Application {
             trayIcon.displayMessage(title, message, java.awt.TrayIcon.MessageType.INFO);
 
             // Remove the icon after 5 seconds so they don't clutter the taskbar
-            new java.util.Timer().schedule(new java.util.TimerTask() {
+            new java.util.Timer(true).schedule(new java.util.TimerTask() {
                 @Override public void run() { tray.remove(trayIcon); }
             }, 5000);
-
         } catch (Exception e) {
             logger.error("Failed to trigger Windows notification: " + e.getMessage());
         }
