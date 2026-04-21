@@ -48,10 +48,8 @@ public class EcoSavingsService {
         CarbonIntensityClient carbon = new CarbonIntensityClient(ASSETS_DIR);
         carbon.updateDaily(today);
 
-        // peak baseline now uses carbon intensity, not price
-        PeakWindowCache peakCache = new PeakWindowCache(ASSETS_DIR);
+        // Peak baseline now comes directly from carbon intensity, not a cached peak-window file.
         PeakWindow peakWindow = carbon.inferPeakWindowForDate(today, ZONE);
-        peakCache.write("CARBON", today, peakWindow);
 
         // build device, will be replace soon once we change the ScheduleScene.java to pass in device type directly
         ApplianceType type = DeviceTypeMapper.fromDeviceName(task.getDeviceName());

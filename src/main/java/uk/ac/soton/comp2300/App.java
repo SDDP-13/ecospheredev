@@ -51,6 +51,7 @@ public class App extends Application {
     private NotificationRepository repository;
     private final EcoSavingsService ecoSavingsService = new EcoSavingsService();
     private final Map<String, EcoSavingsReport> savingsReportCache = new HashMap<>();
+    private final CookieStorageService cookieStorageService = new CookieStorageService();
 
     public static void main(String[] args) {
         logger.info("Starting client");
@@ -80,7 +81,15 @@ public class App extends Application {
         if (currentSessionTasks == null) {
             currentSessionTasks = taskPool.generateDailyTasks();
         }
+        applyClaimedTaskState(currentSessionTasks);
         return currentSessionTasks;
+    }
+
+    private void applyClaimedTaskState(List<Task> tasks) {
+        var claimedToday = cookieStorageService.getClaimedTasksToday();
+        for (Task task : tasks) {
+            task.setRewardCollected(claimedToday.contains(task.getId()));
+        }
     }
 
     public void incrementCompletedTasks() {
@@ -89,15 +98,19 @@ public class App extends Application {
     }
 
     public int getCompletedScheduledTasks() {
-        if (currentSessionTasks == null) return 0;
-
-        int count = 0;
-        for (Task task : currentSessionTasks) {
-            if (task.getRewardCollected()) {
-                count++;
-            }
+        if (repository == null) {
+            return completedScheduledTasks;
         }
-        return count;
+
+        int completedNotifications = (int) repository.getAllNotifications().stream()
+                .filter(note -> note.getStatus() == Notification.Status.TASK_COMPLETED)
+                .count();
+
+        if (completedNotifications > completedScheduledTasks) {
+            completedScheduledTasks = completedNotifications;
+        }
+
+        return completedScheduledTasks;
     }
     private void setupNotificationLogic() {
         this.repository = new NotificationRepository() {
@@ -161,6 +174,10 @@ public class App extends Application {
 
     public NotificationLogic getNotificationLogic() {
         return this.notificationLogic;
+    }
+
+    public CookieStorageService getCookieStorageService() {
+        return cookieStorageService;
     }
 
     // minor patch to sync with Game state

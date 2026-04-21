@@ -91,6 +91,7 @@ public class TaskScene extends BaseScene {
 
         Button claimBtn = new Button();
         claimBtn.setMinWidth(100);
+        var cookieStorage = uk.ac.soton.comp2300.App.getInstance().getCookieStorageService();
 
         int completedCount = uk.ac.soton.comp2300.App.getInstance().getCompletedScheduledTasks();
         boolean isLocked = false;
@@ -110,8 +111,11 @@ public class TaskScene extends BaseScene {
             }
         }
 
+        boolean alreadyClaimedToday = cookieStorage.hasClaimedTaskToday(taskObj.getId());
+        taskObj.setRewardCollected(alreadyClaimedToday);
+
         if (!isLocked) {
-            if (taskObj.getRewardCollected()) {
+            if (alreadyClaimedToday || taskObj.getRewardCollected()) {
                 setBtnClaimed(claimBtn);
             } else {
                 setBtnReady(claimBtn);
@@ -119,9 +123,13 @@ public class TaskScene extends BaseScene {
         }
 
         claimBtn.setOnAction(e -> {
-            if (taskObj.getRewardCollected()) return;
+            if (taskObj.getRewardCollected() || cookieStorage.hasClaimedTaskToday(taskObj.getId())) {
+                taskObj.setRewardCollected(true);
+                setBtnClaimed(claimBtn);
+                return;
+            }
 
-            taskObj.toggleRewardCollected();
+            taskObj.setRewardCollected(true);
             var app = uk.ac.soton.comp2300.App.getInstance();
 
             // Use the controller to update the model state
@@ -134,6 +142,7 @@ public class TaskScene extends BaseScene {
                 controller.addResource(stack.getType(), stack.getAmount());
             }
 
+            cookieStorage.markTaskClaimedToday(taskObj.getId());
             setBtnClaimed(claimBtn);
         });
 
