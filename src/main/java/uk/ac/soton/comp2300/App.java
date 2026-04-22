@@ -87,6 +87,8 @@ public class App extends Application {
         setupNotificationLogic();
         setupGameLogic();
         open();
+
+
     }
     public int getTotalXp() {
         if (gameState == null) return 0;
