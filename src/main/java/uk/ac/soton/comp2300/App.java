@@ -9,9 +9,12 @@ import javafx.scene.layout.HBox;
 
 
 import javafx.stage.Stage;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.event.NotificationLogic;
+import uk.ac.soton.comp2300.event.RefreshVisuals;
 import uk.ac.soton.comp2300.model.*;
 import uk.ac.soton.comp2300.model.energy.ApplianceType;
 import uk.ac.soton.comp2300.model.energy.CostAndCarbonResult;
@@ -42,6 +45,8 @@ public class App extends Application {
     private GameController gameController;
     private GameSaveManager saveManager;
     private GameLoadManager loadManager;
+    private Timeline gameClock;
+    private MainWindow mainWindow;
 
     private int completedScheduledTasks = 0;
 
@@ -91,8 +96,30 @@ public class App extends Application {
         setupGameLogic();
         open();
 
+        startGameClock();
 
     }
+    /**Starts the in game timer running, calls time sensitive methods**/
+    private void startGameClock() {
+        gameClock = new Timeline(
+                new KeyFrame(javafx.util.Duration.millis(200), event ->{
+                    if (gameController != null) {
+                        gameController.gameLoopTick();
+                    }
+
+                    if (mainWindow != null && mainWindow.getCurrentScene() instanceof RefreshVisuals refresh) {
+                        refresh.refreshVisuals();
+                    }
+                })
+
+
+
+
+        );
+        gameClock.setCycleCount(Timeline.INDEFINITE);
+        gameClock.play();
+    }
+
     public int getTotalXp() {
         if (gameState == null) return 0;
         return gameState.getTotalXp();
@@ -199,23 +226,29 @@ public class App extends Application {
 
     public void open() {
         logger.info("Opening window at " + width + "x" + height);
-        var mainWindow = new MainWindow(stage, width, height);
+        this.mainWindow = new MainWindow(stage, width, height);
         mainWindow.loadScene(new LoginScene(mainWindow));
         stage.show();
     }
 
     @Override
     public void stop() {
+
+
         logger.info("Saving and stopping background threads...");
         try {
             if (notificationLogic != null) {
                 notificationLogic.shutdown();
+            }
+            if (gameClock != null) {
+                gameClock.stop();
             }
             if (saveManager != null && gameState != null) {
                 saveManager.saveGame(gameState);
             }
         } catch (Exception e) {
             logger.error("Stop sequence encountered an error: " + e.getMessage());
+
         }
     }
 

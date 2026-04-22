@@ -58,6 +58,7 @@ public class GameState {
 
     public void addPlanet(Planet planet) { planets.add(planet); }
     public List<Planet> getPlanets() { return planets; }
+
     public void setSelectedPlanet(Planet planet) { this.selectedPlanetId = (planet == null) ? null : planet.getId(); }
     public Planet getSelectedPlanet() {
         if (selectedPlanetId == null) return null;
@@ -67,6 +68,7 @@ public class GameState {
         }
         return null;
     }
+
 
 
 
