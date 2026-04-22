@@ -48,7 +48,25 @@ public class GameState {
 
     public void addPlanet(Planet planet) { planets.add(planet); }
     public List<Planet> getPlanets() { return planets; }
-    public void setSelectedPlanet(Planet selectedPlanet) { this.selectedPlanet = selectedPlanet; }
+
+    public void setSelectedPlanet(Planet selectedPlanet) {
+        if (selectedPlanet == null) {
+            this.selectedPlanet = null;
+            return;
+        }
+
+        for (Planet planet : planets) {
+            if (planet == selectedPlanet){
+                this.selectedPlanet = selectedPlanet;
+                return;
+            }
+        }
+        throw new IllegalArgumentException(
+                "Selected planet does not already exist in planets list."
+        );
+    }
+
+
     public Planet getSelectedPlanet() { return selectedPlanet; }
 
 

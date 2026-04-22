@@ -1,33 +1,32 @@
 package uk.ac.soton.comp2300.scene;
 
-import javafx.animation.Interpolator;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar; // Added for level bar
-import javafx.scene.control.ScrollPane;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import uk.ac.soton.comp2300.App;
 import uk.ac.soton.comp2300.event.NotificationListenerInterface;
-import uk.ac.soton.comp2300.model.ResourceStack;
-import uk.ac.soton.comp2300.model.game_logic.BuildingType;
+import uk.ac.soton.comp2300.event.RefreshVisuals;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
-import java.util.List;
 import java.util.Random;
 import uk.ac.soton.comp2300.event.NotificationRecord;
 import uk.ac.soton.comp2300.ui.NotificationPopup;
+import uk.ac.soton.comp2300.model.Resource;
 
-import javafx.animation.TranslateTransition;
-import javafx.util.Duration;
 
-public class MenuScene extends BaseScene implements NotificationListenerInterface {
+public class MenuScene extends BaseScene implements NotificationListenerInterface, RefreshVisuals {
 
     private HBox botMenuActions;
+    private Label currentGoldLabel;
+    private Label currentMetalLabel;
+    private Label currentWoodLabel;
+    private Label currentStoneLabel;
 
     public MenuScene(MainWindow mainWindow) {
         super(mainWindow);
@@ -87,6 +86,11 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         int metal = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL);
         int wood = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD);
         int stone = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE);
+
+        currentGoldLabel= new Label();
+        currentMetalLabel = new Label();
+        currentWoodLabel = new Label();
+        currentStoneLabel = new Label();
 
         resourceContainer.getChildren().addAll(
                 createResourceBox("Coin.png", String.format("%,d", gold), "#d4af37"),
@@ -232,6 +236,20 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         val.setStyle("-fx-text-fill: white;");
         box.getChildren().addAll(iconView, val);
         return box;
+    }
+
+    @Override
+    public void refreshVisuals(){
+        System.out.println("Planet Scene RefreshVisuals called.");
+
+        var state = App.getInstance().getGameController().getGameState();
+
+        currentGoldLabel.setText(String.format("%,d", state.getResourceAmount(Resource.MONEY)));
+        currentMetalLabel.setText(String.format("%,d", state.getResourceAmount(Resource.METAL)));
+        currentWoodLabel.setText(String.format("%,d", state.getResourceAmount(Resource.WOOD)));
+        currentStoneLabel.setText(String.format("%,d", state.getResourceAmount(Resource.STONE)));
+
+
     }
 
     @Override
