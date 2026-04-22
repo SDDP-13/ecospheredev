@@ -82,10 +82,10 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
         // Resource Section
         VBox resourceContainer = new VBox(8);
-        int gold = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY);
-        int metal = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL);
-        int wood = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD);
-        int stone = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE);
+//        int gold = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY);
+//        int metal = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL);
+//        int wood = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD);
+//        int stone = state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE);
 
         currentGoldLabel= new Label();
         currentMetalLabel = new Label();
@@ -93,10 +93,10 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         currentStoneLabel = new Label();
 
         resourceContainer.getChildren().addAll(
-                createResourceBox("Coin.png", String.format("%,d", gold), "#d4af37"),
-                createResourceBox("Metal.png", String.format("%,d", metal), "#a0a0a0"),
-                createResourceBox("Wood.png", String.format("%,d", wood), "#8b4513"),
-                createResourceBox("Stone.png", String.format("%,d", stone), "#708090")
+                createResourceBox("Coin.png", currentGoldLabel, "#d4af37"),
+                createResourceBox("Metal.png", currentMetalLabel, "#a0a0a0"),
+                createResourceBox("Wood.png", currentWoodLabel, "#8b4513"),
+                createResourceBox("Stone.png", currentStoneLabel, "#708090")
         );
 
         hudContainer.getChildren().addAll(levelBox, resourceContainer);
@@ -188,6 +188,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         labelOverlay.setMouseTransparent(true);
 
         root.getChildren().addAll(starField, planetLayer, hudContainer, menuDrawer, botMenuActions, labelOverlay);
+        refreshVisuals();
     }
 
     private Button createMenuButton(String imageName) {
@@ -215,7 +216,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         });
     }
 
-    private HBox createResourceBox(String imageName, String amount, String color) {
+    private HBox createResourceBox(String imageName, Label currentResLabel, String color) {
         HBox box = new HBox(8);
         box.setPadding(new Insets(3, 10, 3, 10));
         box.setAlignment(Pos.CENTER_LEFT);
@@ -231,16 +232,16 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
                 iconView.setPreserveRatio(true);
             }
         } catch (Exception e) {}
-        Label val = new Label(amount);
-        val.getStyleClass().add("title-small");
-        val.setStyle("-fx-text-fill: white;");
-        box.getChildren().addAll(iconView, val);
+        //Label val = new Label(amount);
+        currentResLabel.getStyleClass().add("title-small");
+        currentResLabel.setStyle("-fx-text-fill: white;");
+        box.getChildren().addAll(iconView, currentResLabel);
         return box;
     }
 
     @Override
     public void refreshVisuals(){
-        System.out.println("Planet Scene RefreshVisuals called.");
+        System.out.println("Menu Scene RefreshVisuals called.");
 
         var state = App.getInstance().getGameController().getGameState();
 
