@@ -7,21 +7,21 @@ import uk.ac.soton.comp2300.model.game_logic.Planet;
 
 public enum Items {
 
-        PICKAXE(Map.of(Resource.STONE, 1.03),0, 1, "Stone production increased by 3%"),
-        DYNAMITE(Map.of(Resource.STONE, 1.06),0, 2, "Stone production increased by 6%"),
-        GOLD_BAR(Map.of(Resource.MONEY, 1.03),0, 3 , "Gold production increased by 3%"),
-        DIAMONDS(Map.of(Resource.MONEY, 1.04),0, 4, "Gold production increased by 4%"),
-        CHAINSAW(Map.of(Resource.WOOD, 1.03),0, 5, "Wood production increased by 3%"),
-        SAWMILL(Map.of(Resource.WOOD, 1.07),0, 6, "Wood production increased by 7%"),
-        BELLOWS(Map.of(Resource.METAL, 1.03),0, 7, "Metal production increased by 3%" ),
-        FORGE(Map.of(Resource.METAL, 1.05),0, 8, "Metal production increased by 5%"),
-        QUANTUM_COMPUTING (Map.of(), 500,9, "Xp bonus!");
+        PICKAXE(Map.of(Resource.STONE, 1.03),0, 0, "Stone production increased by 3%"),
+        DYNAMITE(Map.of(Resource.STONE, 1.06),0, 1, "Stone production increased by 6%"),
+        GOLD_BAR(Map.of(Resource.MONEY, 1.03),0, 2 , "Gold production increased by 3%"),
+        DIAMONDS(Map.of(Resource.MONEY, 1.04),0, 3, "Gold production increased by 4%"),
+        CHAINSAW(Map.of(Resource.WOOD, 1.03),0, 4, "Wood production increased by 3%"),
+        SAWMILL(Map.of(Resource.WOOD, 1.07),0, 5, "Wood production increased by 7%"),
+        BELLOWS(Map.of(Resource.METAL, 1.03),0, 6, "Metal production increased by 3%" ),
+        FORGE(Map.of(Resource.METAL, 1.05),0, 7, "Metal production increased by 5%"),
+        QUANTUM_COMPUTING (Map.of(), 500,8, "Xp bonus!");
 
         private final Map<Resource, Double> multipliers;
         private final int xpGain;
         private final int rewardLvl;
         private final String message;
-        private static final int rewardModulo = 10;
+        private static final int rewardModulo = 9;
 
         Items(Map<Resource, Double> multiplier, int xpGain, int rewardLvl, String message) {
             this.multipliers = multiplier;
@@ -50,7 +50,7 @@ public enum Items {
         }
 
         public static int selectRewardLvl(int lvl) {
-            int rewardSelect = lvl % rewardModulo;
+            int rewardSelect = (lvl - 1) % rewardModulo;
             return rewardSelect;
         }
 
