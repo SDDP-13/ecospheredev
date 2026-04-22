@@ -24,7 +24,7 @@ public class TaskScene extends BaseScene {
 
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
         root.getStyleClass().add("root-light");
-        // root.setStyle("-fx-background-color: #EFEEF5;");
+       // root.setStyle("-fx-background-color: #EFEEF5;");
 
         Button btnBack = new Button("←");
         btnBack.setPrefSize(44, 44);
@@ -76,7 +76,7 @@ public class TaskScene extends BaseScene {
         // Using taskObj.getId() for the title as per your JSON
         Label title = new Label(taskObj.getId());
         title.getStyleClass().addAll("title-large-font");
-        // title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 20px; -fx-font-weight: bold;");
+       // title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 20px; -fx-font-weight: bold;");
 
         Label desc = new Label(taskObj.getDescription());
         desc.setWrapText(true);
@@ -92,6 +92,7 @@ public class TaskScene extends BaseScene {
 
         Button claimBtn = new Button();
         claimBtn.setMinWidth(100);
+        var cookieStorage = uk.ac.soton.comp2300.App.getInstance().getCookieStorageService();
 
         int completedCount = uk.ac.soton.comp2300.App.getInstance().getCompletedScheduledTasks();
         boolean isLocked = false;
@@ -128,8 +129,11 @@ public class TaskScene extends BaseScene {
             }
         }
 
+        boolean alreadyClaimedToday = cookieStorage.hasClaimedTaskToday(taskObj.getId());
+        taskObj.setRewardCollected(alreadyClaimedToday);
+
         if (!isLocked) {
-            if (taskObj.getRewardCollected()) {
+            if (alreadyClaimedToday || taskObj.getRewardCollected()) {
                 setBtnClaimed(claimBtn);
             } else {
                 setBtnReady(claimBtn);
@@ -137,11 +141,14 @@ public class TaskScene extends BaseScene {
         }
 
         claimBtn.setOnAction(e -> {
-            if (taskObj.getRewardCollected()) return;
+            if (taskObj.getRewardCollected() || cookieStorage.hasClaimedTaskToday(taskObj.getId())) {
+                taskObj.setRewardCollected(true);
+                setBtnClaimed(claimBtn);
+                return;
+            }
 
             taskObj.toggleRewardCollected();
-
-            app.addTaskCompletion();
+            // var app = uk.ac.soton.comp2300.App.getInstance();
 
             var controller = app.getGameController();
             app.addXp(100);
@@ -150,6 +157,7 @@ public class TaskScene extends BaseScene {
                 controller.addResource(stack.getType(), stack.getAmount());
             }
 
+            cookieStorage.markTaskClaimedToday(taskObj.getId());
             setBtnClaimed(claimBtn);
         });
 
@@ -174,7 +182,7 @@ public class TaskScene extends BaseScene {
         btn.setText("CLAIM");
         btn.setDisable(false);
         btn.getStyleClass().add("button-claim");
-        //  btn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 20; -fx-cursor: hand;");
+      //  btn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 20; -fx-cursor: hand;");
     }
 
     @Override public void initialise() {}

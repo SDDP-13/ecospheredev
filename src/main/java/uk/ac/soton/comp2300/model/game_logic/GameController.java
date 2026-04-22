@@ -2,6 +2,8 @@ package uk.ac.soton.comp2300.model.game_logic;
 
 import uk.ac.soton.comp2300.model.Resource;
 
+import java.util.List;
+
 public class GameController {
 
     private GameState state;
@@ -17,7 +19,11 @@ public class GameController {
 
     public void initializeNewGame() {
         Planet earth = new Planet("Earth");
+        Planet mars = new Planet("Mars");
+        Planet venus = new Planet("Venus");
         state.addPlanet(earth);
+        state.addPlanet(mars);
+        state.addPlanet(venus);
         state.setSelectedPlanet(earth);
 
 
@@ -64,7 +70,9 @@ public class GameController {
     }
 
     public void addResource(Resource type, int amount) { state.addResource(type, amount); }
-
+    public Planet getSelectedPlanet() { return state.getSelectedPlanet(); }
+    public void setSelectedPlanet(Planet planet) { state.setSelectedPlanet(planet); }
+    public List<Planet> getPlanets() { return state.getPlanets(); }
 
     public GameState getGameState() { return state; }
 
