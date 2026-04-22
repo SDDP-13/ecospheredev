@@ -33,7 +33,13 @@
     "loggedInUser": "user1",
     "lastLoginDate": "2026-04-22",
     "claimedTasksByUser": {
-      "user1": {}
+      "user1": {
+        "2026-04-22": [
+          "Followed a recommendation (1)",
+          "Log in",
+          "Followed a recommendation (2)"
+        ]
+      }
     }
   }
 }

@@ -7,11 +7,13 @@ import javafx.scene.control.ContentDisplay;
 import javafx.scene.control.Label;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.ImagePattern;
 import javafx.scene.shape.Circle;
 import uk.ac.soton.comp2300.App;
+import uk.ac.soton.comp2300.model.Resource;
 import uk.ac.soton.comp2300.model.game_logic.GameController;
 import uk.ac.soton.comp2300.model.game_logic.GameState;
 import uk.ac.soton.comp2300.model.game_logic.Planet;
@@ -105,11 +107,15 @@ public class SolarSystemScene extends BaseScene {
 
         Label name = new Label(planet.getName());
         name.getStyleClass().add("title-large-font");
+        name.setStyle("-fx-font-size: 24px;");
 
-        Label info = new Label("Buildings: " + planet.getBuildingData().size());
-        info.getStyleClass().add("label-small");
+        Label buildingCount = new Label("Buildings: " + planet.getBuildingData().size());
+        buildingCount.getStyleClass().add("label-small");
+        buildingCount.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
-        textContainer.getChildren().addAll(name, info);
+        FlowPane multiplierRow = createMultiplierRow(planet);
+
+        textContainer.getChildren().addAll(name, multiplierRow, buildingCount);
 
         Circle preview = new Circle(25);
 
@@ -127,7 +133,7 @@ public class SolarSystemScene extends BaseScene {
         }
 
         Button selectBtn = new Button();
-        selectBtn.setMinWidth(100);
+        selectBtn.setMinWidth(80);
         selectBtn.setAlignment(Pos.CENTER);
         selectBtn.setContentDisplay(ContentDisplay.CENTER);
 
@@ -163,6 +169,50 @@ public class SolarSystemScene extends BaseScene {
 
         btn.getStyleClass().clear();
         btn.getStyleClass().add("button-claim");
+    }
+
+    private FlowPane createMultiplierRow(Planet planet) {
+        FlowPane row = new FlowPane();
+        row.setHgap(10);
+        row.setVgap(5);
+        row.setAlignment(Pos.CENTER_LEFT);
+
+        var mults = planet.getProductionMultipliers();
+
+        for (var entry : mults.entrySet()) {
+            Resource resource = entry.getKey();
+            double value = entry.getValue();
+
+            HBox item = new HBox(4);
+            item.setAlignment(Pos.CENTER_LEFT);
+
+            String iconFile = switch (resource) {
+                case MONEY -> "Coin.png";
+                case METAL -> "Metal.png";
+                case WOOD -> "Wood.png";
+                case STONE -> "Stone.png";
+            };
+
+            ImageView icon = new ImageView();
+            try {
+                var stream = getClass().getResourceAsStream("/images/" + iconFile);
+                if (stream != null) {
+                    icon.setImage(new Image(stream));
+                    icon.setFitWidth(14);
+                    icon.setPreserveRatio(true);
+                }
+            } catch (Exception ignored) {}
+
+            Label label = new Label(String.format("x%.2f", value));
+            label.getStyleClass().add("label-small");
+            label.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
+            item.getChildren().addAll(icon, label);
+            row.getChildren().add(item);
+
+        }
+
+        return row;
     }
 
     @Override public void initialise() {}

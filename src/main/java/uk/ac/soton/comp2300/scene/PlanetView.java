@@ -75,6 +75,7 @@ public class PlanetView {
 
     public Group getGroup() { return planetGroup; }
     public Sphere getSphere() { return sphere; }
+    public Rotate getRotateY() { return rotateY; }
     public boolean isCursorValid() { return lastValidState; }
     public double getCursorTheta() { return lastTheta; }
     public double getCursorPhi() { return lastPhi; }
