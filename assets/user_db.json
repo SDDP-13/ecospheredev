@@ -6,11 +6,22 @@
         "userName": "user",
         "storedHash": "zEJRxLmKg/czBU2cKSXL9LmQac7rKET656oDyCYyQZw=",
         "storedSalt": "Kwqgh7Ch6sAGDyXKyVd7RQ=="
+      },
+      {
+        "userName": "user1",
+        "storedHash": "PCB+rHcibE5I/rgik1vGKgBGIH0qWzVToP9nKhQChCk=",
+        "storedSalt": "3nbdgWFFAaqJnGj6bjWiVg=="
       }
     ],
-    "currentUserName": "user"
+    "currentUserName": "user1"
   },
   "userSettings": {
+    "user1": {
+      "shareUsageData": false,
+      "darkMode": false,
+      "sendCrashReports": true,
+      "notifications": false
+    },
     "user": {
       "shareUsageData": false,
       "darkMode": false,
@@ -19,8 +30,10 @@
     }
   },
   "cookieData": {
-    "loggedInUser": "user",
-    "lastLoginDate": "2026-04-21",
-    "claimedTasksByUser": {}
+    "loggedInUser": "user1",
+    "lastLoginDate": "2026-04-22",
+    "claimedTasksByUser": {
+      "user1": {}
+    }
   }
 }

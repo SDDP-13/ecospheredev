@@ -148,7 +148,7 @@ public class TaskScene extends BaseScene {
             }
 
             taskObj.toggleRewardCollected();
-            var app = uk.ac.soton.comp2300.App.getInstance();
+            // var app = uk.ac.soton.comp2300.App.getInstance();
 
             var controller = app.getGameController();
             app.addXp(100);

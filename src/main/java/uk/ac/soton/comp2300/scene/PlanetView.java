@@ -49,7 +49,8 @@ public class PlanetView {
         planetGroup = new Group();
         sphere = new Sphere(planetRadius);
 
-        Image planetTexture = new Image(getClass().getResourceAsStream("/images/planet_texture_1.png"));
+        String fileName = model.getTextureID().toLowerCase() + ".png";
+        Image planetTexture = new Image(getClass().getResourceAsStream("/images/planet_textures/" + fileName));
 
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(planetTexture);
