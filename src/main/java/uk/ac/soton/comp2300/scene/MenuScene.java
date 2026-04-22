@@ -1,13 +1,19 @@
 package uk.ac.soton.comp2300.scene;
 
+
+import javafx.animation.*;
+
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
+import javafx.scene.PerspectiveCamera;
+import javafx.scene.SubScene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar; // Added for level bar
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
+import javafx.scene.transform.Rotate;
 import uk.ac.soton.comp2300.App;
 import uk.ac.soton.comp2300.event.NotificationListenerInterface;
 import uk.ac.soton.comp2300.event.RefreshVisuals;
@@ -18,6 +24,9 @@ import java.util.Random;
 import uk.ac.soton.comp2300.event.NotificationRecord;
 import uk.ac.soton.comp2300.ui.NotificationPopup;
 import uk.ac.soton.comp2300.model.Resource;
+
+
+import javafx.util.Duration;
 
 
 public class MenuScene extends BaseScene implements NotificationListenerInterface, RefreshVisuals {
@@ -47,17 +56,60 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
             starField.getChildren().add(star);
         }
 
-        Circle planet = new Circle(200, Color.web("#4CAF50"));
-        Button planetButton = new Button();
-        planetButton.setGraphic(planet);
-        planetButton.setStyle("-fx-background-color: transparent;");
-        planetButton.setPickOnBounds(false);
-        StackPane planetLayer = new StackPane(planetButton);
+        // 3D Planet view
+        var planetModel = state.getSelectedPlanet();
+        PlanetView planetView = new PlanetView(planetModel);
+
+        PerspectiveCamera camera = new PerspectiveCamera(true);
+        camera.setNearClip(0.1);
+        camera.setFarClip(2000.0);
+        camera.setTranslateZ(-600);
+
+        Rotate tilt = new Rotate(-15, Rotate.X_AXIS);
+        camera.getTransforms().add(tilt);
+        camera.setTranslateY(-150);
+        camera.setTranslateZ(-600);
+
+        SubScene planetSubScene = new SubScene(
+                planetView.getGroup(),
+                mainWindow.getWidth(),
+                mainWindow.getHeight(),
+                true,
+                null
+        );
+        planetSubScene.setFill(Color.TRANSPARENT);
+        planetSubScene.setCamera(camera);
+
+        Rotate rotateY = planetView.getRotateY();
+
+        Timeline rotation  = new Timeline(
+                new KeyFrame(Duration.seconds(0),
+                        new KeyValue(rotateY.angleProperty(), 0)
+                ),
+                new KeyFrame(Duration.seconds(35),
+                        new KeyValue(rotateY.angleProperty(), 360)
+                )
+        );
+
+        rotation.setCycleCount(Animation.INDEFINITE);
+        rotation.play();
+
+        StackPane planetLayer = new StackPane(planetSubScene);
         planetLayer.setAlignment(Pos.BOTTOM_CENTER);
-        planetLayer.setPadding(new Insets(0, 0, -60, 0));
-        planetLayer.setMaxWidth(Region.USE_PREF_SIZE);
-        planetLayer.setMaxHeight(Region.USE_PREF_SIZE);
-        StackPane.setAlignment(planetLayer, Pos.BOTTOM_CENTER);
+        planetLayer.setPadding(new Insets(0, 0, -180, 0));
+
+
+//        Circle planet = new Circle(200, Color.web("#4CAF50"));
+//        Button planetButton = new Button();
+//        planetButton.setGraphic(planet);
+//        planetButton.setStyle("-fx-background-color: transparent;");
+//        planetButton.setPickOnBounds(false);
+//        StackPane planetLayer = new StackPane(planetButton);
+//        planetLayer.setAlignment(Pos.BOTTOM_CENTER);
+//        planetLayer.setPadding(new Insets(0, 0, -60, 0));
+//        planetLayer.setMaxWidth(Region.USE_PREF_SIZE);
+//        planetLayer.setMaxHeight(Region.USE_PREF_SIZE);
+//        StackPane.setAlignment(planetLayer, Pos.BOTTOM_CENTER);
 
         // --- HUD CONTAINER (LEVEL + RESOURCES) ---
         VBox hudContainer = new VBox(12);

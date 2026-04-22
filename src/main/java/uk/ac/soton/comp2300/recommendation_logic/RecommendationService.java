@@ -1,6 +1,7 @@
 package uk.ac.soton.comp2300.recommendation_logic;
 // Picks the best time slot and returns it to user when queried
 
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Comparator;
 import java.util.List;
@@ -9,50 +10,64 @@ public class RecommendationService {
 
     private CarbonIntensityService carbonService = new CarbonIntensityService();
 
-    public String getRecommendation(String appliance){
-        try{
-            List<CarbonSlot> slots = carbonService.get24HourForecast();
+    // Most recently fetched forecast slots from the API
+    private List<CarbonSlot> cachedForecastSlots = null;
+    // When it was fetched
+    private LocalDateTime cacheTimestamp = null;
+    private static final int CACHE_EXPIRY_HOURS = 2;
 
-            CarbonSlot best = slots.stream()
-                .min(Comparator.comparingInt(CarbonSlot::getForecast))
-                .orElse(null);
+    public String getRecommendation(String appliance) {
 
-            if (best == null){
-                return "No recommendations available.";
+        List<CarbonSlot> forecastSlots = null;
+        String outputDataSource; // Where the live ouput came from
+
+        try {
+            forecastSlots = carbonService.get24HourForecast();
+            // Updates the cache to current forecast
+            cachedForecastSlots = forecastSlots;
+            cacheTimestamp = LocalDateTime.now();
+            outputDataSource = "live from API";
+        } catch (Exception liveException) {
+            System.err.println("Live carbon API failed: " + liveException.getMessage());
+
+            if (cachedForecastSlots != null && cacheTimestamp != null) {
+                long hoursSinceCache = java.time.Duration.between(cacheTimestamp, LocalDateTime.now()).toHours();
+
+                if (hoursSinceCache < CACHE_EXPIRY_HOURS) {
+                    forecastSlots = cachedForecastSlots;
+                    outputDataSource = "cached (" + hoursSinceCache + "hours old)";
+                } else {
+                    // Cache exists but too old
+                    outputDataSource = "expired cache";
+                }
+            } else {
+                outputDataSource = "no cache available";
             }
-
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("HH:mm");
-
-            return appliance + ": Best time is "
-                + best.getFrom().format(formatter)
-                + " - "
-                + best.getTo().format(formatter)
-                + " (low carbon intensity: "
-                + best.getForecast()
-                + " gCO2/kWh).";
-        } catch (Exception e){
-            e.printStackTrace();
-            return getFallbackRecommendation(appliance);
         }
-    }
 
-    private String getFallbackRecommendation(String appliance){
-        switch(appliance.toLowerCase()){
-            case "washing machine":
-                return "Best time is 22:00-06:00.";
-            case "dish washer":
-                return "Best time is 23:00-07:00.";
-            case "radiator":
-                return "Best time is 03:00-07:00.";
-            case "air conditioner":
-                return "Best time is 11:00-18:00.";
-            case "tv":
-                return "Best time is 15:00-17:00.";
-            case "garden lights":
-                return "Best time is 06:00-14:00.";
-            default:
-                return "";
+        if (forecastSlots == null) {
+            return appliance + ": Recommendation unavailable - could not reach the carbon intensity service & no recent forecast cached. Please check your connection and try again.";
         }
+
+        CarbonSlot bestSlot = forecastSlots.stream().min(Comparator.comparingInt(CarbonSlot::getForecast)).orElse(null);
+
+        if (bestSlot == null){
+            return appliance + ": Forecast data was empty. Please try again later.";
+        }
+
+        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
+
+        String recommendation = appliance + ": Best time is "
+            + bestSlot.getFrom().format(timeFormatter)
+            + " - "
+            + bestSlot.getTo().format(timeFormatter)
+            + " (carbon intensity: " + bestSlot.getForecast() + " gC02/kWh)";
+                
+        if (outputDataSource.startsWith("cached")) {
+            recommendation += "Based on " + outputDataSource + " data - live feed unavailable.";
+        }
+
+        return recommendation;
+
     }
-    
 }

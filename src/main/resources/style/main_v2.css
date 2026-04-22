@@ -131,6 +131,7 @@
     -fx-background-radius: 12;
     -fx-padding: 12;
 }
+
 .icon-surface {
     -fx-background-color: -surface;
     -fx-background-radius: 10;

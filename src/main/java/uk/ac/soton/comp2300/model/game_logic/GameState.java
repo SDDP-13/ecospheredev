@@ -7,13 +7,23 @@ import java.util.List;
 
 public class GameState {
     private List<Planet>  planets;
-    private Planet selectedPlanet;
+    private String selectedPlanetId;
 
     private ResourceStack moneyTotal;
     private ResourceStack woodTotal;
     private ResourceStack metalTotal;
     private ResourceStack stoneTotal;
     private int totalXp;
+
+    private int buildingsPlaced = 0; // Tracks lifetime or session building count
+
+    public int getBuildingsPlaced() {
+        return buildingsPlaced;
+    }
+
+    public void incrementBuildingsPlaced() {
+        this.buildingsPlaced++;
+    }
 
     public GameState() {
         this.planets = new ArrayList<Planet>();
@@ -49,25 +59,16 @@ public class GameState {
     public void addPlanet(Planet planet) { planets.add(planet); }
     public List<Planet> getPlanets() { return planets; }
 
-    public void setSelectedPlanet(Planet selectedPlanet) {
-        if (selectedPlanet == null) {
-            this.selectedPlanet = null;
-            return;
-        }
+    public void setSelectedPlanet(Planet planet) { this.selectedPlanetId = (planet == null) ? null : planet.getId(); }
+    public Planet getSelectedPlanet() {
+        if (selectedPlanetId == null) return null;
 
         for (Planet planet : planets) {
-            if (planet == selectedPlanet){
-                this.selectedPlanet = selectedPlanet;
-                return;
-            }
+            if (selectedPlanetId.equals(planet.getId())) return planet;
         }
-        throw new IllegalArgumentException(
-                "Selected planet does not already exist in planets list."
-        );
+        return null;
     }
 
-
-    public Planet getSelectedPlanet() { return selectedPlanet; }
 
 
 

@@ -6,8 +6,8 @@ public class Task {
     private final String id;
     private final String description;
     private final List<ResourceStack> rewards;
-    private Boolean completed = false;
-    private Boolean rewardCollected = false;
+    private boolean completed = false;
+    private boolean rewardCollected = false;
 
     public Task(String id, String description, List<ResourceStack> rewards) {
         this.id = id;
@@ -20,7 +20,9 @@ public class Task {
     public List<ResourceStack> getRewards() { return rewards; }
     public Boolean getCompleted() { return completed; }
     public Boolean getRewardCollected() { return rewardCollected; }
+    public void setRewardCollected(boolean rewardCollected) { this.rewardCollected = rewardCollected; }
     public void toggleRewardCollected() { rewardCollected = !rewardCollected; }
+    public void setCompleted(boolean completed) { this.completed = completed; }
     public void toggleCompleted() { completed = !completed; }
 
     @Override

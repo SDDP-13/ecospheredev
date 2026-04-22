@@ -10,7 +10,6 @@ public class EcoSavingsReport {
     private double co2SavedKg;               // peak - current
     private PeakWindow peakWindow;            // peak window used
 
-    public EcoSavingsReport() {}
 
     public EcoSavingsReport(CostAndCarbonResult current,
                                CostAndCarbonResult peak,

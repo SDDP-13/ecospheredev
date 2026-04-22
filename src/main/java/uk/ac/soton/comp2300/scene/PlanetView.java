@@ -49,7 +49,8 @@ public class PlanetView {
         planetGroup = new Group();
         sphere = new Sphere(planetRadius);
 
-        Image planetTexture = new Image(getClass().getResourceAsStream("/images/planet_texture_1.png"));
+        String fileName = model.getTextureID().toLowerCase() + ".png";
+        Image planetTexture = new Image(getClass().getResourceAsStream("/images/planet_textures/" + fileName));
 
         PhongMaterial material = new PhongMaterial();
         material.setDiffuseMap(planetTexture);
@@ -74,6 +75,7 @@ public class PlanetView {
 
     public Group getGroup() { return planetGroup; }
     public Sphere getSphere() { return sphere; }
+    public Rotate getRotateY() { return rotateY; }
     public boolean isCursorValid() { return lastValidState; }
     public double getCursorTheta() { return lastTheta; }
     public double getCursorPhi() { return lastPhi; }

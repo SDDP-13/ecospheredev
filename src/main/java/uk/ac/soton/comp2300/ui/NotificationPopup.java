@@ -37,6 +37,18 @@ public class NotificationPopup {
             imageName = "WashingMachine.png";
         }
 
+        //Check for records of type Game_event
+        if (record.type() == uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT) {
+
+            /**Check for records referring to leveling up and then select the correct .png**/
+            if (deviceName.equals("Level Up!")) {
+                String lvl = record.id();
+                int level = Integer.parseInt(lvl.replace("LVL_UP_", ""));
+                imageName = "Lvl_" + level + ".png";
+            }
+
+        }
+
         javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
         try {
             var stream = NotificationPopup.class.getResourceAsStream("/images/" + imageName);

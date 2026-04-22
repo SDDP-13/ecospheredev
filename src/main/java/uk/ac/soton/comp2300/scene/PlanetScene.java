@@ -264,12 +264,6 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         }
 
         move.play();
-
-        // buildMenu.setVisible(buildmenuOpen);
-        // buildMenu.setManaged(buildmenuOpen);
-
-        //bottomActions.setVisible(!buildmenuOpen);
-        // bottomActions.setManaged((!buildmenuOpen));
     }
 
     private VBox makeBuildMenu () {

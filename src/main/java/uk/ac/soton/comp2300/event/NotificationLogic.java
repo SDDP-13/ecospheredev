@@ -16,8 +16,11 @@ public class NotificationLogic {
 
 
     //Thread
-    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor();
-    private ScheduledFuture<?> task;
+    private ScheduledExecutorService scheduler = Executors.newSingleThreadScheduledExecutor(runnable -> {
+        Thread t = new Thread(runnable);
+        t.setDaemon(true);
+        return t;
+    });    private ScheduledFuture<?> task;
 
     public NotificationLogic(NotificationRepository repository, NotificationListenerInterface listener){
         this.repository = repository;

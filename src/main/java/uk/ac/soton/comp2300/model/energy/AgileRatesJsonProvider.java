@@ -5,7 +5,7 @@ import com.google.gson.*;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.time.*;
+import java.time.ZonedDateTime;
 import java.util.*;
 
 // a reader for the Agile Rates JSON format
@@ -47,52 +47,19 @@ public class AgileRatesJsonProvider implements RatesProvider {
 
     @Override
     public double ratePencePerKwh(ZonedDateTime time) {
+        RateSlot latestStartedSlot = null;
         for (RateSlot s : slots) {
             if (s.contains(time)) return s.getPencePerKwh();
+            if (!time.isBefore(s.getStart())) {
+                latestStartedSlot = s;
+            }
         }
-        if (!slots.isEmpty()) return slots.get(slots.size() - 1).getPencePerKwh();
+        if (latestStartedSlot != null) {
+            return latestStartedSlot.getPencePerKwh();
+        }
+        if (!slots.isEmpty()) {
+            return slots.get(0).getPencePerKwh();
+        }
         throw new IllegalStateException("No Agile rate slots loaded.");
-    }
-
-    /**
-     * Peak window inferred from the most expensive contiguous block.
-     * Uses a sliding window of 6 half-hours (= 3 hours).
-     */
-    @Override
-    public PeakWindow inferPeakWindowForDate(LocalDate date, ZoneId zone) {
-        List<RateSlot> day = new ArrayList<>();
-        for (RateSlot s : slots) {
-            LocalDate localDate = s.getStart().withZoneSameInstant(zone).toLocalDate();
-            if (localDate.equals(date)) day.add(s);
-        }
-        if (day.isEmpty()) {
-            return new PeakWindow(LocalTime.of(16, 0), LocalTime.of(19, 0));
-        }
-
-        // sort by time, then pick the highest-sum contiguous 3-hour block
-        day.sort(Comparator.comparing(RateSlot::getStart));
-
-        int windowSlots = Math.min(6, day.size());
-        int bestStartIdx = 0;
-        double bestTotalRate = Double.NEGATIVE_INFINITY;
-
-        for (int i = 0; i <= day.size() - windowSlots; i++) {
-            double totalRate = 0.0;
-            for (int j = 0; j < windowSlots; j++) {
-                totalRate += day.get(i + j).getPencePerKwh();
-            }
-            if (totalRate > bestTotalRate) {
-                bestTotalRate = totalRate;
-                bestStartIdx = i;
-            }
-        }
-
-        LocalTime start = day.get(bestStartIdx).getStart().withZoneSameInstant(zone).toLocalTime();
-        LocalTime end = day.get(bestStartIdx + windowSlots - 1).getEnd().withZoneSameInstant(zone).toLocalTime();
-
-        if (!start.isBefore(end)) {
-            return new PeakWindow(LocalTime.of(16, 0), LocalTime.of(19, 0));
-        }
-        return new PeakWindow(start, end);
     }
 }
