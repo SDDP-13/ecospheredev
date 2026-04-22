@@ -28,10 +28,6 @@ public class SettingsScene extends BaseScene {
 
     private static final double BASE = 44.0;
 
-    // Hard coded
-    private static final String USERNAME = "Player1";
-    private static final String PASSWORD = "Pass1";
-
     private StackPane overlayLayer;
 
     public SettingsScene(MainWindow mainWindow) {
@@ -89,7 +85,10 @@ public class SettingsScene extends BaseScene {
         Button btnLogout = makeActionButton("Logout", "button-primary");
         Button btnDelete = makeActionButton("Delete Account", "button-secondary");
 
-        btnLogout.setOnAction(e -> mainWindow.loadScene(new LoginScene(mainWindow)));
+        btnLogout.setOnAction(e -> {
+            uk.ac.soton.comp2300.App.getInstance().getCookieStorageService().logout();
+            mainWindow.loadScene(new LoginScene(mainWindow));
+        });
 
         btnAccountDetails.setOnAction(e -> showAccountDetailsOverlay());
 
@@ -144,26 +143,24 @@ public class SettingsScene extends BaseScene {
         Label title = new Label("Account Details");
         title.getStyleClass().addAll("title-large-font");
 
-        Label hint = new Label("Hard coded, password is `Pass1`");
+        Label hint = new Label("Changes are saved locally on this device.");
         hint.getStyleClass().addAll("title-medium");
 
         VBox rows = new VBox(10);
         rows.getChildren().addAll(
                 new EditableRow(
                         "Username",
-                        USERNAME,
+                        Setting.getUsername(),
                         this::showChangeUsernameOverlay,
                         this::showOverlay,
-                        this::clearOverlay,
-                        PASSWORD
+                        this::clearOverlay
                 ),
                 new EditableRow(
                         "Password",
-                        "\u25CF".repeat(Math.max(4, PASSWORD.length())),
+                        Setting.getPasswordMask(),
                         this::showChangePasswordOverlay,
                         this::showOverlay,
-                        this::clearOverlay,
-                        PASSWORD
+                        this::clearOverlay
                 )
         );
 
@@ -186,8 +183,7 @@ public class SettingsScene extends BaseScene {
                         String value,
                         Runnable onEdit,
                         Consumer<Node> showOverlay,
-                        Runnable clearOverlay,
-                        String correctPassword) {
+                        Runnable clearOverlay) {
 
             super(12);
             setAlignment(Pos.CENTER_LEFT);
@@ -236,11 +232,11 @@ public class SettingsScene extends BaseScene {
 
     private void showChangeUsernameOverlay() {
         ChangeUsernameDialog dialog = new ChangeUsernameDialog(
-                USERNAME,
+                Setting.getUsername(),
                 newUsername -> {
-                    // Hard coded - do nothing for now
                     logger.info("Requested username change to: {}", newUsername);
                     clearOverlay();
+                    mainWindow.loadScene(new SettingsScene(mainWindow));
                 },
                 () -> {
                     clearOverlay();
@@ -253,9 +249,9 @@ public class SettingsScene extends BaseScene {
     private void showChangePasswordOverlay() {
         ChangePasswordDialog dialog = new ChangePasswordDialog(
                 newPassword -> {
-                    // Hard coded - do nothing for now
-                    logger.info("Requested password change (length={}): (not applied)", newPassword.length());
+                    logger.info("Password updated (length={})", newPassword.length());
                     clearOverlay();
+                    mainWindow.loadScene(new SettingsScene(mainWindow));
                 },
                 () -> {
                     clearOverlay();
@@ -288,7 +284,7 @@ public class SettingsScene extends BaseScene {
             tf.getStyleClass().addAll("root-light", "title-small");
             tf.setPrefHeight(40);
 
-            Label status = new Label("Note: This is hard coded (does nothing yet).");
+            Label status = new Label("");
             status.getStyleClass().add("title-small");
 
             Button cancel = new Button("Cancel");
@@ -299,7 +295,7 @@ public class SettingsScene extends BaseScene {
             styleSmallButton(confirm, "button-secondary");
 
             confirm.setOnAction(e -> {
-                Setting.UsernameResult res = Setting.validateUsername(tf.getText(), currentUsername);
+                Setting.UsernameResult res = Setting.updateUsername(tf.getText());
                 status.setText(res.msg);
                 if (res.ok) {
                     onConfirm.accept(res.username);
@@ -342,7 +338,7 @@ public class SettingsScene extends BaseScene {
             //pf2.getStyleClass().addAll("title-small", "root-light");
             pf2.setPrefHeight(40);
 
-            Label status = new Label("Note: This is hard coded (does nothing yet).");
+            Label status = new Label("");
             //status.getStyleClass().add("title-small");
 
             Button cancel = new Button("Cancel");
@@ -354,7 +350,7 @@ public class SettingsScene extends BaseScene {
 
             confirm.setOnAction(e -> {
                 Setting.PasswordChangeResult res =
-                        Setting.validateNewPassword(pf1.getText(), pf2.getText());
+                        Setting.updatePassword(pf1.getText(), pf2.getText());
 
                 status.setText(res.msg);
 
@@ -401,7 +397,7 @@ public class SettingsScene extends BaseScene {
         Label title = new Label("Confirm Deletion");
         title.getStyleClass().add("title-large");
 
-        Label warning = new Label("This will permanently delete your account. (does nothing)");
+        Label warning = new Label("This will permanently delete your account and local saved data for that user.");
         warning.getStyleClass().add("title-small");
 
         CheckBox understand = new CheckBox("I understand");
@@ -443,8 +439,9 @@ public class SettingsScene extends BaseScene {
         });
 
         confirm.setOnAction(e -> {
-            logger.warn("Account deleted. Returning to Login.");
             tl.stop();
+            Setting.DeleteAccountResult result = Setting.deleteCurrentAccount();
+            logger.warn("Delete account requested for '{}': {}", result.deletedUsername, result.msg);
             clearOverlay();
             mainWindow.loadScene(new LoginScene(mainWindow));
         });

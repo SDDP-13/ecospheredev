@@ -16,6 +16,8 @@ import java.util.List;
 
 public class CarbonIntensityClient {
 
+    private static final ZoneId UK_ZONE = ZoneId.of("Europe/London");
+
     public static class IntensitySlot {
         public ZonedDateTime from;
         public ZonedDateTime to;
@@ -28,7 +30,7 @@ public class CarbonIntensityClient {
         }
 
         public boolean contains(ZonedDateTime t) {
-            return (t.equals(from) || t.isAfter(from)) && t.isBefore(to);
+            return !t.isBefore(from) && t.isBefore(to);
         }
     }
 
@@ -53,7 +55,10 @@ public class CarbonIntensityClient {
         Path out = cachePath(date);
         if (Files.exists(out)) return out;
 
-        String url = "https://api.carbonintensity.org.uk/intensity/date/" + date;
+        LocalDate todayUk = LocalDate.now(UK_ZONE);
+        String url = date.equals(todayUk)
+                ? "https://api.carbonintensity.org.uk/intensity/date"
+                : "https://api.carbonintensity.org.uk/intensity/date/" + date;
         HttpRequest req = HttpRequest.newBuilder(URI.create(url))
                 .GET()
                 .header("User-Agent", "EcoSphereDev/1.0")
@@ -63,7 +68,7 @@ public class CarbonIntensityClient {
         if (resp.statusCode() / 100 != 2) {
             throw new IllegalStateException("Failed to download carbon intensity: HTTP " + resp.statusCode());
         }
-        Files.copy(resp.body(), out, StandardCopyOption.REPLACE_EXISTING);
+        saveNormalizedDay(resp.body(), out, date);
         return out;
     }
 
@@ -98,14 +103,20 @@ public class CarbonIntensityClient {
 
     public double intensityKgPerKwhAt(LocalDate date, ZonedDateTime time, ZoneId zone) throws Exception {
         List<IntensitySlot> slots = loadDay(date, zone);
+        IntensitySlot latestStartedSlot = null;
         for (IntensitySlot s : slots) {
             if (s.contains(time)) return s.kgPerKwh;
+            if (!time.isBefore(s.from)) {
+                latestStartedSlot = s;
+            }
         }
-        if (slots.isEmpty()) return 0.20;
-
-        double sum = 0.0;
-        for (IntensitySlot s : slots) sum += s.kgPerKwh;
-        return sum / slots.size();
+        if (latestStartedSlot != null) {
+            return latestStartedSlot.kgPerKwh;
+        }
+        if (!slots.isEmpty()) {
+            return slots.get(0).kgPerKwh;
+        }
+        return 0.20;
     }
 
     /**
@@ -141,5 +152,37 @@ public class CarbonIntensityClient {
             return new PeakWindow(LocalTime.of(16, 0), LocalTime.of(19, 0));
         }
         return new PeakWindow(start, end);
+    }
+
+    private void saveNormalizedDay(InputStream body, Path out, LocalDate date) throws Exception {
+        JsonObject root;
+        try (InputStreamReader reader = new InputStreamReader(body, StandardCharsets.UTF_8)) {
+            root = JsonParser.parseReader(reader).getAsJsonObject();
+        }
+
+        JsonArray filteredData = new JsonArray();
+        JsonArray data = root.getAsJsonArray("data");
+        if (data != null) {
+            for (JsonElement element : data) {
+                JsonObject slot = element.getAsJsonObject();
+                if (isForRequestedDate(slot, date)) {
+                    filteredData.add(slot);
+                }
+            }
+        }
+
+        root.add("data", filteredData);
+        Files.writeString(out, root.toString(), StandardCharsets.UTF_8,
+                StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
+
+    private boolean isForRequestedDate(JsonObject slot, LocalDate date) {
+        JsonElement fromElement = slot.get("from");
+        if (fromElement == null || fromElement.isJsonNull()) {
+            return false;
+        }
+
+        ZonedDateTime from = ZonedDateTime.parse(fromElement.getAsString()).withZoneSameInstant(UK_ZONE);
+        return from.toLocalDate().equals(date);
     }
 }

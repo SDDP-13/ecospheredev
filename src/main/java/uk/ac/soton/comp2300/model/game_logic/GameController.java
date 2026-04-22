@@ -55,8 +55,11 @@ public class GameController {
             return null;
         }
 
+
         BuildingData building = new BuildingData(type, theta, phi);
         planet.addBuilding(building);
+
+        state.incrementBuildingsPlaced();
         return building;
     }
 

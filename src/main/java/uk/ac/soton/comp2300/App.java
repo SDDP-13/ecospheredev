@@ -1,6 +1,13 @@
 package uk.ac.soton.comp2300;
 
 import javafx.application.Application;
+
+import javafx.application.Platform;
+import javafx.geometry.Pos;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+
+
 import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -46,6 +53,10 @@ public class App extends Application {
     private NotificationRepository repository;
     private final EcoSavingsService ecoSavingsService = new EcoSavingsService();
     private final Map<String, EcoSavingsReport> savingsReportCache = new HashMap<>();
+    private final Map<String, Double> dailySavingsMap = new HashMap<>();
+
+    private final Map<String, Double> dailyTaskCompletionMap = new HashMap<>();
+    private final CookieStorageService cookieStorageService = new CookieStorageService();
 
     public static void main(String[] args) {
         logger.info("Starting client");
@@ -56,6 +67,22 @@ public class App extends Application {
     public void start(Stage stage) {
         instance = this;
         this.stage = stage;
+
+        // This prevents the app from closing when minimized,
+        // but requires manual handling for the 'X' button.
+
+        stage.setOnCloseRequest(e -> {
+            logger.info("Closing application...");
+
+            try {
+                stop(); // save + shutdown logic
+            } catch (Exception ex) {
+                logger.error("Error during shutdown: " + ex.getMessage());
+            }
+
+            Platform.exit();
+            System.exit(0);
+        });
 
         setupNotificationLogic();
         setupGameLogic();
@@ -75,24 +102,50 @@ public class App extends Application {
         if (currentSessionTasks == null) {
             currentSessionTasks = taskPool.generateDailyTasks();
         }
+        applyClaimedTaskState(currentSessionTasks);
         return currentSessionTasks;
     }
 
+    private void applyClaimedTaskState(List<Task> tasks) {
+        var claimedToday = cookieStorageService.getClaimedTasksToday();
+        for (Task task : tasks) {
+            task.setRewardCollected(claimedToday.contains(task.getId()));
+        }
+    }
+
     public void incrementCompletedTasks() {
+
         this.completedScheduledTasks++;
         logger.info("Total completed tasks: " + completedScheduledTasks);
     }
 
     public int getCompletedScheduledTasks() {
-        if (currentSessionTasks == null) return 0;
-
-        int count = 0;
-        for (Task task : currentSessionTasks) {
-            if (task.getRewardCollected()) {
-                count++;
-            }
+        if (repository == null) {
+            return completedScheduledTasks;
         }
-        return count;
+
+        int completedNotifications = (int) repository.getAllNotifications().stream()
+                .filter(note -> note.getStatus() == Notification.Status.TASK_COMPLETED)
+                .count();
+
+        if (completedNotifications > completedScheduledTasks) {
+            completedScheduledTasks = completedNotifications;
+        }
+
+        return completedScheduledTasks;
+    }
+    /** Call this when a task from the TASK SCENE is completed */
+    /** Call this when a task from the TASK SCENE is completed */
+    public void addTaskCompletion() {
+        String today = LocalDate.now().toString();
+        double current = dailyTaskCompletionMap.getOrDefault(today, 0.0);
+
+        // Increase by 1
+        dailyTaskCompletionMap.put(today, current + 1.0);
+    }
+
+    public Map<String, Double> getDailyTaskCompletionMap() {
+        return dailyTaskCompletionMap;
     }
     private void setupNotificationLogic() {
         this.repository = new NotificationRepository() {
@@ -106,6 +159,9 @@ public class App extends Application {
 
         this.notificationLogic = new NotificationLogic(repository, record -> {
             logger.info("New notification sent: " + record.title());
+            javafx.application.Platform.runLater(() -> {
+                showSystemNotification(record.title(), record.message());
+            });
         });
 
         notificationLogic.start();
@@ -136,12 +192,17 @@ public class App extends Application {
 
     @Override
     public void stop() {
-        logger.info("Shutting down");
-        if (notificationLogic != null) {
-            notificationLogic.shutdown();
+        logger.info("Saving and stopping background threads...");
+        try {
+            if (notificationLogic != null) {
+                notificationLogic.shutdown();
+            }
+            if (saveManager != null && gameState != null) {
+                saveManager.saveGame(gameState);
+            }
+        } catch (Exception e) {
+            logger.error("Stop sequence encountered an error: " + e.getMessage());
         }
-
-        saveManager.saveGame(gameState);
     }
 
     public static App getInstance() {
@@ -156,6 +217,10 @@ public class App extends Application {
 
     public NotificationLogic getNotificationLogic() {
         return this.notificationLogic;
+    }
+
+    public CookieStorageService getCookieStorageService() {
+        return cookieStorageService;
     }
 
     // minor patch to sync with Game state
@@ -251,6 +316,9 @@ public class App extends Application {
     /**
      * Updates global session totals using a report from the EcoSavingsService.
      */
+    /**
+     * Updates global session totals and tracks completion for dashboard charts.
+     */
     public void addReportSavings(EcoSavingsReport report) {
         if (report == null) return;
 
@@ -261,6 +329,18 @@ public class App extends Application {
         this.totalMoneySaved += moneySaved;
         this.totalCo2Saved += co2Saved;
         this.totalEnergySaved += energySaved;
+
+        // 1. Increment the counter for the bottom Weekly Progress bar
+        this.completedScheduledTasks++;
+
+        // 2. Increment the value for today's bar in the Task Chart
+        //String today = LocalDate.now().toString(); // e.g., "2026-04-20"
+        //double currentDayTotal = dailySavingsMap.getOrDefault(today, 0.0);
+
+        // We add a value (e.g., 20.0) so the bar grows by 20% per task completed
+        //dailySavingsMap.put(today, currentDayTotal + 20.0);
+
+        //logger.info("Task completed! Day total for " + today + " is now: " + dailySavingsMap.get(today));
     }
     /**
      * Helper to calculate current level and progress based on total XP.
@@ -321,15 +401,24 @@ public class App extends Application {
         var levelRecord = new uk.ac.soton.comp2300.event.NotificationRecord(
                 "LVL_UP_" + newLevel,
                 "Level Up!",
+
                 "Your eco-influence is growing. ⭐" + "\n" + rewardMsg , // Updated description
+
+
+
                 java.time.LocalDateTime.now(),
-                uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT // Type is GAME_EVENT
+                uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT
         );
 
         if (notificationLogic != null && notificationLogic.getListener() != null) {
             notificationLogic.getListener().onNotificationSent(levelRecord);
         }
+
     }
+    public Map<String, Double> getDailySavingsMap() {
+        return dailySavingsMap;
+    }
+
 
     private void rewardsSystem (int levelBefore, int levelAfter ){
         int lvlDiff = levelAfter - levelBefore;
@@ -337,6 +426,41 @@ public class App extends Application {
         for (int i = 0;  i >= lvlDiff ; i++){
            int lvlReward = levelBefore + 1;
         }
+    }
+
+
+    public void showSystemNotification(String title, String message) {
+        // Check if the OS allows tray icons
+        if (!java.awt.SystemTray.isSupported()) {
+            logger.warn("SystemTray not supported on this OS");
+            return;
+        }
+
+        try {
+            java.awt.SystemTray tray = java.awt.SystemTray.getSystemTray();
+
+            java.net.URL imageLoc = getClass().getResource("/images/Coin.png");
+            java.awt.Image image = java.awt.Toolkit.getDefaultToolkit().getImage(imageLoc);
+
+            java.awt.TrayIcon trayIcon = new java.awt.TrayIcon(image, "Ecosphere");
+            trayIcon.setImageAutoSize(true);
+
+            tray.add(trayIcon);
+
+            // Trigger the outside of the software notification
+            trayIcon.displayMessage(title, message, java.awt.TrayIcon.MessageType.INFO);
+
+            // Remove the icon after 5 seconds so they don't clutter the taskbar
+            new java.util.Timer(true).schedule(new java.util.TimerTask() {
+                @Override public void run() { tray.remove(trayIcon); }
+            }, 5000);
+        } catch (Exception e) {
+            logger.error("Failed to trigger Windows notification: " + e.getMessage());
+        }
+    }
+    public int getBuildingsPlacedCount() {
+        if (gameState == null) return 0;
+        return gameState.getBuildingsPlaced(); //
     }
 
 }

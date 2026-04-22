@@ -20,6 +20,6 @@ public class RateSlot {
     public double getPencePerKwh() { return pencePerKwh; }
 
     public boolean contains(ZonedDateTime t) {
-        return (t.equals(start) || t.isAfter(start)) && t.isBefore(end);
+        return !t.isBefore(start) && t.isBefore(end);
     }
 }

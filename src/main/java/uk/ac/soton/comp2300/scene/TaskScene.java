@@ -24,7 +24,7 @@ public class TaskScene extends BaseScene {
 
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
         root.getStyleClass().add("root-light");
-       // root.setStyle("-fx-background-color: #EFEEF5;");
+        // root.setStyle("-fx-background-color: #EFEEF5;");
 
         Button btnBack = new Button("←");
         btnBack.setPrefSize(44, 44);
@@ -62,6 +62,7 @@ public class TaskScene extends BaseScene {
     }
 
     private HBox createTask(Task taskObj) {
+        var app = uk.ac.soton.comp2300.App.getInstance();
         HBox taskCard = new HBox(15);
         taskCard.getStyleClass().add("card");
         //taskCard.setStyle("-fx-background-color: white; -fx-padding: 15; -fx-background-radius: 12;");
@@ -75,7 +76,7 @@ public class TaskScene extends BaseScene {
         // Using taskObj.getId() for the title as per your JSON
         Label title = new Label(taskObj.getId());
         title.getStyleClass().addAll("title-large-font");
-       // title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 20px; -fx-font-weight: bold;");
+        // title.setStyle("-fx-text-fill: #4CAF50; -fx-font-size: 20px; -fx-font-weight: bold;");
 
         Label desc = new Label(taskObj.getDescription());
         desc.setWrapText(true);
@@ -110,6 +111,23 @@ public class TaskScene extends BaseScene {
             }
         }
 
+        // Build a structure (1) Check - Requires 1 building
+        if (taskObj.getId().equals("Build a structure (1)")) {
+            int buildCount = app.getBuildingsPlacedCount();
+            if (buildCount < 1) {
+                isLocked = true;
+                setBtnLocked(claimBtn, "LOCKED (0/1)");
+            }
+        }
+        // Build a structure (2) Check - Requires 5 buildings
+        else if (taskObj.getId().equals("Build a structure (2)")) {
+            int buildCount = app.getBuildingsPlacedCount();
+            if (buildCount < 5) {
+                isLocked = true;
+                setBtnLocked(claimBtn, "LOCKED (" + buildCount + "/5)");
+            }
+        }
+
         if (!isLocked) {
             if (taskObj.getRewardCollected()) {
                 setBtnClaimed(claimBtn);
@@ -122,12 +140,10 @@ public class TaskScene extends BaseScene {
             if (taskObj.getRewardCollected()) return;
 
             taskObj.toggleRewardCollected();
-            var app = uk.ac.soton.comp2300.App.getInstance();
 
-            // Use the controller to update the model state
+            app.addTaskCompletion();
+
             var controller = app.getGameController();
-
-            // Grant 100 XP
             app.addXp(100);
 
             for (var stack : taskObj.getRewards()) {
@@ -158,7 +174,7 @@ public class TaskScene extends BaseScene {
         btn.setText("CLAIM");
         btn.setDisable(false);
         btn.getStyleClass().add("button-claim");
-      //  btn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 20; -fx-cursor: hand;");
+        //  btn.setStyle("-fx-background-color: #4CAF50; -fx-text-fill: white; -fx-font-weight: bold; -fx-font-size: 13px; -fx-background-radius: 20; -fx-cursor: hand;");
     }
 
     @Override public void initialise() {}

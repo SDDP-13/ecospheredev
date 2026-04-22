@@ -15,6 +15,16 @@ public class GameState {
     private ResourceStack stoneTotal;
     private int totalXp;
 
+    private int buildingsPlaced = 0; // Tracks lifetime or session building count
+
+    public int getBuildingsPlaced() {
+        return buildingsPlaced;
+    }
+
+    public void incrementBuildingsPlaced() {
+        this.buildingsPlaced++;
+    }
+
     public GameState() {
         this.planets = new ArrayList<Planet>();
         this.moneyTotal = new ResourceStack(Resource.MONEY, 0);

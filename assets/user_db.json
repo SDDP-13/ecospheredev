@@ -1,0 +1,26 @@
+{
+  "settings": {},
+  "userDatabase": {
+    "users": [
+      {
+        "userName": "user",
+        "storedHash": "zEJRxLmKg/czBU2cKSXL9LmQac7rKET656oDyCYyQZw=",
+        "storedSalt": "Kwqgh7Ch6sAGDyXKyVd7RQ=="
+      }
+    ],
+    "currentUserName": "user"
+  },
+  "userSettings": {
+    "user": {
+      "shareUsageData": false,
+      "darkMode": false,
+      "sendCrashReports": true,
+      "notifications": false
+    }
+  },
+  "cookieData": {
+    "loggedInUser": "user",
+    "lastLoginDate": "2026-04-21",
+    "claimedTasksByUser": {}
+  }
+}
