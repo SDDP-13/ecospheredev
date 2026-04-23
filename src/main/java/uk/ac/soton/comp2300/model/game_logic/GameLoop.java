@@ -7,47 +7,57 @@ public class GameLoop {
 
     GameState state;
     private long lastProductiontick = System.currentTimeMillis();
+    private int baseResourceamount = 1;
 
     public GameLoop(GameState state) {
         this.state = state;
 
     }
 
+
+    /**Applies Resources produced by buildings on each planet to the Users resource stash**/
+
     private void produceResourcesForBuildings(){
 
         for (Planet planet : state.getPlanets()){
 
             for (BuildingData building: planet.getBuildingData()) {
-                int buildingLevel = building.getLevel();
-
-                produceBuildingRes(building.getType(), building.getLevel());
+                produceBuildingRes(planet, building);
             }
         }
     }
 
-    private void produceBuildingRes(BuildingType buildingType, int buildingLvl) {
-        switch (buildingType) {
-            case LUMBER_MILL -> {
-                state.addResource(Resource.WOOD, (1*buildingLvl));
+    /**Takes a planet and a building and calculates the resources to be applied to the user's resource stash**/
+    private void produceBuildingRes( Planet planet, BuildingData building) {
 
+
+        int resourceAmount = baseResourceamount;
+        Resource resourceGenerated = null;
+
+        switch (building.getType()) {
+            case LUMBER_MILL -> {
+                resourceGenerated = Resource.WOOD;
             }
             case QUARRY -> {
-                state.addResource(Resource.STONE, (1*buildingLvl));
-
+                resourceGenerated = Resource.STONE;
             }
             case MINE -> {
-                state.addResource(Resource.METAL, (1*buildingLvl));
-
+                resourceGenerated = Resource.METAL;
             }
             case TOWN -> {
-                state.addResource(Resource.MONEY, (1*buildingLvl));
-
+                resourceGenerated = Resource.MONEY;
             }
-            default -> {}
-
-
+            default -> {return;}
         }
+
+        double planetProdMultiplier = planet.getProductionMultipliers().
+                getOrDefault(resourceGenerated, 1.0 );
+        double buildingLvl = building.getLevel();
+        int amountAdded = (int) Math.round(resourceAmount*(planetProdMultiplier + buildingLvl));
+        state.addResource(resourceGenerated, amountAdded );
+
     }
+
 
     public void tick() {
         long thisTick = System.currentTimeMillis();
