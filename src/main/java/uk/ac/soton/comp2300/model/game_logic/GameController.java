@@ -61,9 +61,6 @@ public class GameController {
             double phi
     ) {
         Planet planet = state.getSelectedPlanet();
-        System.out.println("placeBuilding called");
-        System.out.println("Planet arg: " + planet.getName());
-        System.out.println("Before add, building count: " + planet.getBuildingData().size());
 
         if (!isBuildLocationFree(planet, theta, phi)) {
             return null;
@@ -73,9 +70,6 @@ public class GameController {
         BuildingData building = new BuildingData(type, theta, phi);
         planet.addBuilding(building);
 
-
-        System.out.println("Placed building: " + type);
-        System.out.println("After add, building count: " + planet.getBuildingData().size());
 
         state.incrementBuildingsPlaced();
 
