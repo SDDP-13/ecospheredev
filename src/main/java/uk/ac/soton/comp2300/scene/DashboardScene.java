@@ -223,17 +223,23 @@ public class DashboardScene extends BaseScene implements RefreshVisuals {
         ecoImpactCard.setMaxWidth(320);
         ecoImpactCard.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; " +
                 "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
+
         Label impactTitle = new Label("Eco & Cost Impact");
         impactTitle.setStyle("-fx-font-weight: 800; -fx-font-size: 18px; -fx-text-fill: #2E7D32;");
+
+        Label rangeLabel = new Label("Weekly Range: " + weekRange);
+        rangeLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #777; -fx-padding: -10 0 0 0;");
+
         ecoImpactCard.getChildren().addAll(
                 impactTitle,
+                rangeLabel, // Added the date range here
                 createImpactRow("Energy Saved", String.format("%.2f kWh", app.getTotalEnergySaved()), "#2E7D32"),
                 createImpactRow("Money Saved", String.format("£%.2f", app.getTotalMoneySaved()), "#43A047"),
                 createImpactRow("Carbon Offset", String.format("%.2f kg", app.getTotalCo2Saved()), "#1B5E20"),
                 createImpactRow("Peak Savings Day", app.getDailySavingsMap().entrySet().stream()
                         .max(Map.Entry.comparingByValue())
                         .map(Map.Entry::getKey)
-                        .orElse("No data"), "#E64A19") //
+                        .orElse("No data"), "#E64A19")
         );
         // --- SECTION 5: RESOURCES GAINED ---
         VBox resourcesSection = new VBox(15);

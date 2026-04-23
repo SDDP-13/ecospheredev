@@ -169,15 +169,14 @@ public class App extends Application {
     /** Call this when a task from the TASK SCENE is completed */
     /** Call this when a task from the TASK SCENE is completed */
     public void addTaskCompletion() {
+        if (gameState == null) return;
         String today = LocalDate.now().toString();
-        double current = dailyTaskCompletionMap.getOrDefault(today, 0.0);
-
-        // Increase by 1
-        dailyTaskCompletionMap.put(today, current + 1.0);
+        double current = gameState.getDailyTaskCompletionMap().getOrDefault(today, 0.0);
+        gameState.getDailyTaskCompletionMap().put(today, current + 1.0);
     }
 
     public Map<String, Double> getDailyTaskCompletionMap() {
-        return dailyTaskCompletionMap;
+        return gameState != null ? gameState.getDailyTaskCompletionMap() : new HashMap<>();
     }
     private void setupNotificationLogic() {
         this.repository = new NotificationRepository() {
@@ -334,7 +333,7 @@ public class App extends Application {
     private double totalEnergySaved = 0.0;
 
     public double getTotalEnergySaved() {
-        return totalEnergySaved;
+        return gameState != null ? gameState.getTotalEnergySaved() : 0.0;
     }
 
     public void addEnergySavings(String deviceName) {
@@ -368,8 +367,12 @@ public class App extends Application {
     private double totalCo2Saved = 0.0;
     private double totalMoneySaved = 0.0;
 
-    public double getTotalCo2Saved() { return totalCo2Saved; }
-    public double getTotalMoneySaved() { return totalMoneySaved; }
+    public double getTotalCo2Saved() {
+        return gameState != null ? gameState.getTotalCo2Saved() : 0.0;
+    }
+    public double getTotalMoneySaved() {
+        return gameState != null ? gameState.getTotalMoneySaved() : 0.0;
+    }
 
     /**
      * Updates global session totals using a report from the EcoSavingsService.
@@ -378,21 +381,21 @@ public class App extends Application {
      * Updates global session totals and tracks completion for dashboard charts.
      */
     public void addReportSavings(EcoSavingsReport report) {
-        if (report == null) return;
+        if (report == null || gameState == null) return;
 
         double money = Math.max(0.0, report.getMoneySavedPounds());
         double co2 = Math.max(0.0, report.getCo2SavedKg());
         double energy = (report.getCurrent() != null) ? report.getCurrent().getKwh() : (money / 0.15);
 
-        this.totalMoneySaved += money;
-        this.totalCo2Saved += co2;
-        this.totalEnergySaved += energy;
+        // Save directly to gameState
+        gameState.setTotalMoneySaved(gameState.getTotalMoneySaved() + money);
+        gameState.setTotalCo2Saved(gameState.getTotalCo2Saved() + co2);
+        gameState.setTotalEnergySaved(gameState.getTotalEnergySaved() + energy);
 
         String today = LocalDate.now().toString();
-        double currentDayMoney = dailySavingsMap.getOrDefault(today, 0.0);
-        dailySavingsMap.put(today, currentDayMoney + money);
+        gameState.getDailySavingsMap().merge(today, money, Double::sum);
 
-        logger.info(String.format("DASHBOARD SYNC: +£%.2f | +%.2fkWh", money, energy));
+        logger.info(String.format("SAVED TO JSON STATE: +£%.2f", money));
         // 2. Increment the value for today's bar in the Task Chart
         //String today = LocalDate.now().toString(); // e.g., "2026-04-20"
         //double currentDayTotal = dailySavingsMap.getOrDefault(today, 0.0);
@@ -476,7 +479,7 @@ public class App extends Application {
 
     }
     public Map<String, Double> getDailySavingsMap() {
-        return dailySavingsMap;
+        return gameState != null ? gameState.getDailySavingsMap() : new HashMap<>();
     }
 
 
@@ -484,7 +487,7 @@ public class App extends Application {
         int lvlDiff = levelAfter - levelBefore;
 
         for (int i = 0;  i >= lvlDiff ; i++){
-           int lvlReward = levelBefore + 1;
+            int lvlReward = levelBefore + 1;
         }
     }
 
