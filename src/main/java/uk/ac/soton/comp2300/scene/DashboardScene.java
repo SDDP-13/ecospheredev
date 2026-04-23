@@ -421,7 +421,7 @@ public class DashboardScene extends BaseScene implements RefreshVisuals {
 
     @Override
     public void refreshVisuals(){
-        System.out.println("Dashboard Scene RefreshVisuals called.");
+
 
         var state = App.getInstance().getGameController().getGameState();
 

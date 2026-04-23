@@ -293,7 +293,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
     @Override
     public void refreshVisuals(){
-        System.out.println("Menu Scene RefreshVisuals called.");
+
 
         var state = App.getInstance().getGameController().getGameState();
 
