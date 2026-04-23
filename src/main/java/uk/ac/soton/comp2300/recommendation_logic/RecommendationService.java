@@ -38,6 +38,7 @@ public class RecommendationService {
                     outputDataSource = "cached (" + hoursSinceCache + "hours old)";
                 } else {
                     // Cache exists but too old
+                    forecastSlots = cachedForecastSlots;
                     outputDataSource = "expired cache";
                 }
             } else {
