@@ -141,6 +141,7 @@ public class RecommendationScene extends BaseScene {
         alert.setTitle("Recommendation");
         alert.setHeaderText(deviceName);
         alert.setContentText(message);
+        alert.getDialogPane().setMinWidth(500);
         alert.showAndWait();
     }
 
