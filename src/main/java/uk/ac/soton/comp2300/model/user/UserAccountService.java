@@ -12,51 +12,51 @@ public class UserAccountService {
 
     public AuthResult login(String username, String password) {
         if (username == null || username.isBlank()) {
-            return new AuthResult(false, "Please enter your username.", null);
+            return new AuthResult(false, "Please enter your username.", null, null);
         }
         if (password == null || password.isBlank()) {
-            return new AuthResult(false, "Please enter your password.", null);
+            return new AuthResult(false, "Please enter your password.", null, null);
         }
 
-        String normalizedUserName = username.trim();
+        String normalizedUserName = normalizeUserName(username);
         Optional<User> user = userDatabase.findUserByUserName(normalizedUserName);
         if (user.isEmpty()) {
-            return new AuthResult(false, "Username not found.", null);
+            return new AuthResult(false, "Username not found.", null, null);
         }
         if (!user.get().verifyPassword(password.trim())) {
-            return new AuthResult(false, "Password incorrect.", null);
+            return new AuthResult(false, "Password incorrect.", null, null);
         }
 
         userDatabase.setCurrentUserName(user.get().getUserName());
-        return new AuthResult(true, "Login successful.", user.get().getUserName());
+        return new AuthResult(true, "Login successful.", user.get().getUserName(), user.get().getId());
     }
 
     public RegistrationResult register(String username, String password, String confirmPassword) {
         if (username == null || username.isBlank()) {
-            return new RegistrationResult(false, "Please enter a username.", null);
+            return new RegistrationResult(false, "Please enter a username.", null, null);
         }
         if (password == null || password.isBlank() || confirmPassword == null || confirmPassword.isBlank()) {
-            return new RegistrationResult(false, "Please fill all account fields.", null);
+            return new RegistrationResult(false, "Please fill all account fields.", null, null);
         }
 
-        String normalizedUserName = username.trim();
+        String normalizedUserName = normalizeUserName(username);
         if (normalizedUserName.length() < 3) {
-            return new RegistrationResult(false, "Username must be at least 3 characters.", null);
+            return new RegistrationResult(false, "Username must be at least 3 characters.", null, null);
         }
-        if (userDatabase.findUserByUserName(normalizedUserName).isPresent()) {
-            return new RegistrationResult(false, "That username already exists.", null);
+        if (userDatabase.isUserNameTaken(normalizedUserName)) {
+            return new RegistrationResult(false, "That username already exists.", null, null);
         }
         if (!password.equals(confirmPassword)) {
-            return new RegistrationResult(false, "Passwords do not match.", null);
+            return new RegistrationResult(false, "Passwords do not match.", null, null);
         }
         if (password.trim().length() < 4) {
-            return new RegistrationResult(false, "Password must be at least 4 characters.", null);
+            return new RegistrationResult(false, "Password must be at least 4 characters.", null, null);
         }
 
         User user = new User(normalizedUserName, password.trim());
         userDatabase.getUsers().add(user);
         userDatabase.setCurrentUserName(user.getUserName());
-        return new RegistrationResult(true, "Account created.", user.getUserName());
+        return new RegistrationResult(true, "Account created.", user.getUserName(), user.getId());
     }
 
     public UsernameChangeResult updateUsername(String username) {
@@ -68,13 +68,13 @@ public class UserAccountService {
             return new UsernameChangeResult(false, "Please enter a username.", null);
         }
 
-        String normalizedUserName = username.trim();
+        String normalizedUserName = normalizeUserName(username);
         if (normalizedUserName.equals(currentUser.getUserName())) {
             return new UsernameChangeResult(false, "New username must be different.", null);
         }
 
         Optional<User> duplicate = userDatabase.findUserByUserName(normalizedUserName);
-        if (duplicate.isPresent()) {
+        if (duplicate.isPresent() && duplicate.get() != currentUser) {
             return new UsernameChangeResult(false, "That username already exists.", null);
         }
 
@@ -127,13 +127,17 @@ public class UserAccountService {
         return new DeleteAccountResult(true, "Account deleted.", deletedUsername);
     }
 
-    public record AuthResult(boolean ok, String msg, String username) { }
+    public record AuthResult(boolean ok, String msg, String username, String userId) { }
 
-    public record RegistrationResult(boolean ok, String msg, String username) { }
+    public record RegistrationResult(boolean ok, String msg, String username, String userId) { }
 
     public record UsernameChangeResult(boolean ok, String msg, String username) { }
 
     public record PasswordChangeResult(boolean ok, String msg, String newPassword) { }
 
     public record DeleteAccountResult(boolean ok, String msg, String deletedUsername) { }
+
+    private String normalizeUserName(String username) {
+        return username == null ? "" : username.trim();
+    }
 }

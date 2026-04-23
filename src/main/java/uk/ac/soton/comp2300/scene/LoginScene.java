@@ -79,6 +79,7 @@ public class LoginScene extends BaseScene {
             statusLabel.setText(result.msg);
             if (result.ok) {
                 App.getInstance().getCookieStorageService().login(result.username);
+                App.getInstance().loadGameForUser(result.userId);
                 mainWindow.loadScene(new MenuScene(mainWindow));
             }
         });
@@ -173,6 +174,7 @@ public class LoginScene extends BaseScene {
                 status.setText(result.msg);
                 if (result.ok) {
                     App.getInstance().getCookieStorageService().login(result.username);
+                    App.getInstance().loadGameForUser(result.userId);
                     clearOverlay();
                     mainWindow.loadScene(new MenuScene(mainWindow));
                 }

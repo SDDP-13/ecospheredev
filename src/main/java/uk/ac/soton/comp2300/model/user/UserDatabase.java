@@ -10,6 +10,10 @@ public class UserDatabase {
     private String currentUserName;
 
     public List<User> getUsers() {
+        if (users == null) {
+            users = new ArrayList<>();
+        }
+        users.forEach(User::ensureId);
         return users;
     }
 
@@ -22,10 +26,19 @@ public class UserDatabase {
     }
 
     public Optional<User> findUserByUserName(String userName) {
-        return users.stream()
+        if (userName == null || userName.isBlank()) {
+            return Optional.empty();
+        }
+
+        String normalizedUserName = normalizeUserName(userName);
+        return getUsers().stream()
                 .filter(user -> user.getUserName() != null)
-                .filter(user -> user.getUserName().equalsIgnoreCase(userName))
+                .filter(user -> normalizeUserName(user.getUserName()).equals(normalizedUserName))
                 .findFirst();
+    }
+
+    public boolean isUserNameTaken(String userName) {
+        return findUserByUserName(userName).isPresent();
     }
 
     public Optional<User> getCurrentUser() {
@@ -33,5 +46,9 @@ public class UserDatabase {
             return Optional.empty();
         }
         return findUserByUserName(currentUserName);
+    }
+
+    private String normalizeUserName(String userName) {
+        return userName.trim().toLowerCase();
     }
 }

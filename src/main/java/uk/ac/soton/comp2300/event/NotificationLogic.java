@@ -48,6 +48,10 @@ public class NotificationLogic {
 
     void sendDueNotifications() {
         try {
+            if (!Notification.isNotificationsEnabled()) {
+                return;
+            }
+
             LocalDateTime now = LocalDateTime.now();
 
             for (Notification n : repository.getAllNotifications()) {

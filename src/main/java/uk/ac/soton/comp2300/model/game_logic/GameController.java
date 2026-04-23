@@ -33,6 +33,10 @@ public class GameController {
         state.addResource(Resource.STONE, 200);
     }
 
+    public void gameLoopTick(){
+        gameLoop.tick();
+    }
+
     public boolean isBuildLocationFree(Planet planet, double theta, double phi) {
 
         for (BuildingData existing : planet.getBuildingData()) {
@@ -51,11 +55,24 @@ public class GameController {
     }
 
     public BuildingData placeBuidling(
+
+            BuildingType type,
+            double theta,
+            double phi
+    ) {
+        Planet planet = state.getSelectedPlanet();
+        return placeBuidling(planet, type, theta, phi);
+    }
+
+    public BuildingData placeBuidling(
             Planet planet,
             BuildingType type,
             double theta,
             double phi
     ) {
+        if (planet == null) {
+            return null;
+        }
 
         if (!isBuildLocationFree(planet, theta, phi)) {
             return null;
@@ -65,7 +82,9 @@ public class GameController {
         BuildingData building = new BuildingData(type, theta, phi);
         planet.addBuilding(building);
 
+
         state.incrementBuildingsPlaced();
+
         return building;
     }
 
@@ -80,6 +99,7 @@ public class GameController {
     public boolean buildable(BuildingType type) {
         return state.sufficientResources(type.getPrice());
     }
+
 
 
 }

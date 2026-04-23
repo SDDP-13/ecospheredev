@@ -10,15 +10,30 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import uk.ac.soton.comp2300.App;
+import uk.ac.soton.comp2300.event.RefreshVisuals;
 import uk.ac.soton.comp2300.model.Notification;
+import uk.ac.soton.comp2300.model.Resource;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
+
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DashboardScene extends BaseScene {
+public class DashboardScene extends BaseScene implements RefreshVisuals {
+
+    private Label currentGoldLabel;
+    private Label currentMetalLabel;
+    private Label currentWoodLabel;
+    private Label currentStoneLabel;
+
+    private enum ViewMode { DAYS_7, WEEKS_4, WEEKS_12 }
+    private ViewMode currentMode = ViewMode.DAYS_7;
+
+    private final String[] dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+
+    private VBox chartContainer;
 
     public DashboardScene(MainWindow mainWindow) { super(mainWindow); }
 
@@ -74,19 +89,38 @@ public class DashboardScene extends BaseScene {
 
         xpBox.getChildren().addAll(xpIcon, xpTitle, levelLabel, levelBar, nextLevelInfo);
 
-        // --- TIME TOGGLE BAR ---
+// --- TIME TOGGLE BAR ---
         HBox toggleBar = new HBox(30);
         toggleBar.setAlignment(Pos.CENTER);
-        toggleBar.setPadding(new Insets(10, 0, 20, 0));
-        toggleBar.setStyle("-fx-background-color: #FBFAFF; -fx-background-radius: 10;");
-        toggleBar.setMaxWidth(320);
+
         Label day7 = new Label("7 Days");
-        day7.setStyle("-fx-font-weight: bold; -fx-text-fill: #311B92; -fx-cursor: hand;");
         Label week4 = new Label("4 Weeks");
-        week4.setStyle("-fx-text-fill: #7986CB; -fx-cursor: hand;");
         Label week12 = new Label("12 Weeks");
-        week12.setStyle("-fx-text-fill: #7986CB; -fx-cursor: hand;");
+
         toggleBar.getChildren().addAll(day7, week4, week12);
+
+
+        day7.setStyle(currentMode == ViewMode.DAYS_7 ? "-fx-font-weight: bold; -fx-text-fill: #311B92; -fx-cursor: hand;" : "-fx-text-fill: #7986CB; -fx-cursor: hand;");
+        week4.setStyle(currentMode == ViewMode.WEEKS_4 ? "-fx-font-weight: bold; -fx-text-fill: #311B92; -fx-cursor: hand;" : "-fx-text-fill: #7986CB; -fx-cursor: hand;");
+        week12.setStyle(currentMode == ViewMode.WEEKS_12 ? "-fx-font-weight: bold; -fx-text-fill: #311B92; -fx-cursor: hand;" : "-fx-text-fill: #7986CB; -fx-cursor: hand;");
+
+        day7.setOnMouseClicked(e -> {
+            currentMode = ViewMode.DAYS_7;
+            build();
+            mainWindow.getScene().setRoot(root); // Forces UI Refresh
+        });
+
+        week4.setOnMouseClicked(e -> {
+            currentMode = ViewMode.WEEKS_4;
+            build();
+            mainWindow.getScene().setRoot(root);
+        });
+
+        week12.setOnMouseClicked(e -> {
+            currentMode = ViewMode.WEEKS_12;
+            build();
+            mainWindow.getScene().setRoot(root);
+        });
 
 // --- SECTION 2: TASKS CHART & APPLIANCE PROGRESS ---
         // 1. Calculate current week range (Monday to Sunday)
@@ -108,8 +142,13 @@ public class DashboardScene extends BaseScene {
 
         CategoryAxis xAxis = new CategoryAxis();
 
-        // Change Y-axis: Min 0, Max 7, Step 1
         NumberAxis yAxis = new NumberAxis(0, 7, 1);
+        // Adjust Y-Axis scale based on mode
+        if (currentMode != ViewMode.DAYS_7) {
+            yAxis.setUpperBound(40); // Increase for weekly totals
+            yAxis.setTickUnit(5);
+            yAxis.setAutoRanging(false); // Force it to use the new upper bound
+        }
         yAxis.setLabel("Tasks Done");
 
         // Dark Purple Axis Styling
@@ -130,16 +169,24 @@ public class DashboardScene extends BaseScene {
         // 3. Populate Chart: Pulls specifically from Task Scene completions
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         Map<String, Double> taskData = app.getDailyTaskCompletionMap();
-        String[] dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
-        for (int j = 0; j < 7; j++) {
-            java.time.LocalDate currentDayDate = monday.plusDays(j);
-            String dateKey = currentDayDate.toString(); // YYYY-MM-DD
-
-            // This value increases when App.addTaskCompletion is called
-            double value = taskData.getOrDefault(dateKey, 0.0);
-
-            series.getData().add(new XYChart.Data<>(dayNames[j], value));
+        if (currentMode == ViewMode.DAYS_7) {
+            for (int j = 0; j < 7; j++) {
+                java.time.LocalDate date = monday.plusDays(j);
+                series.getData().add(new XYChart.Data<>(dayNames[j], taskData.getOrDefault(date.toString(), 0.0)));
+            }
+        } else {
+            int weeksToLoad = (currentMode == ViewMode.WEEKS_4) ? 4 : 12;
+            for (int w = weeksToLoad - 1; w >= 0; w--) {
+                java.time.LocalDate weekStart = monday.minusWeeks(w);
+                double weeklyTotal = 0;
+                for (int d = 0; d < 7; d++) {
+                    weeklyTotal += taskData.getOrDefault(weekStart.plusDays(d).toString(), 0.0);
+                }
+                // Labeling based on how many weeks ago the data was recorded
+                String label = (w == 0) ? "This Week" : w + "w ago";
+                series.getData().add(new XYChart.Data<>(label, weeklyTotal));
+            }
         }
         weeklyChart.getData().add(series);
 
@@ -215,17 +262,23 @@ public class DashboardScene extends BaseScene {
         ecoImpactCard.setMaxWidth(320);
         ecoImpactCard.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 20; " +
                 "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
+
         Label impactTitle = new Label("Eco & Cost Impact");
         impactTitle.setStyle("-fx-font-weight: 800; -fx-font-size: 18px; -fx-text-fill: #2E7D32;");
+
+        Label rangeLabel = new Label("Weekly Range: " + weekRange);
+        rangeLabel.setStyle("-fx-font-size: 11px; -fx-text-fill: #777; -fx-padding: -10 0 0 0;");
+
         ecoImpactCard.getChildren().addAll(
                 impactTitle,
+                rangeLabel, // Added the date range here
                 createImpactRow("Energy Saved", String.format("%.2f kWh", app.getTotalEnergySaved()), "#2E7D32"),
                 createImpactRow("Money Saved", String.format("£%.2f", app.getTotalMoneySaved()), "#43A047"),
                 createImpactRow("Carbon Offset", String.format("%.2f kg", app.getTotalCo2Saved()), "#1B5E20"),
                 createImpactRow("Peak Savings Day", app.getDailySavingsMap().entrySet().stream()
                         .max(Map.Entry.comparingByValue())
                         .map(Map.Entry::getKey)
-                        .orElse("No data"), "#E64A19") //
+                        .orElse("No data"), "#E64A19")
         );
         // --- SECTION 5: RESOURCES GAINED ---
         VBox resourcesSection = new VBox(15);
@@ -239,10 +292,17 @@ public class DashboardScene extends BaseScene {
         resourceGrid.setHgap(15); resourceGrid.setVgap(15);
         resourceGrid.setAlignment(Pos.CENTER);
 
-        resourceGrid.add(createResourceBox("Gold", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY), "Coin.png"), 0, 0);
-        resourceGrid.add(createResourceBox("Metal", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL), "Metal.png"), 1, 0);
-        resourceGrid.add(createResourceBox("Wood", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD), "Wood.png"), 0, 1);
-        resourceGrid.add(createResourceBox("Stone", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE), "Stone.png"), 1, 1);
+
+        currentGoldLabel = new Label();
+        currentMetalLabel = new Label();
+        currentWoodLabel = new Label();
+        currentStoneLabel = new Label();
+
+        resourceGrid.add(createResourceBox("Gold", currentGoldLabel, "Coin.png"), 0, 0);
+        resourceGrid.add(createResourceBox("Metal", currentMetalLabel, "Metal.png"), 1, 0);
+        resourceGrid.add(createResourceBox("Wood", currentWoodLabel, "Wood.png"), 0, 1);
+        resourceGrid.add(createResourceBox("Stone", currentStoneLabel, "Stone.png"), 1, 1);
+
 
         resourcesSection.getChildren().addAll(resHeader, resourceGrid);
 
@@ -257,7 +317,14 @@ public class DashboardScene extends BaseScene {
         GridPane structGrid = new GridPane();
         structGrid.setHgap(15); structGrid.setVgap(15);
         structGrid.setAlignment(Pos.CENTER);
-        var buildings = state.getSelectedPlanet().getBuildingData();
+
+
+        var selectedPlanet = state.getSelectedPlanet();
+        //var buildings = (selectedPlanet != null) ? selectedPlanet.getBuildingData()
+        //        : java.util.List.<uk.ac.soton.comp2300.model.game_logic.BuildingData>of();
+
+        var buildings = state.getPlanets().stream().
+                flatMap(planet -> planet.getBuildingData().stream()).toList();
 
         // Row 0
         structGrid.add(createResourceBox("Towns", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.TOWN).count(), "Town.png"), 0, 0);
@@ -276,8 +343,16 @@ public class DashboardScene extends BaseScene {
 
         structuresSection.getChildren().addAll(structHeader, structGrid);
         // ASSEMBLY
-        content.getChildren().addAll(title, xpBox, toggleBar, weeklyProgressCard, deviceChartCard, ecoImpactCard, resourcesSection, structuresSection);
-
+        content.getChildren().addAll(
+                title,
+                xpBox,
+                toggleBar,
+                weeklyProgressCard,
+                deviceChartCard,
+                ecoImpactCard,
+                resourcesSection,
+                structuresSection
+        );
         // Navigation
         Button backBtn = new Button("←");
         backBtn.setPrefSize(44,44);
@@ -287,6 +362,11 @@ public class DashboardScene extends BaseScene {
         StackPane.setMargin(backBtn, new Insets(20));
 
         root.getChildren().addAll(scrollPane, backBtn);
+        refreshVisuals();
+
+        day7.setStyle(currentMode == ViewMode.DAYS_7 ? "-fx-font-weight: bold; -fx-text-fill: #311B92;" : "-fx-text-fill: #7986CB;");
+        week4.setStyle(currentMode == ViewMode.WEEKS_4 ? "-fx-font-weight: bold; -fx-text-fill: #311B92;" : "-fx-text-fill: #7986CB;");
+        week12.setStyle(currentMode == ViewMode.WEEKS_12 ? "-fx-font-weight: bold; -fx-text-fill: #311B92;" : "-fx-text-fill: #7986CB;");
     }
     /**
      * Helper to create a consistent container for charts.
@@ -340,6 +420,35 @@ public class DashboardScene extends BaseScene {
         return card;
     }
 
+    private VBox createResourceBox(String name, Label currencyLabel, String imageName) {
+        VBox box = new VBox(5);
+        box.setPrefSize(160, 95);
+        box.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
+
+        javafx.scene.image.ImageView resourceIcon = new javafx.scene.image.ImageView();
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                resourceIcon.setImage(new javafx.scene.image.Image(stream));
+                resourceIcon.setFitWidth(25);
+                resourceIcon.setPreserveRatio(true);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load resource icon: " + imageName);
+        }
+
+        Label nameLbl = new Label(name);
+        nameLbl.setStyle("-fx-text-fill: #888; -fx-font-size: 12px;");
+
+       // Label valLbl = new Label(String.format("%,d", amount));
+        currencyLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #4A148C;");
+
+        box.getChildren().addAll(resourceIcon, nameLbl, currencyLabel);
+        return box;
+    }
+
+    /** Overloaded so that buildings can call it.**/
     private VBox createResourceBox(String name, int amount, String imageName) {
         VBox box = new VBox(5);
         box.setPrefSize(160, 95);
@@ -369,4 +478,18 @@ public class DashboardScene extends BaseScene {
     }
 
     @Override public void initialise() {}
+
+    @Override
+    public void refreshVisuals(){
+
+
+        var state = App.getInstance().getGameController().getGameState();
+
+        currentGoldLabel.setText(String.format("%,d", state.getResourceAmount(Resource.MONEY)));
+        currentMetalLabel.setText(String.format("%,d", state.getResourceAmount(Resource.METAL)));
+        currentWoodLabel.setText(String.format("%,d", state.getResourceAmount(Resource.WOOD)));
+        currentStoneLabel.setText(String.format("%,d", state.getResourceAmount(Resource.STONE)));
+
+
+    }
 }

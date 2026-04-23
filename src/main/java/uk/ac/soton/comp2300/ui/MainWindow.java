@@ -84,4 +84,8 @@ public class MainWindow {
     public Stage getStage() {
         return this.stage;
     }
+
+    public BaseScene getCurrentScene() {
+        return currentScene;
+    }
 }

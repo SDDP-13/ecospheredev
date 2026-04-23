@@ -15,6 +15,25 @@ public class GameState {
     private ResourceStack stoneTotal;
     private int totalXp;
 
+
+    private double totalEnergySaved = 0.0;
+    private double totalCo2Saved = 0.0;
+    private double totalMoneySaved = 0.0;
+    private java.util.Map<String, Double> dailySavingsMap = new java.util.HashMap<>();
+    private java.util.Map<String, Double> dailyTaskCompletionMap = new java.util.HashMap<>();
+
+    public double getTotalEnergySaved() { return totalEnergySaved; }
+    public void setTotalEnergySaved(double val) { this.totalEnergySaved = val; }
+
+    public double getTotalCo2Saved() { return totalCo2Saved; }
+    public void setTotalCo2Saved(double val) { this.totalCo2Saved = val; }
+
+    public double getTotalMoneySaved() { return totalMoneySaved; }
+    public void setTotalMoneySaved(double val) { this.totalMoneySaved = val; }
+
+    public java.util.Map<String, Double> getDailySavingsMap() { return dailySavingsMap; }
+    public java.util.Map<String, Double> getDailyTaskCompletionMap() { return dailyTaskCompletionMap; }
+
     private int buildingsPlaced = 0; // Tracks lifetime or session building count
 
     public int getBuildingsPlaced() {
@@ -58,6 +77,7 @@ public class GameState {
 
     public void addPlanet(Planet planet) { planets.add(planet); }
     public List<Planet> getPlanets() { return planets; }
+
     public void setSelectedPlanet(Planet planet) { this.selectedPlanetId = (planet == null) ? null : planet.getId(); }
     public Planet getSelectedPlanet() {
         if (selectedPlanetId == null) return null;
@@ -70,6 +90,7 @@ public class GameState {
 
 
 
+
     /**--------Checks if player has sufficient resources to build item*/
     public boolean sufficientResources (List<ResourceStack> costs) {
         for (ResourceStack cost : costs) {
@@ -79,5 +100,3 @@ public class GameState {
     }
 
 }
-
-
