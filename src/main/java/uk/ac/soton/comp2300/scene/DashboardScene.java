@@ -28,6 +28,13 @@ public class DashboardScene extends BaseScene implements RefreshVisuals {
     private Label currentWoodLabel;
     private Label currentStoneLabel;
 
+    private enum ViewMode { DAYS_7, WEEKS_4, WEEKS_12 }
+    private ViewMode currentMode = ViewMode.DAYS_7;
+
+    private final String[] dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
+
+    private VBox chartContainer;
+
     public DashboardScene(MainWindow mainWindow) { super(mainWindow); }
 
     @Override
@@ -82,19 +89,38 @@ public class DashboardScene extends BaseScene implements RefreshVisuals {
 
         xpBox.getChildren().addAll(xpIcon, xpTitle, levelLabel, levelBar, nextLevelInfo);
 
-        // --- TIME TOGGLE BAR ---
+// --- TIME TOGGLE BAR ---
         HBox toggleBar = new HBox(30);
         toggleBar.setAlignment(Pos.CENTER);
-        toggleBar.setPadding(new Insets(10, 0, 20, 0));
-        toggleBar.setStyle("-fx-background-color: #FBFAFF; -fx-background-radius: 10;");
-        toggleBar.setMaxWidth(320);
+
         Label day7 = new Label("7 Days");
-        day7.setStyle("-fx-font-weight: bold; -fx-text-fill: #311B92; -fx-cursor: hand;");
         Label week4 = new Label("4 Weeks");
-        week4.setStyle("-fx-text-fill: #7986CB; -fx-cursor: hand;");
         Label week12 = new Label("12 Weeks");
-        week12.setStyle("-fx-text-fill: #7986CB; -fx-cursor: hand;");
+
         toggleBar.getChildren().addAll(day7, week4, week12);
+
+
+        day7.setStyle(currentMode == ViewMode.DAYS_7 ? "-fx-font-weight: bold; -fx-text-fill: #311B92; -fx-cursor: hand;" : "-fx-text-fill: #7986CB; -fx-cursor: hand;");
+        week4.setStyle(currentMode == ViewMode.WEEKS_4 ? "-fx-font-weight: bold; -fx-text-fill: #311B92; -fx-cursor: hand;" : "-fx-text-fill: #7986CB; -fx-cursor: hand;");
+        week12.setStyle(currentMode == ViewMode.WEEKS_12 ? "-fx-font-weight: bold; -fx-text-fill: #311B92; -fx-cursor: hand;" : "-fx-text-fill: #7986CB; -fx-cursor: hand;");
+
+        day7.setOnMouseClicked(e -> {
+            currentMode = ViewMode.DAYS_7;
+            build();
+            mainWindow.getScene().setRoot(root); // Forces UI Refresh
+        });
+
+        week4.setOnMouseClicked(e -> {
+            currentMode = ViewMode.WEEKS_4;
+            build();
+            mainWindow.getScene().setRoot(root);
+        });
+
+        week12.setOnMouseClicked(e -> {
+            currentMode = ViewMode.WEEKS_12;
+            build();
+            mainWindow.getScene().setRoot(root);
+        });
 
 // --- SECTION 2: TASKS CHART & APPLIANCE PROGRESS ---
         // 1. Calculate current week range (Monday to Sunday)
@@ -116,8 +142,13 @@ public class DashboardScene extends BaseScene implements RefreshVisuals {
 
         CategoryAxis xAxis = new CategoryAxis();
 
-        // Change Y-axis: Min 0, Max 7, Step 1
         NumberAxis yAxis = new NumberAxis(0, 7, 1);
+        // Adjust Y-Axis scale based on mode
+        if (currentMode != ViewMode.DAYS_7) {
+            yAxis.setUpperBound(40); // Increase for weekly totals
+            yAxis.setTickUnit(5);
+            yAxis.setAutoRanging(false); // Force it to use the new upper bound
+        }
         yAxis.setLabel("Tasks Done");
 
         // Dark Purple Axis Styling
@@ -138,16 +169,24 @@ public class DashboardScene extends BaseScene implements RefreshVisuals {
         // 3. Populate Chart: Pulls specifically from Task Scene completions
         XYChart.Series<String, Number> series = new XYChart.Series<>();
         Map<String, Double> taskData = app.getDailyTaskCompletionMap();
-        String[] dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"};
 
-        for (int j = 0; j < 7; j++) {
-            java.time.LocalDate currentDayDate = monday.plusDays(j);
-            String dateKey = currentDayDate.toString(); // YYYY-MM-DD
-
-            // This value increases when App.addTaskCompletion is called
-            double value = taskData.getOrDefault(dateKey, 0.0);
-
-            series.getData().add(new XYChart.Data<>(dayNames[j], value));
+        if (currentMode == ViewMode.DAYS_7) {
+            for (int j = 0; j < 7; j++) {
+                java.time.LocalDate date = monday.plusDays(j);
+                series.getData().add(new XYChart.Data<>(dayNames[j], taskData.getOrDefault(date.toString(), 0.0)));
+            }
+        } else {
+            int weeksToLoad = (currentMode == ViewMode.WEEKS_4) ? 4 : 12;
+            for (int w = weeksToLoad - 1; w >= 0; w--) {
+                java.time.LocalDate weekStart = monday.minusWeeks(w);
+                double weeklyTotal = 0;
+                for (int d = 0; d < 7; d++) {
+                    weeklyTotal += taskData.getOrDefault(weekStart.plusDays(d).toString(), 0.0);
+                }
+                // Labeling based on how many weeks ago the data was recorded
+                String label = (w == 0) ? "This Week" : w + "w ago";
+                series.getData().add(new XYChart.Data<>(label, weeklyTotal));
+            }
         }
         weeklyChart.getData().add(series);
 
@@ -301,8 +340,16 @@ public class DashboardScene extends BaseScene implements RefreshVisuals {
 
         structuresSection.getChildren().addAll(structHeader, structGrid);
         // ASSEMBLY
-        content.getChildren().addAll(title, xpBox, toggleBar, weeklyProgressCard, deviceChartCard, ecoImpactCard, resourcesSection, structuresSection);
-
+        content.getChildren().addAll(
+                title,
+                xpBox,
+                toggleBar,
+                weeklyProgressCard,
+                deviceChartCard,
+                ecoImpactCard,
+                resourcesSection,
+                structuresSection
+        );
         // Navigation
         Button backBtn = new Button("←");
         backBtn.setPrefSize(44,44);
@@ -313,6 +360,10 @@ public class DashboardScene extends BaseScene implements RefreshVisuals {
 
         root.getChildren().addAll(scrollPane, backBtn);
         refreshVisuals();
+
+        day7.setStyle(currentMode == ViewMode.DAYS_7 ? "-fx-font-weight: bold; -fx-text-fill: #311B92;" : "-fx-text-fill: #7986CB;");
+        week4.setStyle(currentMode == ViewMode.WEEKS_4 ? "-fx-font-weight: bold; -fx-text-fill: #311B92;" : "-fx-text-fill: #7986CB;");
+        week12.setStyle(currentMode == ViewMode.WEEKS_12 ? "-fx-font-weight: bold; -fx-text-fill: #311B92;" : "-fx-text-fill: #7986CB;");
     }
     /**
      * Helper to create a consistent container for charts.
