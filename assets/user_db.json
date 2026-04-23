@@ -29,6 +29,12 @@
       "darkMode": false,
       "sendCrashReports": true,
       "notifications": false
+    },
+    "user121": {
+      "shareUsageData": false,
+      "darkMode": false,
+      "sendCrashReports": true,
+      "notifications": false
     }
   },
   "cookieData": {
