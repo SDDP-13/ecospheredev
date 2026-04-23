@@ -427,7 +427,7 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
 
     @Override
     public void refreshVisuals(){
-        System.out.println("Planet Scene RefreshVisuals called.");
+
 
         var state = App.getInstance().getGameController().getGameState();
 
