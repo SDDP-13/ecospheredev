@@ -40,6 +40,7 @@ public class HelpScene extends BaseScene {
         Label heading = new Label("How to use Ecosphere");
         heading.getStyleClass().add("title-large");
         heading.setStyle("-fx-font-weight: bold; -fx-font-size: 20px;");
+        heading.setMaxWidth(Double.MAX_VALUE);
         heading.setAlignment(Pos.CENTER);
 
 
@@ -72,7 +73,7 @@ public class HelpScene extends BaseScene {
         home.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
         Label section2Text = new Label("The Home Page is the main hub of Ecosphere, providing an overview of your progress and access to all core features.");
         section2Text.setWrapText(true);
-        TextFlow homeTextFlow = new TextFlow();
+        TextFlow homeTextFlowTop = new TextFlow();
         Text home1 = new Text(" • ");
         Text home2 = new Text("Level and Inventory:");
         home2.setStyle("-fx-font-weight: bold;");
@@ -86,6 +87,7 @@ public class HelpScene extends BaseScene {
         home1_view.setPreserveRatio(true);
         VBox home1Container = new VBox(home1_view);
         home1Container.setAlignment(Pos.CENTER);
+        TextFlow homeTextFlowMiddle = new TextFlow();
         Text home6 = new Text(" • ");
         Text home7 = new Text("Solar System View:");
         home7.setStyle("-fx-font-weight: bold;");
@@ -98,10 +100,13 @@ public class HelpScene extends BaseScene {
         Text home13 = new Text("Navigation Menu:");
         home13.setStyle("-fx-font-weight: bold;");
         Text home14 = new Text(" Click the button on the top right-hand side to access the drop-down menu\n ");
+        TextFlow homeTextFlowBottom = new TextFlow();
         Text home15 = new Text("     • The Core Features: Notifications, Dashboard, Schedules, Tasks, Settings and this Help Page");
         
-        homeTextFlow.getChildren().addAll(home1,home2,home3,home4,home5,home6,home7,home8,home9,home10,home11,home12,home13,home14,home15);
-        
+        homeTextFlowTop.getChildren().addAll(home1,home2,home3,home4,home5);
+        homeTextFlowMiddle.getChildren().addAll(home6,home7,home8,home9,home10,home11,home12,home13,home14);
+        homeTextFlowMiddle.getChildren().addAll(home15);
+
         Image help_home2 = new Image(getClass().getResource("/images/Help_home2.png").toExternalForm());
         ImageView home2_view = new ImageView(help_home2);
         home2_view.setFitWidth(25);
@@ -132,7 +137,7 @@ public class HelpScene extends BaseScene {
         planet.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
         Label section4Text = new Label("The Planet View allows you to interact directly with the planet you have selected, and build structures to generate resources.");
         section4Text.setWrapText(true);
-        TextFlow planetTextFlow = new TextFlow();
+        TextFlow planetTextFlowTop = new TextFlow();
         Text planet1 = new Text(" • ");
         Text planet2 = new Text("Build Mode:");
         planet2.setStyle("-fx-font-weight: bold;");
@@ -143,9 +148,11 @@ public class HelpScene extends BaseScene {
         planet1_view.setPreserveRatio(true);
         VBox planet1Container = new VBox(planet1_view);
         planet1Container.setAlignment(Pos.CENTER);
+        TextFlow planetTextFlowBottom = new TextFlow();
         Text planet4 = new Text("   • To place a structure, select the desired structure (must unlock in order to build) and place it anywhere on the planet\n");
         
-        planetTextFlow.getChildren().addAll(planet1, planet2, planet3, planet4);
+        planetTextFlowTop.getChildren().addAll(planet1, planet2, planet3);
+        planetTextFlowBottom.getChildren().addAll(planet4);
 
         Image help_planet2 = new Image(getClass().getResource("/images/Help_planet2.png").toExternalForm());
         ImageView planet2_view = new ImageView(help_planet2);
@@ -173,7 +180,7 @@ public class HelpScene extends BaseScene {
         notif1_view.setPreserveRatio(true);
         VBox notif1Container = new VBox(notif1_view);
         notif1Container.setAlignment(Pos.CENTER);
-        Text notif5 = new Text("    • To dismiss, simply click the tick or cross button\n");
+        Text notif5 = new Text("        • To dismiss, simply click the tick or cross button\n");
         Text notif6 = new Text(" • ");
         Text notif7 = new Text("'View All' Button:");
         notif7.setStyle("-fx-font-weight: bold;");
@@ -186,7 +193,7 @@ public class HelpScene extends BaseScene {
         dashboard.setStyle("-fx-font-weight: bold; -fx-font-size: 16px;");
         Label section6Text = new Label("The Dashboard provides an overview of your progress and activity within the application.");
         section6Text.setWrapText(true);
-        TextFlow dashboardTextFlow = new TextFlow();
+        TextFlow dashboardTextFlowTop = new TextFlow();
         Text dashboard1 = new Text("It includes details on: \n");
         Text dashboard2 = new Text("    • your current level and XP\n");
         dashboard2.setStyle("-fx-font-weight: bold;");
@@ -199,6 +206,7 @@ public class HelpScene extends BaseScene {
         VBox dashboard1Container = new VBox(dashboard1_view);
         dashboard1Container.setAlignment(Pos.CENTER);
         Text dashboard4 = new Text("        • Can be viewed across different time periods (e.g. 7 days, 4 weeks)\n");
+        TextFlow dashboardTextFlowMiddle = new TextFlow();
         Text dashboard5 = new Text("    • appliance usage\n");
         dashboard5.setStyle("-fx-font-weight: bold;");
         Text dashboard6 = new Text("    • eco & cost impact\n");
@@ -214,11 +222,13 @@ public class HelpScene extends BaseScene {
         Text dashboard8 = new Text("        • money saved in GBP £\n");
         Text dashboard9 = new Text("        • carbon offset in kg\n");
         Text dashboard10 = new Text("       • includes 'Peak Savings Day' to highlight your most efficient day\n");
+        TextFlow dashboardTextFlowBottom = new TextFlow();
         Text dashboard11 = new Text("    • your resources and buildings inventory\n");
         dashboard11.setStyle("-fx-font-weight: bold;");
 
-        dashboardTextFlow.getChildren().addAll(dashboard1,dashboard2,dashboard3,dashboard4,dashboard5,dashboard6,dashboard7,dashboard8,dashboard9,dashboard10,dashboard11);        
-        
+        dashboardTextFlowTop.getChildren().addAll(dashboard1,dashboard2,dashboard3,dashboard4);        
+        dashboardTextFlowMiddle.getChildren().addAll(dashboard5,dashboard6,dashboard7,dashboard8,dashboard9,dashboard10)
+        dashboardTextFlowTop.getChildren().addAll(dashboard11);
 
 
 
@@ -241,7 +251,7 @@ public class HelpScene extends BaseScene {
         Label section8Text = new Label("Find your daily tasks here. They reset daily at 08:00 GMT.");
         section8Text.setWrapText(true);
 
-        TextFlow tasksTextFlow = new TextFlow();
+        TextFlow tasksTextFlowTop = new TextFlow();
         Text tasks1 = new Text(" • Each task includes a description, reward and task status\n");
         Text tasks2 = new Text(" • Tasks have three states: ");
         Text tasks3 = new Text("Locked, Claimable, Claimed\n");
@@ -252,6 +262,7 @@ public class HelpScene extends BaseScene {
         tasks1_view.setPreserveRatio(true);
         VBox tasks1Container = new VBox(tasks1_view);
         tasks1Container.setAlignment(Pos.CENTER);
+        TextFlow tasksTextFlowBottom = new TextFlow();
         Text tasks4 = new Text("      • To unlock tasks, complete the actions in the task description\n");
         Image help_tasks2 = new Image(getClass().getResource("/images/Help_task2.png").toExternalForm());
         ImageView tasks2_view = new ImageView(help_tasks2);
@@ -261,13 +272,14 @@ public class HelpScene extends BaseScene {
         tasks2Container.setAlignment(Pos.CENTER);
         Image help_tasks3 = new Image(getClass().getResource("/images/Help_task3.png").toExternalForm());
         ImageView tasks3_view = new ImageView(help_tasks3);
-        tasks3_view.setFitWidth(200);
+        tasks3_view.setFitWidth(300);
         tasks3_view.setPreserveRatio(true);
         VBox tasks3Container = new VBox(tasks3_view);
         tasks3Container.setAlignment(Pos.CENTER);
         //VBox.setMargin(tasks3_view, new Insets(10, 0, 10, 0));
 
-        tasksTextFlow.getChildren().addAll(tasks1,tasks2,tasks3,tasks4);
+        tasksTextFlowTop.getChildren().addAll(tasks1,tasks2,tasks3);
+        tasksTextFlowBottom.getChildren().addAll(tasks4);
 
 
 
@@ -289,31 +301,36 @@ public class HelpScene extends BaseScene {
 
             home,
             section2Text,
-            homeTextFlow,
-            home1_view,
-            home2_view,
+            homeTextFlowTop,
+            home1Container,
+            homeTextFlowMiddle,
+            home2Container,
+            homeTextFlowBottom,
 
             solarsystem,
             section3Text,
             solar1,
-            solar1_view,
+            solar1Container,
 
             planet,
             section4Text,
-            planetTextFlow,
-            planet1_view,
-            planet2_view,
+            planetTextFlowTop,
+            planet1Container,
+            planetTextFlowBottom,
+            planet2Container,
 
             notif,
             section5Text,
+            notif1Container,
             notifTextFlow,
-            notif1_view,
 
             dashboard,
             section6Text,
-            dashboardTextFlow,
-            dashboard1_view,
-            dashboard2_view,
+            dashboardTextFlowTop,
+            dashboard1Container,
+            dashboardTextFlowMiddle,
+            dashboard2Container,
+            dashboardTextFlowBottom,
 
             schedule,
             section7Text,
@@ -321,10 +338,11 @@ public class HelpScene extends BaseScene {
 
             tasks,
             section8Text,
-            tasksTextFlow,
-            tasks1_view,
-            tasks2_view,
-            tasks3_view,
+            tasksTextFlowTop,
+            tasks1Container,
+            tasks2Container,
+            tasks3Container,
+            tasksTextFlowBottom,
 
             settings,
             section9Text

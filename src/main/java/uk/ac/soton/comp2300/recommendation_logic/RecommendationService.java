@@ -62,7 +62,7 @@ public class RecommendationService {
             + bestSlot.getFrom().format(timeFormatter)
             + " - "
             + bestSlot.getTo().format(timeFormatter)
-            + " (carbon intensity: " + bestSlot.getForecast() + " gC02/kWh)";
+            + " (carbon intensity: " + bestSlot.getForecast() + " gCO2/kWh)";
                 
         if (outputDataSource.startsWith("cached")) {
             recommendation += " Based on " + outputDataSource + " data - live feed unavailable.";
