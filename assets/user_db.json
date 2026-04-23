@@ -11,9 +11,14 @@
         "userName": "user1",
         "storedHash": "PCB+rHcibE5I/rgik1vGKgBGIH0qWzVToP9nKhQChCk=",
         "storedSalt": "3nbdgWFFAaqJnGj6bjWiVg=="
+      },
+      {
+        "userName": "user121",
+        "storedHash": "y48inn4DzTv85GQNt2wN0l24bhq6roMs4yzVQ0G5Uyc=",
+        "storedSalt": "SG64Zc904/1n9LIc8AHjfw=="
       }
     ],
-    "currentUserName": "user1"
+    "currentUserName": "user121"
   },
   "userSettings": {
     "user1": {
@@ -27,14 +32,21 @@
       "darkMode": false,
       "sendCrashReports": true,
       "notifications": false
+    },
+    "user121": {
+      "shareUsageData": false,
+      "darkMode": false,
+      "sendCrashReports": true,
+      "notifications": false
     }
   },
   "cookieData": {
-    "loggedInUser": "user1",
-    "lastLoginDate": "2026-04-22",
+    "loggedInUser": "user121",
+    "lastLoginDate": "2026-04-23",
     "claimedTasksByUser": {
-      "user1": {
-        "2026-04-22": [
+      "user1": {},
+      "user121": {
+        "2026-04-23": [
           "Followed a recommendation (1)",
           "Log in",
           "Followed a recommendation (2)"
