@@ -227,7 +227,7 @@ public class HelpScene extends BaseScene {
         dashboard11.setStyle("-fx-font-weight: bold;");
 
         dashboardTextFlowTop.getChildren().addAll(dashboard1,dashboard2,dashboard3,dashboard4);        
-        dashboardTextFlowMiddle.getChildren().addAll(dashboard5,dashboard6,dashboard7,dashboard8,dashboard9,dashboard10)
+        dashboardTextFlowMiddle.getChildren().addAll(dashboard5,dashboard6,dashboard7,dashboard8,dashboard9,dashboard10);
         dashboardTextFlowTop.getChildren().addAll(dashboard11);
 
 
