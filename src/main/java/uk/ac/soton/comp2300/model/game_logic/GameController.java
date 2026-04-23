@@ -2,6 +2,8 @@ package uk.ac.soton.comp2300.model.game_logic;
 
 import uk.ac.soton.comp2300.model.Resource;
 
+import java.util.List;
+
 public class GameController {
 
     private GameState state;
@@ -17,7 +19,11 @@ public class GameController {
 
     public void initializeNewGame() {
         Planet earth = new Planet("Earth");
+        Planet mars = new Planet("Mars");
+        Planet venus = new Planet("Venus");
         state.addPlanet(earth);
+        state.addPlanet(mars);
+        state.addPlanet(venus);
         state.setSelectedPlanet(earth);
 
 
@@ -25,6 +31,10 @@ public class GameController {
         state.addResource(Resource.METAL, 200);
         state.addResource(Resource.WOOD, 500);
         state.addResource(Resource.STONE, 200);
+    }
+
+    public void gameLoopTick(){
+        gameLoop.tick();
     }
 
     public boolean isBuildLocationFree(Planet planet, double theta, double phi) {
@@ -45,11 +55,15 @@ public class GameController {
     }
 
     public BuildingData placeBuidling(
-            Planet planet,
+
             BuildingType type,
             double theta,
             double phi
     ) {
+        Planet planet = state.getSelectedPlanet();
+        System.out.println("placeBuilding called");
+        System.out.println("Planet arg: " + planet.getName());
+        System.out.println("Before add, building count: " + planet.getBuildingData().size());
 
         if (!isBuildLocationFree(planet, theta, phi)) {
             return null;
@@ -59,12 +73,19 @@ public class GameController {
         BuildingData building = new BuildingData(type, theta, phi);
         planet.addBuilding(building);
 
+
+        System.out.println("Placed building: " + type);
+        System.out.println("After add, building count: " + planet.getBuildingData().size());
+
         state.incrementBuildingsPlaced();
+
         return building;
     }
 
     public void addResource(Resource type, int amount) { state.addResource(type, amount); }
-
+    public Planet getSelectedPlanet() { return state.getSelectedPlanet(); }
+    public void setSelectedPlanet(Planet planet) { state.setSelectedPlanet(planet); }
+    public List<Planet> getPlanets() { return state.getPlanets(); }
 
     public GameState getGameState() { return state; }
 
@@ -72,5 +93,7 @@ public class GameController {
     public boolean buildable(BuildingType type) {
         return state.sufficientResources(type.getPrice());
     }
+
+
 
 }

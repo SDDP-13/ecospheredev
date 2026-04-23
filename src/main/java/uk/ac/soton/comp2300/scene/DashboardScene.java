@@ -10,15 +10,23 @@ import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import uk.ac.soton.comp2300.App;
+import uk.ac.soton.comp2300.event.RefreshVisuals;
 import uk.ac.soton.comp2300.model.Notification;
+import uk.ac.soton.comp2300.model.Resource;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
+
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class DashboardScene extends BaseScene {
+public class DashboardScene extends BaseScene implements RefreshVisuals {
+
+    private Label currentGoldLabel;
+    private Label currentMetalLabel;
+    private Label currentWoodLabel;
+    private Label currentStoneLabel;
 
     public DashboardScene(MainWindow mainWindow) { super(mainWindow); }
 
@@ -239,10 +247,17 @@ public class DashboardScene extends BaseScene {
         resourceGrid.setHgap(15); resourceGrid.setVgap(15);
         resourceGrid.setAlignment(Pos.CENTER);
 
-        resourceGrid.add(createResourceBox("Gold", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY), "Coin.png"), 0, 0);
-        resourceGrid.add(createResourceBox("Metal", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL), "Metal.png"), 1, 0);
-        resourceGrid.add(createResourceBox("Wood", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD), "Wood.png"), 0, 1);
-        resourceGrid.add(createResourceBox("Stone", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE), "Stone.png"), 1, 1);
+
+        currentGoldLabel = new Label();
+        currentMetalLabel = new Label();
+        currentWoodLabel = new Label();
+        currentStoneLabel = new Label();
+
+        resourceGrid.add(createResourceBox("Gold", currentGoldLabel, "Coin.png"), 0, 0);
+        resourceGrid.add(createResourceBox("Metal", currentMetalLabel, "Metal.png"), 1, 0);
+        resourceGrid.add(createResourceBox("Wood", currentWoodLabel, "Wood.png"), 0, 1);
+        resourceGrid.add(createResourceBox("Stone", currentStoneLabel, "Stone.png"), 1, 1);
+
 
         resourcesSection.getChildren().addAll(resHeader, resourceGrid);
 
@@ -257,7 +272,11 @@ public class DashboardScene extends BaseScene {
         GridPane structGrid = new GridPane();
         structGrid.setHgap(15); structGrid.setVgap(15);
         structGrid.setAlignment(Pos.CENTER);
-        var buildings = state.getSelectedPlanet().getBuildingData();
+
+
+        var selectedPlanet = state.getSelectedPlanet();
+        var buildings = (selectedPlanet != null) ? selectedPlanet.getBuildingData()
+                : java.util.List.<uk.ac.soton.comp2300.model.game_logic.BuildingData>of();
 
         // Row 0
         structGrid.add(createResourceBox("Towns", (int)buildings.stream().filter(b -> b.getType() == uk.ac.soton.comp2300.model.game_logic.BuildingType.TOWN).count(), "Town.png"), 0, 0);
@@ -287,6 +306,7 @@ public class DashboardScene extends BaseScene {
         StackPane.setMargin(backBtn, new Insets(20));
 
         root.getChildren().addAll(scrollPane, backBtn);
+        refreshVisuals();
     }
     /**
      * Helper to create a consistent container for charts.
@@ -340,6 +360,35 @@ public class DashboardScene extends BaseScene {
         return card;
     }
 
+    private VBox createResourceBox(String name, Label currencyLabel, String imageName) {
+        VBox box = new VBox(5);
+        box.setPrefSize(160, 95);
+        box.setStyle("-fx-background-color: white; -fx-background-radius: 15; -fx-padding: 15; " +
+                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 10, 0, 0, 5);");
+
+        javafx.scene.image.ImageView resourceIcon = new javafx.scene.image.ImageView();
+        try {
+            var stream = getClass().getResourceAsStream("/images/" + imageName);
+            if (stream != null) {
+                resourceIcon.setImage(new javafx.scene.image.Image(stream));
+                resourceIcon.setFitWidth(25);
+                resourceIcon.setPreserveRatio(true);
+            }
+        } catch (Exception e) {
+            System.err.println("Could not load resource icon: " + imageName);
+        }
+
+        Label nameLbl = new Label(name);
+        nameLbl.setStyle("-fx-text-fill: #888; -fx-font-size: 12px;");
+
+       // Label valLbl = new Label(String.format("%,d", amount));
+        currencyLabel.setStyle("-fx-font-size: 20px; -fx-font-weight: bold; -fx-text-fill: #4A148C;");
+
+        box.getChildren().addAll(resourceIcon, nameLbl, currencyLabel);
+        return box;
+    }
+
+    /** Overloaded so that buildings can call it.**/
     private VBox createResourceBox(String name, int amount, String imageName) {
         VBox box = new VBox(5);
         box.setPrefSize(160, 95);
@@ -369,4 +418,18 @@ public class DashboardScene extends BaseScene {
     }
 
     @Override public void initialise() {}
+
+    @Override
+    public void refreshVisuals(){
+        System.out.println("Dashboard Scene RefreshVisuals called.");
+
+        var state = App.getInstance().getGameController().getGameState();
+
+        currentGoldLabel.setText(String.format("%,d", state.getResourceAmount(Resource.MONEY)));
+        currentMetalLabel.setText(String.format("%,d", state.getResourceAmount(Resource.METAL)));
+        currentWoodLabel.setText(String.format("%,d", state.getResourceAmount(Resource.WOOD)));
+        currentStoneLabel.setText(String.format("%,d", state.getResourceAmount(Resource.STONE)));
+
+
+    }
 }

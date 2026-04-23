@@ -8,26 +8,15 @@
         "storedSalt": "Kwqgh7Ch6sAGDyXKyVd7RQ=="
       },
       {
-        "userName": "new",
-        "storedHash": "rapQmMkpiBK4autrpKOQYhBmMGP8b7/a6EhW/QGojE4=",
-        "storedSalt": "nShE4flyWf+ZiX4bGJyXgQ=="
-      },
-      {
-        "userName": "helpdemo",
-        "storedHash": "QIta/vo76SNvh2hAtZzWybaAUzG0UmW4KRtcpfqB4cw=",
-        "storedSalt": "7uNjJjwL5wZ6oQoMiJktsA=="
+        "userName": "user1",
+        "storedHash": "PCB+rHcibE5I/rgik1vGKgBGIH0qWzVToP9nKhQChCk=",
+        "storedSalt": "3nbdgWFFAaqJnGj6bjWiVg=="
       }
     ],
-    "currentUserName": "helpdemo"
+    "currentUserName": "user1"
   },
   "userSettings": {
-    "helpdemo": {
-      "shareUsageData": false,
-      "darkMode": false,
-      "sendCrashReports": true,
-      "notifications": false
-    },
-    "new": {
+    "user1": {
       "shareUsageData": false,
       "darkMode": false,
       "sendCrashReports": true,
@@ -41,10 +30,16 @@
     }
   },
   "cookieData": {
-    "loggedInUser": "helpdemo",
-    "lastLoginDate": "2026-04-23",
+    "loggedInUser": "user1",
+    "lastLoginDate": "2026-04-22",
     "claimedTasksByUser": {
-      "new": {}
+      "user1": {
+        "2026-04-22": [
+          "Followed a recommendation (1)",
+          "Log in",
+          "Followed a recommendation (2)"
+        ]
+      }
     }
   }
 }

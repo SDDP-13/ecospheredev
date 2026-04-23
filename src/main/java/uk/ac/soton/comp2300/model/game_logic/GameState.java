@@ -7,7 +7,7 @@ import java.util.List;
 
 public class GameState {
     private List<Planet>  planets;
-    private Planet selectedPlanet;
+    private String selectedPlanetId;
 
     private ResourceStack moneyTotal;
     private ResourceStack woodTotal;
@@ -58,8 +58,17 @@ public class GameState {
 
     public void addPlanet(Planet planet) { planets.add(planet); }
     public List<Planet> getPlanets() { return planets; }
-    public void setSelectedPlanet(Planet selectedPlanet) { this.selectedPlanet = selectedPlanet; }
-    public Planet getSelectedPlanet() { return selectedPlanet; }
+
+    public void setSelectedPlanet(Planet planet) { this.selectedPlanetId = (planet == null) ? null : planet.getId(); }
+    public Planet getSelectedPlanet() {
+        if (selectedPlanetId == null) return null;
+
+        for (Planet planet : planets) {
+            if (selectedPlanetId.equals(planet.getId())) return planet;
+        }
+        return null;
+    }
+
 
 
 

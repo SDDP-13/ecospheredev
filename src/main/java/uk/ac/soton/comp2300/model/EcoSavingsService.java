@@ -58,8 +58,7 @@ public class EcoSavingsService {
         ZonedDateTime scheduledStart = ZonedDateTime.of(today, task.getTime(), ZONE);
 
         // peak baseline start = peak window start (same day); if already peak, baseline=scheduled
-        ZonedDateTime peakStart = ZonedDateTime.of(today, peakWindow.getStartInclusive(), ZONE);
-        if (peakWindow.contains(scheduledStart.toLocalTime())) {
+        ZonedDateTime peakStart = ZonedDateTime.of(today, peakWindow.getStartInclusive(), ZONE);        if (peakWindow.contains(scheduledStart.toLocalTime())) {
             peakStart = scheduledStart;
         }
 

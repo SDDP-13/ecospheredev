@@ -11,12 +11,16 @@ import javafx.scene.control.Button;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.control.ScrollPane;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.util.Duration;
 import uk.ac.soton.comp2300.App;
+import uk.ac.soton.comp2300.event.RefreshVisuals;
+import uk.ac.soton.comp2300.model.Resource;
 import uk.ac.soton.comp2300.model.ResourceStack;
 import uk.ac.soton.comp2300.model.game_logic.BuildingData;
 import uk.ac.soton.comp2300.model.game_logic.BuildingType;
@@ -28,7 +32,7 @@ import uk.ac.soton.comp2300.ui.MainWindow;
 import java.util.List;
 import java.util.Random;
 
-public class PlanetScene extends BaseScene {
+public class PlanetScene extends BaseScene implements RefreshVisuals  {
 
 
     private PlanetView planetView;
@@ -38,6 +42,11 @@ public class PlanetScene extends BaseScene {
     private BuildingType selectedBuildingType = BuildingType.TOWN;
     private VBox buildMenu;
     private boolean buildmenuOpen = false;
+
+    private Label currentGoldLabel;
+    private Label currentMetalLabel;
+    private Label currentWoodLabel;
+    private Label currentStoneLabel;
 
     public PlanetScene(MainWindow mainWindow) {
         super(mainWindow);
@@ -139,7 +148,7 @@ public class PlanetScene extends BaseScene {
 
             double theta = planetView.getCursorTheta();
             double phi = planetView.getCursorPhi();
-            BuildingData newBuild = controller.placeBuidling(planetModel, selectedBuildingType, theta, phi);
+            BuildingData newBuild = controller.placeBuidling(selectedBuildingType, theta, phi);
             if (newBuild != null) planetView.renderBuilding(newBuild);
         });
 
@@ -170,20 +179,32 @@ public class PlanetScene extends BaseScene {
         VBox resourceContainer = new VBox(8);
         resourceContainer.setAlignment(Pos.TOP_RIGHT); // Aligns the resource boxes to the right
 
+         currentGoldLabel= new Label();
+         currentMetalLabel = new Label();
+         currentWoodLabel = new Label();
+         currentStoneLabel = new Label();
+
+        System.out.println("Making resource Container");
         resourceContainer.getChildren().addAll(
-                createResourceBox("Coin.png", String.format("%,d", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.MONEY)), "#d4af37"),
-                createResourceBox("Metal.png", String.format("%,d", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.METAL)), "#a0a0a0"),
-                createResourceBox("Wood.png", String.format("%,d", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.WOOD)), "#8b4513"),
-                createResourceBox("Stone.png", String.format("%,d", state.getResourceAmount(uk.ac.soton.comp2300.model.Resource.STONE)), "#708090")
+
+                createResourceBox("Coin.png",  currentGoldLabel, "#d4af37"),
+                createResourceBox("Metal.png",  currentMetalLabel, "#a0a0a0"),
+                createResourceBox("Wood.png", currentWoodLabel, "#8b4513"),
+                createResourceBox("Stone.png",  currentStoneLabel, "#708090")
         );
 
         hudContainer.getChildren().addAll(levelBox, resourceContainer);
         StackPane.setAlignment(hudContainer, Pos.TOP_RIGHT);
 
-        root.getChildren().addAll(starField, subScene, btnBack, btnBuild, hoverLabel, buildMenu, hudContainer);    }
+        root.getChildren().addAll(starField, subScene, btnBack, btnBuild, hoverLabel, buildMenu, hudContainer);
+
+        refreshVisuals();
+
+
+    }
 
     /** Helper method to create resource boxes */
-    private HBox createResourceBox(String imageName, String amount, String color) {
+    private HBox createResourceBox(String imageName, Label currentResLabel, String color) {
         HBox box = new HBox(8);
         box.setPadding(new Insets(3, 10, 3, 10));
         box.setAlignment(Pos.CENTER_LEFT);
@@ -191,19 +212,19 @@ public class PlanetScene extends BaseScene {
         box.setMaxWidth(115);
         box.setStyle("-fx-background-color: " + color + "cc; -fx-background-radius: 15;");
 
-        javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
+        ImageView iconView = new ImageView();
         try {
             var stream = getClass().getResourceAsStream("/images/" + imageName);
             if (stream != null) {
-                iconView.setImage(new javafx.scene.image.Image(stream));
+                iconView.setImage(new Image(stream));
                 iconView.setFitWidth(18);
                 iconView.setPreserveRatio(true);
             }
         } catch (Exception e) {}
 
-        Label val = new Label(amount);
-        val.setStyle("-fx-font-size: 12px; -fx-text-fill: white; -fx-font-weight: bold;");
-        box.getChildren().addAll(iconView, val);
+
+        currentResLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white; -fx-font-weight: bold;");
+        box.getChildren().addAll(iconView, currentResLabel);
         return box;
     }
 
@@ -243,12 +264,6 @@ public class PlanetScene extends BaseScene {
         }
 
         move.play();
-
-        // buildMenu.setVisible(buildmenuOpen);
-        // buildMenu.setManaged(buildmenuOpen);
-
-        //bottomActions.setVisible(!buildmenuOpen);
-        // bottomActions.setManaged((!buildmenuOpen));
     }
 
     private VBox makeBuildMenu () {
@@ -353,6 +368,11 @@ public class PlanetScene extends BaseScene {
             resourceCard.setDisable(true);
         }
 
+        resourceCard.setOnMouseClicked(e -> {
+            selectedBuildingType = type;
+            System.out.println("Selected building type: " + selectedBuildingType);
+        });
+
         return resourceCard;
     }
 
@@ -403,6 +423,20 @@ public class PlanetScene extends BaseScene {
         root.setOnMousePressed(e -> planetView.onMousePressed(e));
         root.setOnMouseDragged(e -> planetView.onMouseDragged(e));
         root.addEventHandler(ScrollEvent.SCROLL, e -> planetView.onScroll(e, camera));
+    }
+
+    @Override
+    public void refreshVisuals(){
+        System.out.println("Planet Scene RefreshVisuals called.");
+
+        var state = App.getInstance().getGameController().getGameState();
+
+        currentGoldLabel.setText(String.format("%,d", state.getResourceAmount(Resource.MONEY)));
+        currentMetalLabel.setText(String.format("%,d", state.getResourceAmount(Resource.METAL)));
+        currentWoodLabel.setText(String.format("%,d", state.getResourceAmount(Resource.WOOD)));
+        currentStoneLabel.setText(String.format("%,d", state.getResourceAmount(Resource.STONE)));
+
+
     }
 
 }

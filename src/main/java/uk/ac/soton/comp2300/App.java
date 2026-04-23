@@ -1,20 +1,27 @@
 package uk.ac.soton.comp2300;
 
-import com.google.gson.GsonBuilder;
 import javafx.application.Application;
+
 import javafx.application.Platform;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
 import javafx.scene.layout.HBox;
+
+
 import javafx.stage.Stage;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import uk.ac.soton.comp2300.event.NotificationLogic;
+import uk.ac.soton.comp2300.event.RefreshVisuals;
 import uk.ac.soton.comp2300.model.*;
+import uk.ac.soton.comp2300.model.energy.ApplianceType;
+import uk.ac.soton.comp2300.model.energy.CostAndCarbonResult;
+import uk.ac.soton.comp2300.model.energy.DeviceTypeMapper;
 import uk.ac.soton.comp2300.model.energy.EnergyLabel;
 import uk.ac.soton.comp2300.model.game_logic.*;
 import uk.ac.soton.comp2300.scene.LoginScene;
-import uk.ac.soton.comp2300.scene.MenuScene;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
 import java.time.Duration;
@@ -38,6 +45,8 @@ public class App extends Application {
     private GameController gameController;
     private GameSaveManager saveManager;
     private GameLoadManager loadManager;
+    private Timeline gameClock;
+    private MainWindow mainWindow;
 
     private int completedScheduledTasks = 0;
 
@@ -86,7 +95,31 @@ public class App extends Application {
         setupNotificationLogic();
         setupGameLogic();
         open();
+
+        startGameClock();
+
     }
+    /**Starts the in game timer running, calls time sensitive methods**/
+    private void startGameClock() {
+        gameClock = new Timeline(
+                new KeyFrame(javafx.util.Duration.millis(200), event ->{
+                    if (gameController != null) {
+                        gameController.gameLoopTick();
+                    }
+
+                    if (mainWindow != null && mainWindow.getCurrentScene() instanceof RefreshVisuals refresh) {
+                        refresh.refreshVisuals();
+                    }
+                })
+
+
+
+
+        );
+        gameClock.setCycleCount(Timeline.INDEFINITE);
+        gameClock.play();
+    }
+
     public int getTotalXp() {
         if (gameState == null) return 0;
         return gameState.getTotalXp();
@@ -157,9 +190,18 @@ public class App extends Application {
         };
 
         this.notificationLogic = new NotificationLogic(repository, record -> {
-            logger.info("New notification sent: " + record.title());
+            logger.info("Notification completed: " + record.title());
+
             javafx.application.Platform.runLater(() -> {
+                // 1. Show the visual popup
                 showSystemNotification(record.title(), record.message());
+
+                // 2. NEW: Calculate savings for this specific appliance
+                // This ensures stats update as soon as the notification hits "Done"
+                EcoSavingsReport report = getSavingsReportForDevice(record.title());
+                addReportSavings(report);
+
+                logger.info("Dashboard stats updated via notification for: " + record.title());
             });
         });
 
@@ -184,23 +226,29 @@ public class App extends Application {
 
     public void open() {
         logger.info("Opening window at " + width + "x" + height);
-        var mainWindow = new MainWindow(stage, width, height);
+        this.mainWindow = new MainWindow(stage, width, height);
         mainWindow.loadScene(new LoginScene(mainWindow));
         stage.show();
     }
 
     @Override
     public void stop() {
+
+
         logger.info("Saving and stopping background threads...");
         try {
             if (notificationLogic != null) {
                 notificationLogic.shutdown();
+            }
+            if (gameClock != null) {
+                gameClock.stop();
             }
             if (saveManager != null && gameState != null) {
                 saveManager.saveGame(gameState);
             }
         } catch (Exception e) {
             logger.error("Stop sequence encountered an error: " + e.getMessage());
+
         }
     }
 
@@ -244,12 +292,19 @@ public class App extends Application {
         String cacheKey = (task.getDeviceName() + "|" + time + "|" + duration.toMinutes() + "|" + todayUk).toLowerCase();
 
         EcoSavingsReport cached = savingsReportCache.get(cacheKey);
-        System.out.println("Cached?" + (cached != null));
-        if (cached != null) return cached;
+        if (cached != null && (cached.getMoneySavedPounds() > 0 || cached.getCo2SavedKg() > 0)) {
+            return cached;
+        }
 
         try {
             ScheduleTask normalizedTask = new ScheduleTask(task.getDeviceName(), time, duration, task.getDescription());
             EcoSavingsReport report = ecoSavingsService.calculate(normalizedTask, EnergyLabel.F);
+
+
+            if (report.getMoneySavedPounds() <= 0.001) {
+                report = buildFallbackReport(task.getDeviceName());
+            }
+
             savingsReportCache.put(cacheKey, report);
             return report;
         } catch (Exception e) {
@@ -261,6 +316,7 @@ public class App extends Application {
     }
 
     public EcoSavingsReport getSavingsReportForDevice(String deviceName) {
+        logger.info("Generating report for device: " + deviceName); // Check your console for this!
         ScheduleTask defaultTask = new ScheduleTask(
                 deviceName == null ? "Other" : deviceName,
                 LocalTime.now().withSecond(0).withNano(0),
@@ -286,22 +342,25 @@ public class App extends Application {
     }
 
     private EcoSavingsReport buildFallbackReport(String deviceName) {
-        double energy = legacyEnergySavedForDevice(deviceName);
-        return new EcoSavingsReport(energy * 0.15, energy * 0.2);
+        double energyKwh = legacyEnergySavedForDevice(deviceName); // e.g., 1.5
+        double money = energyKwh * 0.15; // 0.225
+        double co2 = energyKwh * 0.2;    // 0.3
+
+        return new EcoSavingsReport(money, co2);
     }
 
     private double legacyEnergySavedForDevice(String deviceName) {
-        if (deviceName == null) return 0.5;
+        ApplianceType type = DeviceTypeMapper.fromDeviceName(deviceName);
 
-        return switch (deviceName.toLowerCase()) {
-            case "washing machine" -> 1.2;
-            case "dishwasher" -> 1.5;
-            case "dryer" -> 2.5;
-            case "radiator" -> 3.0;
-            case "air conditioner" -> 4.5;
-            case "tv" -> 0.3;
-            case "garden lights" -> 0.8;
-            default -> 0.5;
+        return switch (type) {
+            case WASHING_MACHINE -> 1.2;
+            case DISHWASHER      -> 1.5;
+            case DRYER           -> 2.5;
+            case RADIATOR        -> 3.0;
+            case AIR_CONDITIONER -> 4.5;
+            case TV              -> 0.3;
+            case GARDEN_LIGHTS   -> 0.8;
+            default              -> 0.5;
         };
     }
 
@@ -321,17 +380,19 @@ public class App extends Application {
     public void addReportSavings(EcoSavingsReport report) {
         if (report == null) return;
 
-        double moneySaved = Math.max(0.0, report.getMoneySavedPounds());
-        double co2Saved = Math.max(0.0, report.getCo2SavedKg());
-        double energySaved = moneySaved / 0.15;
+        double money = Math.max(0.0, report.getMoneySavedPounds());
+        double co2 = Math.max(0.0, report.getCo2SavedKg());
+        double energy = (report.getCurrent() != null) ? report.getCurrent().getKwh() : (money / 0.15);
 
-        this.totalMoneySaved += moneySaved;
-        this.totalCo2Saved += co2Saved;
-        this.totalEnergySaved += energySaved;
+        this.totalMoneySaved += money;
+        this.totalCo2Saved += co2;
+        this.totalEnergySaved += energy;
 
-        // 1. Increment the counter for the bottom Weekly Progress bar
-        this.completedScheduledTasks++;
+        String today = LocalDate.now().toString();
+        double currentDayMoney = dailySavingsMap.getOrDefault(today, 0.0);
+        dailySavingsMap.put(today, currentDayMoney + money);
 
+        logger.info(String.format("DASHBOARD SYNC: +£%.2f | +%.2fkWh", money, energy));
         // 2. Increment the value for today's bar in the Task Chart
         //String today = LocalDate.now().toString(); // e.g., "2026-04-20"
         //double currentDayTotal = dailySavingsMap.getOrDefault(today, 0.0);
@@ -376,16 +437,35 @@ public class App extends Application {
 
             // 4. Trigger popup if level increased
             if (levelAfter > levelBefore) {
-                triggerLevelUpNotification(levelAfter);
+                String rewardMessage = giveReward(levelBefore, levelAfter);
+
+                triggerLevelUpNotification(levelAfter, rewardMessage);
+
             }
         }
     }
 
-    private void triggerLevelUpNotification(int newLevel) {
+    //Finds and applies in game reward, returns message for each reward.
+    private String giveReward(int levelBefore, int levelAfter) {
+        Planet planet = App.getInstance().getGameController()
+                .getGameState().getSelectedPlanet();
+
+        int selector = Items.selectRewardLvl(levelAfter);
+        Items rewardItem = Items.selectItem(selector);
+
+        rewardItem.applyItem(planet);
+        return rewardItem.getMessage();
+    }
+
+    private void triggerLevelUpNotification(int newLevel, String rewardMsg) {
         var levelRecord = new uk.ac.soton.comp2300.event.NotificationRecord(
                 "LVL_UP_" + newLevel,
                 "Level Up!",
-                "Your eco-influence is growing. ⭐",
+
+                "Your eco-influence is growing. ⭐" + "\n" + rewardMsg , // Updated description
+
+
+
                 java.time.LocalDateTime.now(),
                 uk.ac.soton.comp2300.model.Notification.Type.GAME_EVENT
         );
@@ -398,6 +478,16 @@ public class App extends Application {
     public Map<String, Double> getDailySavingsMap() {
         return dailySavingsMap;
     }
+
+
+    private void rewardsSystem (int levelBefore, int levelAfter ){
+        int lvlDiff = levelAfter - levelBefore;
+
+        for (int i = 0;  i >= lvlDiff ; i++){
+           int lvlReward = levelBefore + 1;
+        }
+    }
+
 
     public void showSystemNotification(String title, String message) {
         // Check if the OS allows tray icons
@@ -432,4 +522,5 @@ public class App extends Application {
         if (gameState == null) return 0;
         return gameState.getBuildingsPlaced(); //
     }
+
 }

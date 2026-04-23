@@ -193,18 +193,17 @@ public class NotificationScene extends BaseScene implements NotificationListener
         var app = uk.ac.soton.comp2300.App.getInstance();
         var repo = app.getRepository();
 
-        for (var note : repo.getAllNotifications()) {
-            if (note.getId().equals(record.id())) {
-                if (completed) {
+        if (completed) {
+            for (var note : repo.getAllNotifications()) {
+                if (note.getId().equals(record.id())) {
                     note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED);
-                    app.incrementCompletedTasks();
 
                     var report = app.getSavingsReportForDevice(note.getTitle());
-                    app.addReportSavings(report); // This updates the Dashboard variables
-                } else {
-                    note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TIMED_OUT);
+                    app.addReportSavings(report);
+
+                    app.incrementCompletedTasks();
+                    break;
                 }
-                break;
             }
         }
         notificationList.getChildren().remove(card);
