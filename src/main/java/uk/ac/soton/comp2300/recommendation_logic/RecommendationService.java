@@ -11,9 +11,9 @@ public class RecommendationService {
     private CarbonIntensityService carbonService = new CarbonIntensityService();
 
     // Most recently fetched forecast slots from the API
-    private List<CarbonSlot> cachedForecastSlots = null;
+    private static List<CarbonSlot> cachedForecastSlots = null;
     // When it was fetched
-    private LocalDateTime cacheTimestamp = null;
+    private static LocalDateTime cacheTimestamp = null;
     private static final int CACHE_EXPIRY_HOURS = 2;
 
     public String getRecommendation(String appliance) {
@@ -64,7 +64,7 @@ public class RecommendationService {
             + " (carbon intensity: " + bestSlot.getForecast() + " gC02/kWh)";
                 
         if (outputDataSource.startsWith("cached")) {
-            recommendation += "Based on " + outputDataSource + " data - live feed unavailable.";
+            recommendation += " Based on " + outputDataSource + " data - live feed unavailable.";
         }
 
         return recommendation;
