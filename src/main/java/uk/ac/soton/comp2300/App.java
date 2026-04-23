@@ -45,6 +45,7 @@ public class App extends Application {
     private GameController gameController;
     private GameSaveManager saveManager;
     private GameLoadManager loadManager;
+    private String activeGameUserId;
     private Timeline gameClock;
     private MainWindow mainWindow;
 
@@ -208,8 +209,20 @@ public class App extends Application {
     }
 
     private void setupGameLogic() {
-        saveManager = new GameSaveManager();
-        loadManager = new GameLoadManager();
+        setupGameLogicForUser(Setting.getCurrentUserId().orElse(null));
+    }
+
+    public void loadGameForUser(String userId) {
+        if (activeGameUserId != null && saveManager != null && gameState != null) {
+            saveManager.saveGame(gameState);
+        }
+        setupGameLogicForUser(userId);
+    }
+
+    private void setupGameLogicForUser(String userId) {
+        activeGameUserId = userId;
+        saveManager = new GameSaveManager(userId);
+        loadManager = new GameLoadManager(userId);
 
         GameState loadedState = loadManager.loadGame();
         if (loadedState != null) {
@@ -461,6 +474,10 @@ public class App extends Application {
     }
 
     private void triggerLevelUpNotification(int newLevel, String rewardMsg) {
+        if (!Setting.isNotificationsEnabled()) {
+            return;
+        }
+
         var levelRecord = new uk.ac.soton.comp2300.event.NotificationRecord(
                 "LVL_UP_" + newLevel,
                 "Level Up!",
@@ -493,6 +510,10 @@ public class App extends Application {
 
 
     public void showSystemNotification(String title, String message) {
+        if (!Setting.isNotificationsEnabled()) {
+            return;
+        }
+
         // Check if the OS allows tray icons
         if (!java.awt.SystemTray.isSupported()) {
             logger.warn("SystemTray not supported on this OS");

@@ -9,8 +9,28 @@ public class GameLoadManager {
     private Gson gson = new Gson();
 
     public GameLoadManager() {
-        String userHome = System.getProperty("user.home");
-        saveFile = Paths.get(userHome, ".ecospheredata", "player_save.json");
+        this(null);
+    }
+
+    public GameLoadManager(String userId) {
+        Path baseDir = getBaseSaveDir();
+        if (userId == null || userId.isBlank()) {
+            saveFile = baseDir.resolve("player_save.json");
+        } else {
+            saveFile = baseDir.resolve("saves").resolve(sanitizeUserId(userId)).resolve("player_save.json");
+        }
+    }
+
+    private Path getBaseSaveDir() {
+        String override = System.getProperty("ecosphere.save.dir");
+        if (override != null && !override.isBlank()) {
+            return Paths.get(override);
+        }
+        return Paths.get(System.getProperty("user.home"), ".ecospheredata");
+    }
+
+    private String sanitizeUserId(String userId) {
+        return userId.replaceAll("[^a-zA-Z0-9._-]", "_");
     }
 
     public GameState loadGame() {

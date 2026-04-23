@@ -61,6 +61,18 @@ public class GameController {
             double phi
     ) {
         Planet planet = state.getSelectedPlanet();
+        return placeBuidling(planet, type, theta, phi);
+    }
+
+    public BuildingData placeBuidling(
+            Planet planet,
+            BuildingType type,
+            double theta,
+            double phi
+    ) {
+        if (planet == null) {
+            return null;
+        }
 
         if (!isBuildLocationFree(planet, theta, phi)) {
             return null;

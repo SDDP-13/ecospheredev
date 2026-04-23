@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 import uk.ac.soton.comp2300.model.user.User;
 import uk.ac.soton.comp2300.model.user.UserAccountService;
 import uk.ac.soton.comp2300.model.user.UserDatabase;
+import uk.ac.soton.comp2300.model.game_logic.GameSaveManager;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,6 +27,7 @@ public class Setting {
 
     public static final List<SettingOption> settingsList = List.of(
             new SettingOption("notifications", "Notifications", "Keep up to date while not in game", false, enabled -> {
+                Notification.setNotificationsEnabled(enabled);
                 System.out.println(enabled ? "Notifications ON" : "Notifications OFF");
             }),
             new SettingOption("darkMode", "Dark mode", "For low light conditions", false, enabled -> {
@@ -224,17 +226,24 @@ public class Setting {
         public final boolean ok;
         public final String msg;
         public final String username;
+        public final String userId;
 
-        public LoginResult(boolean ok, String msg, String username) {
+        public LoginResult(boolean ok, String msg, String username, String userId) {
             this.ok = ok;
             this.msg = msg;
             this.username = username;
+            this.userId = userId;
         }
     }
 
     public static synchronized String getUsername() {
         init();
         return getCurrentUser().map(User::getUserName).orElse("");
+    }
+
+    public static synchronized Optional<String> getCurrentUserId() {
+        init();
+        return getCurrentUser().map(User::getId);
     }
 
     public static synchronized String getPasswordMask() {
@@ -257,18 +266,20 @@ public class Setting {
             applySettingsForCurrentUser();
             recordCookieLogin(result.username());
         }
-        return new LoginResult(result.ok(), result.msg(), result.username());
+        return new LoginResult(result.ok(), result.msg(), result.username(), result.userId());
     }
 
     public static class RegisterResult {
         public final boolean ok;
         public final String msg;
         public final String username;
+        public final String userId;
 
-        public RegisterResult(boolean ok, String msg, String username) {
+        public RegisterResult(boolean ok, String msg, String username, String userId) {
             this.ok = ok;
             this.msg = msg;
             this.username = username;
+            this.userId = userId;
         }
     }
 
@@ -280,7 +291,7 @@ public class Setting {
             applySettingsForCurrentUser();
             saveToDisk();
         }
-        return new RegisterResult(result.ok(), result.msg(), result.username());
+        return new RegisterResult(result.ok(), result.msg(), result.username(), result.userId());
     }
 
     public static class UsernameResult {
@@ -387,7 +398,9 @@ public class Setting {
         if (getCurrentUser().isEmpty()) {
             return new DeleteAccountResult(false, "No active user found.", null);
         }
-        String deletedUsername = requireCurrentUser().getUserName();
+        User deletedUser = requireCurrentUser();
+        String deletedUsername = deletedUser.getUserName();
+        String deletedUserId = deletedUser.getId();
         UserAccountService.DeleteAccountResult result = accountService().deleteCurrentUser();
         if (!result.ok()) {
             return new DeleteAccountResult(false, result.msg(), result.deletedUsername());
@@ -401,6 +414,7 @@ public class Setting {
 
         ensureCurrentUserSettingsExist();
         applySettingsForCurrentUser();
+        GameSaveManager.deleteSaveForUser(deletedUserId);
         saveToDisk();
         return new DeleteAccountResult(true, "Account deleted.", deletedUsername);
     }
@@ -411,6 +425,11 @@ public class Setting {
                 return option.enabledProperty().get();
         }
         return false;
+    }
+
+    public static boolean isNotificationsEnabled() {
+        init();
+        return Notification.isNotificationsEnabled();
     }
 
     public static synchronized void recordCookieLogin(String username) {

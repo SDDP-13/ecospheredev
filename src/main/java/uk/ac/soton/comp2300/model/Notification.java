@@ -9,6 +9,8 @@ public class Notification {
     public enum Type { REMINDER, GAME_EVENT, ENERGY_ALERT}
     public enum Status {PENDING, SENT, TASK_COMPLETED, TIMED_OUT}
 
+    private static volatile boolean notificationsEnabled = false;
+
     // Origin and Type of message
     private String id;
     private Source source;
@@ -68,5 +70,13 @@ public class Notification {
 
     public void setScheduled_Time(LocalDateTime newTime){
         this.scheduled_Time = newTime;
+    }
+
+    public static boolean isNotificationsEnabled() {
+        return notificationsEnabled;
+    }
+
+    public static void setNotificationsEnabled(boolean enabled) {
+        notificationsEnabled = enabled;
     }
 }

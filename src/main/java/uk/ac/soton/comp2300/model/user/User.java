@@ -6,8 +6,10 @@ import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Objects;
+import java.util.UUID;
 
 public class User {
+    private String id;
     private String userName;
     private String storedHash;
     private String storedSalt;
@@ -17,8 +19,20 @@ public class User {
     }
 
     public User(String userName, String rawPassword) {
+        this.id = UUID.randomUUID().toString();
         this.userName = normalizeUserName(userName);
         hashPassword(rawPassword);
+    }
+
+    public String getId() {
+        ensureId();
+        return id;
+    }
+
+    public void ensureId() {
+        if (id == null || id.isBlank()) {
+            id = UUID.randomUUID().toString();
+        }
     }
 
     public String getUserName() {
