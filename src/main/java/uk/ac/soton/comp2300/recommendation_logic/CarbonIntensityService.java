@@ -46,16 +46,21 @@ public class CarbonIntensityService {
         JsonNode root = MAPPER.readTree(response.body());
         JsonNode outerData = root.path("data");
 
-        if (!outerData.isArray() || outerData.isEmpty()){
+        JsonNode data = outerData.isArray() ? outerData.get(0).path("data") : outerData.path("data");
+
+        /*if (!outerData.isArray() || outerData.isEmpty()){
             throw new IOException("Carbon API returned no data.");
-        }
+        }*/
+       if (data == null || !data.isArray() || data.isEmpty()){
+           throw new IOException("Carbon API returned no forecast slots.");
+       }
 
-        JsonNode regionBlock = outerData.get(0);
-        JsonNode data = regionBlock.path("data");
+        /*JsonNode regionBlock = outerData.get(0);
+        JsonNode data = regionBlock.path("data");*/
 
-        if (!data.isArray() || data.isEmpty()){
+        /*if (!data.isArray() || data.isEmpty()){
             throw new IOException("Carbon API returned no forecast slots.");
-        }
+        }*/
 
         List<CarbonSlot> slots = new ArrayList<>();
 
