@@ -25,22 +25,22 @@ public class BuildTest {
 
     @Test
     void testPlaceSingleBuilding() {
-        BuildingData building = controller.placeBuidling(testPlanet, testBuildType, testTheta - 1, testPhi - 1);
+        BuildingData building = controller.placeBuildingTest(testPlanet, testBuildType, testTheta - 1, testPhi - 1);
         assertNotNull(building);
         assertEquals(1, testPlanet.getBuildingData().size());
     }
 
     @Test
     void testPlaceMultipleBuildings() {
-        BuildingData first = controller.placeBuidling(testPlanet, testBuildType, testTheta - 1, testPhi - 1);
+        BuildingData first = controller.placeBuildingTest(testPlanet, testBuildType, testTheta - 1, testPhi - 1);
         assertNotNull(first);
         assertEquals(1, testPlanet.getBuildingData().size());
 
-        BuildingData second = controller.placeBuidling(testPlanet, testBuildType, testTheta, testPhi);
+        BuildingData second = controller.placeBuildingTest(testPlanet, testBuildType, testTheta, testPhi);
         assertNotNull(second);
         assertEquals(2, testPlanet.getBuildingData().size());
 
-        BuildingData third = controller.placeBuidling(testPlanet, testBuildType, testTheta + 1, testPhi + 1);
+        BuildingData third = controller.placeBuildingTest(testPlanet, testBuildType, testTheta + 1, testPhi + 1);
         assertNotNull(third);
         assertEquals(3, testPlanet.getBuildingData().size());
     }
@@ -48,7 +48,7 @@ public class BuildTest {
     @Test
     void testBuildingDataStoredCorrectly() {
 
-        BuildingData building = controller.placeBuidling(testPlanet, testBuildType, testTheta, testPhi);
+        BuildingData building = controller.placeBuildingTest(testPlanet, testBuildType, testTheta, testPhi);
 
         assertNotNull(building);
         assertEquals(testBuildType, building.getType());
@@ -67,7 +67,7 @@ public class BuildTest {
     @Test
     void testLocationTooClose() {
 
-        controller.placeBuidling(testPlanet, testBuildType, testTheta, testPhi);
+        controller.placeBuildingTest(testPlanet, testBuildType, testTheta, testPhi);
 
         double closeTheta = testTheta + Math.toRadians(2);
 
@@ -79,7 +79,7 @@ public class BuildTest {
     @Test
     void testLocationFarEnough() {
 
-        controller.placeBuidling(testPlanet, testBuildType, testTheta, testPhi);
+        controller.placeBuildingTest(testPlanet, testBuildType, testTheta, testPhi);
 
         double farTheta = testTheta + Math.toRadians(7);
 
@@ -92,11 +92,11 @@ public class BuildTest {
     @Test
     void testInvalidPlacementNoAddedBuilding() {
 
-        controller.placeBuidling(testPlanet, testBuildType, testTheta, testPhi);
+        controller.placeBuildingTest(testPlanet, testBuildType, testTheta, testPhi);
 
         int before = testPlanet.getBuildingData().size();
 
-        controller.placeBuidling(testPlanet, testBuildType, testTheta, testPhi);
+        controller.placeBuildingTest(testPlanet, testBuildType, testTheta, testPhi);
 
         int after = testPlanet.getBuildingData().size();
 

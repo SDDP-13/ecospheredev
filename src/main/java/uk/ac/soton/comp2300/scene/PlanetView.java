@@ -7,15 +7,15 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.input.ScrollEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.paint.PhongMaterial;
-import javafx.scene.shape.Box;
-import javafx.scene.shape.Cylinder;
-import javafx.scene.shape.Sphere;
+import javafx.scene.shape.*;
 import javafx.scene.transform.Rotate;
+import javafx.scene.transform.Transform;
 import uk.ac.soton.comp2300.model.game_logic.BuildingData;
 import uk.ac.soton.comp2300.model.game_logic.Planet;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.function.Consumer;
 
 public class PlanetView {
     private Planet model;
@@ -42,6 +42,11 @@ public class PlanetView {
     private double dragThreshold = 5;
     private double pressX, pressY;
 
+    private Node selectedNode;
+    private Node outlineNode;
+
+    private boolean buildMode = false;
+    private Consumer<BuildingData> selectionListener;
 
 
     public PlanetView(Planet model) {
@@ -61,18 +66,15 @@ public class PlanetView {
         planetGroup.getTransforms().addAll(rotateX, rotateY);
         initBuildCursor();
 
-        /*
-        addCubeOnSurface(0, 0, Color.RED);
-        addCubeOnSurface(Math.PI, 0, Color.BLUE);
-        addCubeOnSurface(Math.PI / 2, Math.PI, Color.GREEN);
-        */
-
         for (BuildingData building : model.getBuildingData()) {
             renderBuilding(building);
         }
 
     }
 
+    public void setSelectionListener(Consumer<BuildingData> selectionListener) {
+        this.selectionListener = selectionListener;
+    }
     public Group getGroup() { return planetGroup; }
     public Sphere getSphere() { return sphere; }
     public Rotate getRotateY() { return rotateY; }
@@ -80,6 +82,7 @@ public class PlanetView {
     public double getCursorTheta() { return lastTheta; }
     public double getCursorPhi() { return lastPhi; }
     public boolean isDragging() { return dragging; }
+    public void clearSelectionExternally() { clearSelection(); }
 
     public void renderBuilding(BuildingData buildingData) {
         double theta = buildingData.getTheta();
@@ -90,7 +93,15 @@ public class PlanetView {
         double y = r * Math.cos(theta);
         double z = r * Math.sin(theta) * Math.sin(phi);
 
-        Cylinder node = (Cylinder) BuildingView.createNode(buildingData.getType());
+        Node node = BuildingView.createNode(buildingData.getType());
+
+        node.setPickOnBounds(true);
+        node.setUserData(buildingData);
+        node.setOnMouseClicked(e -> {
+            e.consume();
+            if (buildMode) return;
+            onBuildingClicked(buildingData, node);
+        });
 
         Point3D dir = new Point3D(x, y, z).normalize();
         Point3D yAxis = new Point3D(0,1,0);
@@ -109,12 +120,87 @@ public class PlanetView {
         buildingNodes.put(buildingData, node);
     }
 
-    public void removeBuilding(BuildingData buildingData) {
-        Node node = buildingNodes.get(buildingData);
 
-        if (node != null) {
-            planetGroup.getChildren().remove(node);
-            buildingNodes.remove(buildingData);
+    public void refreshBuildings() {
+        planetGroup.getChildren().removeAll(buildingNodes.values());
+        buildingNodes.clear();
+
+        for (BuildingData buildingData : model.getBuildingData()) {
+            renderBuilding(buildingData);
+        }
+    }
+
+    public void setBuildMode(boolean enabled) {
+        this.buildMode = enabled;
+        clearSelection();
+    }
+
+    private void onBuildingClicked(BuildingData buildingData, Node node) {
+        if (buildMode) return;
+
+        clearSelection();
+
+        selectedNode = node;
+        outlineNode = createOutline(node);
+
+        planetGroup.getChildren().add(outlineNode);
+
+        if (selectionListener != null) selectionListener.accept(buildingData);
+    }
+
+    private Node createOutline(Node node) {
+
+        if (!(node instanceof Group group)) {
+            return null;
+        }
+        Node cylinder = group.getChildren().get(0);
+        if (!(cylinder instanceof Cylinder original)) {
+            return null;
+        }
+
+        Cylinder glow = new Cylinder(
+                original.getRadius(),
+                original.getHeight()
+        );
+
+        glow.setScaleX(1.3);
+        glow.setScaleY(1.3);
+        glow.setScaleZ(1.3);
+
+        glow.setCullFace(CullFace.NONE);
+
+        PhongMaterial glowMat = new PhongMaterial();
+        glowMat.setSpecularColor(Color.LIMEGREEN);
+        glowMat.setDiffuseColor(Color.rgb(50, 255, 50, 0.25));
+        glowMat.setSpecularPower(0);
+        glow.setMaterial(glowMat);
+
+
+        glow.setDepthTest(DepthTest.DISABLE);
+
+
+        glow.setTranslateX(group.getTranslateX());
+        glow.setTranslateY(group.getTranslateY());
+        glow.setTranslateZ(group.getTranslateZ());
+
+        for (Transform t : group.getTransforms()) {
+            glow.getTransforms().add(t.clone());
+        }
+
+        return glow;
+    }
+
+    private void clearSelection() {
+        if (selectedNode != null) {
+            selectedNode.setScaleX(1);
+            selectedNode.setScaleY(1);
+            selectedNode.setScaleZ(1);
+            selectedNode = null;
+        }
+
+        if (outlineNode != null) {
+            planetGroup.getChildren().remove(outlineNode);
+            outlineNode = null;
         }
     }
 
@@ -122,11 +208,13 @@ public class PlanetView {
     private void initBuildCursor() {
         buildCursor = new Sphere(6);
 
-        validMaterial = new PhongMaterial(Color.LIGHTGREEN);
+        validMaterial = new PhongMaterial();
         validMaterial.setSpecularColor(Color.WHITE);
+        validMaterial.setDiffuseColor(Color.rgb(50, 255, 50, 0.3));
 
-        invalidMaterial = new PhongMaterial(Color.RED);
+        invalidMaterial = new PhongMaterial();
         invalidMaterial.setSpecularColor(Color.WHITE);
+        invalidMaterial.setDiffuseColor(Color.rgb(255, 50, 50, 0.3));
 
         buildCursor.setMaterial(validMaterial);
         buildCursor.setOpacity(0.5);
@@ -160,28 +248,6 @@ public class PlanetView {
 
     public void hideBuildCursor() { buildCursor.setVisible(false); }
     public void showBuildCursor() { buildCursor.setVisible(true); }
-
-    public void addCubeOnSurface(double theta, double phi, Color color) {
-        double r = planetRadius + 5;
-        double x = r * Math.sin(theta) * Math.cos(phi);
-        double y = r * Math.cos(theta);
-        double z = r * Math.sin(theta) * Math.sin(phi);
-
-        Box cube = new Box(10, 10,10);
-
-        Group pivot = new Group();
-        pivot.getChildren().add(cube);
-
-        cube.setTranslateX(x);
-        cube.setTranslateY(y);
-        cube.setTranslateZ(z);
-
-        PhongMaterial material = new PhongMaterial(color);
-        cube.setMaterial(material);
-
-
-        planetGroup.getChildren().add(pivot);
-    }
 
     public void onMousePressed(MouseEvent e)  {
         anchorX = e.getSceneX();

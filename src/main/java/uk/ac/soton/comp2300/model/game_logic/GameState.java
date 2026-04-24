@@ -15,6 +15,8 @@ public class GameState {
     private ResourceStack stoneTotal;
     private int totalXp;
 
+    private int researchLevel;
+
 
     private double totalEnergySaved = 0.0;
     private double totalCo2Saved = 0.0;
@@ -43,6 +45,7 @@ public class GameState {
     public void incrementBuildingsPlaced() {
         this.buildingsPlaced++;
     }
+    public void decrementBuildingsPlaced() {  this.buildingsPlaced--; }
 
     public GameState() {
         this.planets = new ArrayList<Planet>();
@@ -63,6 +66,23 @@ public class GameState {
             case WOOD -> woodTotal.add(amount);
             case METAL -> metalTotal.add(amount);
             case STONE -> stoneTotal.add(amount);
+        }
+    }
+
+    public void spendResources(List<ResourceStack> cost) {
+        if (!sufficientResources(cost)) {
+            throw new IllegalStateException("Not enough resources to spend cost");
+        }
+
+        for (ResourceStack stack : cost) {
+            Resource type = stack.getType();
+            int amount = stack.getAmount();
+            switch (type) {
+                case MONEY -> moneyTotal.add(-amount);
+                case WOOD -> woodTotal.add(-amount);
+                case METAL -> metalTotal.add(-amount);
+                case STONE -> stoneTotal.add(-amount);
+            }
         }
     }
 
@@ -87,8 +107,6 @@ public class GameState {
         }
         return null;
     }
-
-
 
 
     /**--------Checks if player has sufficient resources to build item*/
