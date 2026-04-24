@@ -85,45 +85,51 @@ public class TaskScene extends BaseScene {
         Button claimBtn = new Button();
         claimBtn.setMinWidth(100);
 
-        // Integration: Retrieve Cookie Storage for daily limits
         var cookieStorage = uk.ac.soton.comp2300.App.getInstance().getCookieStorageService();
-
         int completedCount = app.getCompletedScheduledTasks();
         boolean isLocked = false;
 
-        // Requirement Checks
-        if (taskObj.getId().equals("Did a scheduled task (1)")) {
-            if (completedCount < 1) {
-                isLocked = true;
-                setBtnLocked(claimBtn, "LOCKED (0/1)");
-            }
-        } else if (taskObj.getId().equals("Did a scheduled task (2)")) {
-            if (completedCount < 3) {
-                isLocked = true;
-                setBtnLocked(claimBtn, "LOCKED (" + completedCount + "/3)");
-            }
-        } else if (taskObj.getId().equals("Build a structure (1)")) {
+        if (taskObj.getId().startsWith("Did a scheduled task (1)")) {
+            if (completedCount < 1) { isLocked = true; setBtnLocked(claimBtn, "LOCKED (0/1)"); }
+        } else if (taskObj.getId().startsWith("Did a scheduled task (2)")) {
+            if (completedCount < 3) { isLocked = true; setBtnLocked(claimBtn, "LOCKED (" + completedCount + "/3)"); }
+        } else if (taskObj.getId().startsWith("Build a structure (1)")) {
             int buildCount = app.getBuildingsPlacedCount();
-            if (buildCount < 1) {
-                isLocked = true;
-                setBtnLocked(claimBtn, "LOCKED (0/1)");
-            }
-        } else if (taskObj.getId().equals("Build a structure (2)")) {
+            if (buildCount < 1) { isLocked = true; setBtnLocked(claimBtn, "LOCKED (0/1)"); }
+        } else if (taskObj.getId().startsWith("Build a structure (2)")) {
             int buildCount = app.getBuildingsPlacedCount();
-            if (buildCount < 5) {
-                isLocked = true;
-                setBtnLocked(claimBtn, "LOCKED (" + buildCount + "/5)");
-            }
+            if (buildCount < 5) { isLocked = true; setBtnLocked(claimBtn, "LOCKED (" + buildCount + "/5)"); }
+        }
+        else if (taskObj.getId().startsWith("Followed a recommenda")) {
+            claimBtn.setDisable(true);
+            claimBtn.setText("CHECKING...");
+
+            Thread thread = new Thread(() -> {
+                int recFollowedCount = checkHowManyRecommendationsFollowed();
+                javafx.application.Platform.runLater(() -> {
+                    boolean currentLockStatus = false;
+                    if (taskObj.getDescription().contains("1 Device") && recFollowedCount < 1) currentLockStatus = true;
+                    else if (taskObj.getDescription().contains("3 Devices") && recFollowedCount < 3) currentLockStatus = true;
+
+                    if (currentLockStatus) {
+                        String target = taskObj.getDescription().contains("1") ? "1" : "3";
+                        setBtnLocked(claimBtn, "LOCKED (" + recFollowedCount + "/" + target + ")");
+                    } else {
+                        if (taskObj.getRewardCollected() || cookieStorage.hasClaimedTaskToday(taskObj.getId())) {
+                            setBtnClaimed(claimBtn);
+                        } else {
+                            setBtnReady(claimBtn);
+                        }
+                    }
+                });
+            });
+            thread.setDaemon(true);
+            thread.start();
         }
 
-        // Integration: Check daily claim limit from cookies
-        boolean alreadyClaimedToday = cookieStorage.hasClaimedTaskToday(taskObj.getId());
-        if (alreadyClaimedToday) {
-            taskObj.setRewardCollected(true);
-        }
-
-        if (!isLocked) {
-            if (taskObj.getRewardCollected()) {
+        // --- Final State Check ---
+        if (!isLocked && !taskObj.getId().startsWith("Followed a recommenda")) {
+            if (taskObj.getRewardCollected() || cookieStorage.hasClaimedTaskToday(taskObj.getId())) {
                 setBtnClaimed(claimBtn);
             } else {
                 setBtnReady(claimBtn);
@@ -131,31 +137,55 @@ public class TaskScene extends BaseScene {
         }
 
         claimBtn.setOnAction(e -> {
-            // Check limits before proceeding
             if (taskObj.getRewardCollected() || cookieStorage.hasClaimedTaskToday(taskObj.getId())) {
                 setBtnClaimed(claimBtn);
                 return;
             }
-
             taskObj.toggleRewardCollected();
-
-            // Dashboard Integration: Increment daily chart count
             app.addTaskCompletion();
-
             var controller = app.getGameController();
             app.addXp(100);
-
             for (var stack : taskObj.getRewards()) {
                 controller.addResource(stack.getType(), stack.getAmount());
             }
-
-            // Persistence: Mark as claimed in cookie storage
             cookieStorage.markTaskClaimedToday(taskObj.getId());
             setBtnClaimed(claimBtn);
         });
 
         taskCard.getChildren().addAll(textContainer, claimBtn);
         return taskCard;
+    }
+    private int checkHowManyRecommendationsFollowed() {
+        var schedules = uk.ac.soton.comp2300.model.ScheduleManager.getTasks();
+        if (schedules.isEmpty()) return 0;
+
+        // 1. Initialize service once outside the loop
+        var recService = new uk.ac.soton.comp2300.recommendation_logic.RecommendationService();
+        int count = 0;
+
+        // 2. Optimization: Use a Set to store unique device names to avoid duplicate API calls
+        java.util.Set<String> uniqueDevices = new java.util.HashSet<>();
+        for (var s : schedules) uniqueDevices.add(s.getDeviceName());
+
+        // 3. Map device names to their recommended hours
+        java.util.Map<String, Integer> recommendedHours = new java.util.HashMap<>();
+        for (String device : uniqueDevices) {
+            String recommendation = recService.getRecommendation(device);
+            try {
+                String timePart = recommendation.split("Best time is ")[1].split(" -")[0];
+                int recHour = java.time.LocalTime.parse(timePart).getHour();
+                recommendedHours.put(device, recHour);
+            } catch (Exception ignored) {}
+        }
+
+        // 4. Compare schedules against the pre-fetched mapped hours
+        for (var schedule : schedules) {
+            Integer recHour = recommendedHours.get(schedule.getDeviceName());
+            if (recHour != null && schedule.getTime().getHour() == recHour) {
+                count++;
+            }
+        }
+        return count;
     }
 
     private void setBtnLocked(Button btn, String text) {
