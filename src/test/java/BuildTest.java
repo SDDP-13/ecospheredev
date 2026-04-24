@@ -102,4 +102,22 @@ public class BuildTest {
 
         assertEquals(before, after);
     }
+    @Test
+    void testBuildingDifferentiation() {
+        // Place a Town
+        controller.placeBuidling(testPlanet, BuildingType.TOWN, 1.0, 1.0);
+        // Place a Lumber Mill
+        controller.placeBuidling(testPlanet, BuildingType.LUMBER_MILL, 2.0, 2.0);
+
+        // Verify filter logic separates them
+        long townCount = testPlanet.getBuildingData().stream()
+                .filter(b -> b.getType() == BuildingType.TOWN)
+                .count();
+        long millCount = testPlanet.getBuildingData().stream()
+                .filter(b -> b.getType() == BuildingType.LUMBER_MILL)
+                .count();
+
+        assertEquals(1, townCount, "Town count should be independent");
+        assertEquals(1, millCount, "Lumber Mill count should be independent");
+    }
 }
