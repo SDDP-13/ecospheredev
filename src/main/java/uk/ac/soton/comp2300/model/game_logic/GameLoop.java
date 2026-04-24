@@ -11,9 +11,7 @@ public class GameLoop {
 
     public GameLoop(GameState state) {
         this.state = state;
-
     }
-
 
     /**Applies Resources produced by buildings on each planet to the Users resource stash**/
 

@@ -16,7 +16,7 @@ public class BuildingData {
 
     public BuildingType getType() { return type; }
     public int getLevel() { return level; }
-    public void levelUp() { level++; }
+    public void levelUp() { if (level < 5) level++; }
     public double getTheta() { return theta; }
     public double getPhi() { return phi; }
 }

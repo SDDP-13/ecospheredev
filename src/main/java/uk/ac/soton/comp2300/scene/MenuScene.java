@@ -36,6 +36,10 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
     private Label currentMetalLabel;
     private Label currentWoodLabel;
     private Label currentStoneLabel;
+    private int prevGold = -1;
+    private int prevMetal = -1;
+    private int prevWood = -1;
+    private int prevStone = -1;
 
     public MenuScene(MainWindow mainWindow) {
         super(mainWindow);
@@ -59,6 +63,7 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         // 3D Planet view
         var planetModel = state.getSelectedPlanet();
         PlanetView planetView = new PlanetView(planetModel);
+        planetView.getGroup().setMouseTransparent(true);
 
         PerspectiveCamera camera = new PerspectiveCamera(true);
         camera.setNearClip(0.1);
@@ -99,17 +104,6 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
         planetLayer.setPadding(new Insets(0, 0, -180, 0));
 
 
-//        Circle planet = new Circle(200, Color.web("#4CAF50"));
-//        Button planetButton = new Button();
-//        planetButton.setGraphic(planet);
-//        planetButton.setStyle("-fx-background-color: transparent;");
-//        planetButton.setPickOnBounds(false);
-//        StackPane planetLayer = new StackPane(planetButton);
-//        planetLayer.setAlignment(Pos.BOTTOM_CENTER);
-//        planetLayer.setPadding(new Insets(0, 0, -60, 0));
-//        planetLayer.setMaxWidth(Region.USE_PREF_SIZE);
-//        planetLayer.setMaxHeight(Region.USE_PREF_SIZE);
-//        StackPane.setAlignment(planetLayer, Pos.BOTTOM_CENTER);
 
         // --- HUD CONTAINER (LEVEL + RESOURCES) ---
         VBox hudContainer = new VBox(12);
@@ -270,25 +264,34 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
     private HBox createResourceBox(String imageName, Label currentResLabel, String color) {
         HBox box = new HBox(8);
-        box.setPadding(new Insets(3, 10, 3, 10));
+        box.setPadding(new Insets(6, 14, 6, 14));
         box.setAlignment(Pos.CENTER_LEFT);
-        box.setMinWidth(125);
-        box.setMaxWidth(125);
+        box.setMinWidth(140);
+        box.setMaxWidth(140);
         box.setStyle("-fx-background-color: " + color + "cc; -fx-background-radius: 15;");
         javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
         try {
             var stream = getClass().getResourceAsStream("/images/" + imageName);
             if (stream != null) {
                 iconView.setImage(new javafx.scene.image.Image(stream));
-                iconView.setFitWidth(18);
+                iconView.setFitWidth(22);
                 iconView.setPreserveRatio(true);
             }
         } catch (Exception e) {}
-        //Label val = new Label(amount);
-        currentResLabel.getStyleClass().add("title-small");
-        currentResLabel.setStyle("-fx-text-fill: white;");
+        currentResLabel.getStyleClass().add("resource-display");
         box.getChildren().addAll(iconView, currentResLabel);
         return box;
+    }
+
+    private void textBounce(Label label) {
+        ScaleTransition st = new ScaleTransition(Duration.millis(100), label);
+        st.setFromX(1.0);
+        st.setFromY(1.0);
+        st.setToX(1.25);
+        st.setToY(1.25);
+        st.setAutoReverse(true);
+        st.setCycleCount(2);
+        st.play();
     }
 
     @Override
@@ -297,12 +300,25 @@ public class MenuScene extends BaseScene implements NotificationListenerInterfac
 
         var state = App.getInstance().getGameController().getGameState();
 
-        currentGoldLabel.setText(String.format("%,d", state.getResourceAmount(Resource.MONEY)));
-        currentMetalLabel.setText(String.format("%,d", state.getResourceAmount(Resource.METAL)));
-        currentWoodLabel.setText(String.format("%,d", state.getResourceAmount(Resource.WOOD)));
-        currentStoneLabel.setText(String.format("%,d", state.getResourceAmount(Resource.STONE)));
+        int gold = state.getResourceAmount(Resource.MONEY);
+        int metal = state.getResourceAmount(Resource.METAL);
+        int wood = state.getResourceAmount(Resource.WOOD);
+        int stone = state.getResourceAmount(Resource.STONE);
 
+        currentGoldLabel.setText(String.format("%,d", gold));
+        currentMetalLabel.setText(String.format("%,d", metal));
+        currentWoodLabel.setText(String.format("%,d", wood));
+        currentStoneLabel.setText(String.format("%,d", stone));
 
+        if (prevGold >= 0 && gold > prevGold) textBounce(currentGoldLabel);
+        if (prevMetal >= 0 && metal > prevMetal) textBounce(currentMetalLabel);
+        if (prevWood >= 0 && wood > prevWood) textBounce(currentWoodLabel);
+        if (prevStone >= 0 && stone > prevStone) textBounce(currentStoneLabel);
+
+        prevGold = gold;
+        prevMetal = metal;
+        prevWood = wood;
+        prevStone = stone;
     }
 
     @Override

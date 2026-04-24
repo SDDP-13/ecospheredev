@@ -113,9 +113,13 @@ public class SolarSystemScene extends BaseScene {
         buildingCount.getStyleClass().add("label-small");
         buildingCount.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
 
+        Label researchLevel = new Label("Research Level: " + planet.getResearchLevel());
+        researchLevel.getStyleClass().add("label-small");
+        researchLevel.setStyle("-fx-font-size: 14px; -fx-font-weight: bold;");
+
         FlowPane multiplierRow = createMultiplierRow(planet);
 
-        textContainer.getChildren().addAll(name, multiplierRow, buildingCount);
+        textContainer.getChildren().addAll(name, multiplierRow, buildingCount, researchLevel);
 
         Circle preview = new Circle(25);
 

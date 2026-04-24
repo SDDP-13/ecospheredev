@@ -2,6 +2,8 @@ package uk.ac.soton.comp2300.scene;
 
 
 import javafx.animation.Interpolator;
+import javafx.animation.PauseTransition;
+import javafx.animation.ScaleTransition;
 import javafx.animation.TranslateTransition;
 import javafx.geometry.Insets;
 import javafx.geometry.Point3D;
@@ -24,13 +26,10 @@ import uk.ac.soton.comp2300.model.Resource;
 import uk.ac.soton.comp2300.model.ResourceStack;
 import uk.ac.soton.comp2300.model.game_logic.BuildingData;
 import uk.ac.soton.comp2300.model.game_logic.BuildingType;
-import uk.ac.soton.comp2300.model.game_logic.GameController;
-import uk.ac.soton.comp2300.model.game_logic.Planet;
 import uk.ac.soton.comp2300.ui.MainPane;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 public class PlanetScene extends BaseScene implements RefreshVisuals  {
 
@@ -39,14 +38,35 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
 
     private PerspectiveCamera camera;
 
-    private BuildingType selectedBuildingType = BuildingType.TOWN;
+    private BuildingType selectedBuildingType;
     private VBox buildMenu;
     private boolean buildmenuOpen = false;
+    private List <HBox> buildCards = new ArrayList<>();
+    private Map<HBox, BuildingType> buildCardMap = new HashMap<>();
+    private Label buildErrorLabel;
+    private PauseTransition errorTimer;
 
     private Label currentGoldLabel;
     private Label currentMetalLabel;
     private Label currentWoodLabel;
     private Label currentStoneLabel;
+    private int prevGold = -1;
+    private int prevMetal = -1;
+    private int prevWood = -1;
+    private int prevStone = -1;
+
+    private VBox buildingPopup;
+    private Label popupTitle;
+    private ImageView popupIcon;
+    private VBox popupDescription;
+    private Label popupTier;
+    private Button actionBtn;
+
+    private VBox researchPopup;
+    private VBox researchPopupDescription;
+    private Button researchBtn;
+
+    private BuildingData selectedBuilding;
 
     public PlanetScene(MainWindow mainWindow) {
         super(mainWindow);
@@ -61,6 +81,10 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         var state = controller.getGameState();
         var planetModel = state.getSelectedPlanet();
 
+        selectedBuildingType = null;
+        buildCards.clear();
+        buildCardMap.clear();
+
         root = new MainPane(mainWindow.getWidth(), mainWindow.getHeight());
         root.setStyle("-fx-background-color: white;");
 
@@ -70,6 +94,14 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         btnBack.setOnAction(e -> mainWindow.loadScene(new MenuScene(mainWindow)));
         StackPane.setAlignment(btnBack, Pos.TOP_LEFT);
         StackPane.setMargin(btnBack, new Insets(20));
+
+        buildingPopup = createBuildingPopup();
+        StackPane.setAlignment(buildingPopup, Pos.TOP_LEFT);
+        StackPane.setMargin(buildingPopup, new Insets(80, 0, 0, 20));
+
+        researchPopup = createResearchPopup();
+        StackPane.setAlignment(researchPopup, Pos.TOP_LEFT);
+        StackPane.setMargin(researchPopup, new Insets(80, 0, 0, 20));
 
         Label hoverLabel = new Label("");
         hoverLabel.setVisible(false);
@@ -106,6 +138,7 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
 
 
         planetView = new PlanetView(planetModel);
+        planetView.setSelectionListener(this::showBuildingPopup);
 
         camera = new PerspectiveCamera(true);
         camera.setNearClip(0.1);
@@ -141,14 +174,17 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         });
 
         subScene.setOnMouseClicked(e -> {
-            if (selectedBuildingType == null) return;
+            if (selectedBuildingType == null) {
+                showBuildError("Select a building!");
+                return;
+            };
             if (!planetView.isCursorValid() ||
                     planetView.isDragging() ||
                     !buildmenuOpen) return;
 
             double theta = planetView.getCursorTheta();
             double phi = planetView.getCursorPhi();
-            BuildingData newBuild = controller.placeBuidling(selectedBuildingType, theta, phi);
+            BuildingData newBuild = controller.placeBuilding(selectedBuildingType, theta, phi);
             if (newBuild != null) planetView.renderBuilding(newBuild);
         });
 
@@ -196,7 +232,7 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         hudContainer.getChildren().addAll(levelBox, resourceContainer);
         StackPane.setAlignment(hudContainer, Pos.TOP_RIGHT);
 
-        root.getChildren().addAll(starField, subScene, btnBack, btnBuild, hoverLabel, buildMenu, hudContainer);
+        root.getChildren().addAll(starField, subScene, btnBack, btnBuild, hoverLabel, buildMenu, hudContainer, buildingPopup, researchPopup);
 
         refreshVisuals();
 
@@ -206,24 +242,21 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
     /** Helper method to create resource boxes */
     private HBox createResourceBox(String imageName, Label currentResLabel, String color) {
         HBox box = new HBox(8);
-        box.setPadding(new Insets(3, 10, 3, 10));
+        box.setPadding(new Insets(6, 14, 6, 14));
         box.setAlignment(Pos.CENTER_LEFT);
-        box.setMinWidth(115);
-        box.setMaxWidth(115);
+        box.setMinWidth(140);
+        box.setMaxWidth(140);
         box.setStyle("-fx-background-color: " + color + "cc; -fx-background-radius: 15;");
-
-        ImageView iconView = new ImageView();
+        javafx.scene.image.ImageView iconView = new javafx.scene.image.ImageView();
         try {
             var stream = getClass().getResourceAsStream("/images/" + imageName);
             if (stream != null) {
-                iconView.setImage(new Image(stream));
-                iconView.setFitWidth(18);
+                iconView.setImage(new javafx.scene.image.Image(stream));
+                iconView.setFitWidth(22);
                 iconView.setPreserveRatio(true);
             }
         } catch (Exception e) {}
-
-
-        currentResLabel.setStyle("-fx-font-size: 12px; -fx-text-fill: white; -fx-font-weight: bold;");
+        currentResLabel.getStyleClass().add("resource-display");
         box.getChildren().addAll(iconView, currentResLabel);
         return box;
     }
@@ -255,6 +288,17 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
     private void toggleBuildMenu() {
         buildmenuOpen = !buildmenuOpen;
 
+        planetView.setBuildMode(buildmenuOpen);
+
+        if (buildmenuOpen) {
+            selectedBuildingType = null;
+            selectedBuilding = null;
+            buildingPopup.setVisible(false);
+            buildingPopup.setManaged(false);
+            researchPopup.setVisible(false);
+            researchPopup.setManaged(false);
+        }
+
         TranslateTransition move = new TranslateTransition(Duration.millis(250), buildMenu);
         move.setInterpolator(Interpolator.EASE_BOTH);
         if (buildmenuOpen) {
@@ -276,13 +320,28 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         Label title = new Label("Build Menu");
         title.getStyleClass().addAll("title-medium", "font-weight-2");
 
+        buildErrorLabel = new Label();
+        buildErrorLabel.setStyle("-fx-text-fill: red; -fx-font-weight: bold;");
+        buildErrorLabel.setVisible(false);
+        buildErrorLabel.setManaged(false);
+        buildErrorLabel.setMaxWidth(Double.MAX_VALUE);
+        buildErrorLabel.setAlignment(Pos.CENTER);
+
+        errorTimer = new PauseTransition(Duration.seconds(2));
+        errorTimer.setOnFinished(e -> {
+            buildErrorLabel.setVisible(false);
+            buildErrorLabel.setManaged(false);
+        });
+
         Button collapseBtn = new Button ("▾");
         collapseBtn.getStyleClass().add("menu-icon-button");
         collapseBtn.setPrefSize(28,28);
         collapseBtn.setOnAction(e->toggleBuildMenu());
-        Region headerSpace = new Region();
-        HBox.setHgrow(headerSpace, Priority.ALWAYS);
-        HBox header = new HBox (8, title, headerSpace, collapseBtn);
+        Region leftSpace = new Region();
+        Region rightSpace = new Region();
+        HBox.setHgrow(leftSpace, Priority.ALWAYS);
+        HBox.setHgrow(rightSpace, Priority.ALWAYS);
+        HBox header = new HBox (8, title, leftSpace, buildErrorLabel, rightSpace, collapseBtn);
         header.setAlignment(Pos.CENTER_LEFT);
         header.setPadding(new Insets(0,0,4,0));
 
@@ -300,23 +359,10 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
 
         scrollPane.setPrefViewportHeight(140);
 
-        buildList.getChildren().add(buildEntry(BuildingType.LUMBER_MILL));
-        buildList.getChildren().add(buildEntry(BuildingType.QUARRY));
-        buildList.getChildren().add(buildEntry(BuildingType.MINE));
-        buildList.getChildren().add(buildEntry(BuildingType.TOWN));
-        buildList.getChildren().add(buildEntry(BuildingType.MARKET));
-        buildList.getChildren().add(buildEntry(BuildingType.SPACEPORT));
-        buildList.getChildren().add(buildEntry(BuildingType.RESEARCH_LAB));
+        for (BuildingType type : BuildingType.values() ) {
+            buildList.getChildren().add(buildEntry(type));
+        }
 
-        /*
-        buildList.getChildren().add(buildEntry("Lumber Mill", "Cost: 🔘 40  🪵 10  🟡 0"));
-        buildList.getChildren().add(buildEntry("Quarry", "Cost: 🔘 80  🪵 30  🟡 200"));
-        buildList.getChildren().add(buildEntry("Mine", "Cost: 🔘 20  🪵 200  🟡 10"));
-        buildList.getChildren().add(buildEntry("Town", "Cost: 🔘 50  🪵 350  🟡 50"));
-        buildList.getChildren().add(buildEntry("Market", "Cost: 🔘 200  🪵 30  🟡 500"));
-        buildList.getChildren().add(buildEntry("Space Port", "Cost: 🔘 5500  🪵 1000  🟡 100"));
-        buildList.getChildren().add(buildEntry("Research Lab", "Cost: 🔘 800  🪵 25  🟡 1000"));
-        */
         menu.getChildren().addAll(header, scrollPane);
         return menu;
 
@@ -355,25 +401,27 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         HBox resourceCost = formatWithIcons(type.getPrice());
         VBox textContent = new VBox(4, label, resourceCost);
 
-        HBox resourceCard = new HBox(15, buildingIcon, textContent);
-        resourceCard.setAlignment(Pos.CENTER_LEFT);
-        resourceCard.setPadding(new Insets(12));
-        resourceCard.setStyle("-fx-background-color: white; -fx-background-radius: 12; " +
-                "-fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 3);");
+        HBox buildCard = new HBox(15, buildingIcon, textContent);
+        buildCard.setAlignment(Pos.CENTER_LEFT);
+        buildCard.setPadding(new Insets(12));
+        buildCard.getStyleClass().add("build-card");
 
         // Locked/Buildable check
         boolean buildable = App.getInstance().getGameController().buildable(type);
         if (!buildable) {
-            resourceCard.setOpacity(0.5);
-            resourceCard.setDisable(true);
+            buildCard.setOpacity(0.5);
+            buildCard.setDisable(true);
         }
 
-        resourceCard.setOnMouseClicked(e -> {
+        buildCard.setOnMouseClicked(e -> {
+            if (!App.getInstance().getGameController().buildable(type)) { return; }
             selectedBuildingType = type;
             System.out.println("Selected building type: " + selectedBuildingType);
         });
 
-        return resourceCard;
+        buildCards.add(buildCard);
+        buildCardMap.put(buildCard, type);
+        return buildCard;
     }
 
 
@@ -417,26 +465,443 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         return container;
     }
 
+    private void showBuildError(String message) {
+        buildErrorLabel.setText(message);
+        buildErrorLabel.setVisible(true);
+        buildErrorLabel.setManaged(true);
+
+        errorTimer.stop();
+        errorTimer.playFromStart();
+    }
+
+
+
+    private void textBounce(Label label) {
+        ScaleTransition st = new ScaleTransition(Duration.millis(100), label);
+        st.setFromX(1.0);
+        st.setFromY(1.0);
+        st.setToX(1.25);
+        st.setToY(1.25);
+        st.setAutoReverse(true);
+        st.setCycleCount(2);
+        st.play();
+    }
+
+    private VBox createBuildingPopup() {
+
+        popupTitle = new Label();
+        popupTitle.getStyleClass().add("title-large");
+
+        popupIcon = new ImageView();
+        popupIcon.setFitWidth(38);
+        popupIcon.setFitHeight(38);
+        popupIcon.setPreserveRatio(true);
+
+        popupTier = new Label();
+        popupTier.getStyleClass().add("title-medium");
+        popupTier.setStyle("-fx-font-weight: bold;");
+        VBox.setMargin(popupTier, new Insets(0, 0, 2, 0));
+
+        popupDescription = new VBox(6);
+        popupDescription.setPadding(new Insets(6));
+        popupDescription.setMaxWidth(260);
+        popupDescription.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        VBox descriptionBox = new VBox(6, popupTier, popupDescription);
+        descriptionBox.setPadding(new Insets(8));
+        descriptionBox.setStyle(
+                "-fx-background-color: white;" +
+                "-fx-background-radius: 10;"
+                );
+        descriptionBox.setMaxWidth(Double.MAX_VALUE);
+        descriptionBox.setFillWidth(true);
+
+        actionBtn = new Button();
+        Button removeBtn = new Button("REMOVE");
+        Button closeBtn = new Button("✕");
+
+        closeBtn.setMaxWidth(32);
+        actionBtn.setStyle("-fx-background-color: green; -fx-background-radius: 10; -fx-text-fill: white;");
+        removeBtn.setStyle("-fx-background-color: red; -fx-background-radius: 10; -fx-text-fill: white;");
+
+        closeBtn.setOnAction(e -> {
+            buildingPopup.setVisible(false);
+            planetView.clearSelectionExternally();
+        });
+
+        removeBtn.setOnAction(e -> {
+            if (selectedBuilding == null) return;
+            var controller = App.getInstance().getGameController();
+
+            controller.removeBuilding(controller.getSelectedPlanet(), selectedBuilding);
+            planetView.refreshBuildings();
+            planetView.clearSelectionExternally();
+
+            buildingPopup.setVisible(false);
+            buildingPopup.setManaged(false);
+
+            selectedBuilding = null;
+        });
+
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox header = new HBox(8, popupIcon, popupTitle, spacer, closeBtn);
+        header.setAlignment(Pos.CENTER_LEFT);
+        header.setMaxWidth(260);
+        popupDescription.setMaxWidth(260);
+
+        Region spacer2 = new Region();
+        HBox.setHgrow(spacer2, Priority.ALWAYS);
+        HBox actions = new HBox(8, actionBtn, spacer2, removeBtn);
+        actions.setMaxWidth(Double.MAX_VALUE);
+        actions.setAlignment(Pos.CENTER);
+
+        VBox box = new VBox(
+                8,
+                header,
+                descriptionBox,
+                actions
+        );
+
+        box.setPadding(new Insets(10));
+        box.getStyleClass().add("card");
+        box.setMaxWidth(260);
+        box.setMinWidth(180);
+        box.setMaxHeight(250);
+        box.setFillWidth(true);
+
+        box.setVisible(false);
+        box.setManaged(false);
+        box.setPickOnBounds(false);
+
+
+        StackPane.setAlignment(box, Pos.TOP_LEFT);
+        StackPane.setMargin(box, new Insets(80, 0, 0, 20));
+
+        return box;
+    }
+
+    private void showBuildingPopup(BuildingData data) {
+        var controller = App.getInstance().getGameController();
+
+        researchPopup.setVisible(false);
+        researchPopup.setManaged(false);
+
+        selectedBuilding = data;
+
+        popupTitle.setText(data.getType().name().replace("_", " "));
+
+        String iconPath = "/images/" + data.getType().name().toLowerCase().replace("_", "") + ".png";
+
+        try {
+            popupIcon.setImage(new Image(getClass().getResourceAsStream(iconPath)));
+        } catch (Exception e) {
+            popupIcon.setImage(null);
+        }
+
+        popupDescription.getChildren().clear();
+        Label desc = new Label(getDescription(data.getType()));
+        desc.setWrapText(true);
+        desc.setStyle("-fx-text-fill: #333; -fx-font-size: 14px;");
+
+        if (data.getType().isUpgradeable()) {
+
+            if (data.getLevel() >= 5) {
+                popupTier.setText("TIER: MAX");
+            } else {
+                popupTier.setText("TIER: " + data.getLevel());
+            }
+
+            Label upgradeTitle = new Label("Upgrade Cost: ");
+            upgradeTitle.setStyle("-fx-font-weight: bold; -fx-text-fill: #333;");
+
+            HBox costRow = formatWithIcons(data.getType().getUpgradeCost(data.getLevel()));
+
+            boolean lockedByResearch = controller.isBlockedByResearch(data);
+            Label researchWarning = new Label("Research the next tier to unlock upgrade");
+            researchWarning.setWrapText(true);
+            researchWarning.setStyle("-fx-text-fill: red; -fx-font-size: 11px;");
+            researchWarning.setVisible(lockedByResearch);
+            researchWarning.setManaged(lockedByResearch);
+            popupDescription.getChildren().addAll(desc, upgradeTitle, costRow, researchWarning);
+
+
+        } else {
+            popupTier.setText("TIER: SPECIAL");
+            popupDescription.getChildren().addAll(desc);
+
+        }
+
+        String actionText;
+        Runnable action;
+
+        switch (data.getType()) {
+
+            case RESEARCH_LAB -> {
+                actionText = "RESEARCH";
+                action = () -> {
+                    showResearchPopup();
+                    buildingPopup.setVisible(false);
+                    buildingPopup.setManaged(false);
+                };
+            }
+
+            case SPACEPORT -> {
+                actionText = "LAUNCH";
+
+                List<ResourceStack> launchCost = controller.getLaunchCost();
+
+                Label costTitle = new Label("Launch Cost: ");
+                costTitle.setStyle("-fx-font-weight: bold; -fx-font-size: 14px;");
+
+                HBox costRow = formatWithIcons(launchCost);
+
+                popupDescription.getChildren().addAll(costTitle, costRow);
+
+                action = () -> {
+                    if (!controller.canLaunch()) return;
+
+                    boolean success = controller.launch();
+
+                    if (!success) return;
+
+                    planetView.refreshBuildings();
+                    refreshVisuals();
+
+                    int count = controller.getNumberOfBuildingType(controller.getSelectedPlanet(), BuildingType.SPACEPORT);
+
+                    PauseTransition delay = new PauseTransition(Duration.millis(250));
+                    delay.setOnFinished(event -> {
+                        mainWindow.loadScene(new LaunchScene(mainWindow, count));
+                    });
+                    delay.play();
+                };
+            }
+
+            case MARKET -> {
+                actionText = "TRADE";
+                action = () -> {};
+            }
+
+            default -> {
+                actionText = "UPGRADE";
+                action = () -> {
+                    if (controller.upgradeBuilding(data)) {
+                        planetView.refreshBuildings();
+                        refreshVisuals();
+                        showBuildingPopup(data);
+                    }
+                };
+            }
+        }
+
+        actionBtn.setText(actionText);
+        actionBtn.setOnAction(e -> action.run());
+
+        refreshVisuals();
+
+        buildingPopup.setVisible(true);
+        buildingPopup.setManaged(true);
+    }
+
+    private String getDescription(BuildingType type) {
+        return switch (type) {
+            case TOWN -> "Generates Money";
+            case MINE -> "Generates Metal";
+            case QUARRY -> "Generates Stone";
+            case LUMBER_MILL -> "Generates Wood";
+            case RESEARCH_LAB -> "Unlock new tiers of buildings and research upgrades";
+            case SPACEPORT -> "Launch rockets and unlock new planets";
+            case MARKET -> "Trade materials for other materials";
+        };
+    }
+
+    private VBox createResearchPopup() {
+        var controller = App.getInstance().getGameController();
+
+        Label researchPopupTitle = new Label("Research Lab");
+        researchPopupTitle.getStyleClass().add("title-large");
+
+        ImageView researchPopupIcon = new ImageView();
+        researchPopupIcon.setFitWidth(38);
+        researchPopupIcon.setFitHeight(38);
+        researchPopupIcon.setPreserveRatio(true);
+
+        String iconPath = "/images/ResearchLab.png";
+        try {
+            researchPopupIcon.setImage(new Image(getClass().getResourceAsStream(iconPath)));
+        } catch (Exception e) {
+            researchPopupIcon.setImage(null);
+        }
+
+        researchPopupDescription = new VBox(6);
+        researchPopupDescription.setPadding(new Insets(6));
+        researchPopupDescription.setMaxWidth(260);
+        researchPopupDescription.setStyle("-fx-background-color: white; -fx-background-radius: 10;");
+
+        Button closeBtn = new Button("✕");
+        closeBtn.setMaxWidth(32);
+        closeBtn.setOnAction(e -> {
+            researchPopup.setVisible(false);
+            planetView.clearSelectionExternally();
+        });
+
+        researchBtn = new Button("RESEARCH NEXT LEVEL");
+        researchBtn.setStyle("-fx-background-color: green; -fx-background-radius: 10; -fx-text-fill: white;");
+
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+        HBox header = new HBox(researchPopupIcon, researchPopupTitle, spacer, closeBtn);
+        VBox box = new VBox(
+                8,
+                header,
+                researchPopupDescription,
+                researchBtn
+        );
+
+        box.setPadding(new Insets(10));
+        box.getStyleClass().add("card");
+        box.setMaxWidth(260);
+        box.setMinWidth(180);
+        box.setMaxHeight(250);
+        box.setFillWidth(true);
+        box.setVisible(false);
+        box.setManaged(false);
+
+        return box;
+    }
+
+    private void showResearchPopup() {
+        var controller = App.getInstance().getGameController();
+
+
+        researchPopupDescription.getChildren().clear();
+
+        Label desc = new Label("Your Research Level is capped at the number of labs you own on this planet. Maximum Tier: 5");
+        desc.setWrapText(true);
+        desc.setStyle("-fx-text-fill: #333; -fx-font-size: 12px;");
+        Label levelTier = new Label("Research Level: " + controller.getSelectedPlanet().getResearchLevel());
+        levelTier.getStyleClass().add("title-medium");
+        levelTier.setStyle("-fx-font-weight: bold;");
+
+        Label researchCostTitle = new Label("Research Cost: ");
+        researchCostTitle.setStyle("-fx-font-weight: bold; -fx-text-fill: #333;");
+
+        HBox costRow = formatWithIcons(controller.getResearchCost());
+
+        researchPopupDescription.getChildren().addAll(levelTier, desc, researchCostTitle, costRow);
+
+        researchBtn.setOnAction(e -> {
+            if (!controller.canResearchLevel()) return;
+            boolean success = controller.increaseResearchLevel();
+
+            if (!success) return;
+
+            updateActionButton();
+            refreshVisuals();
+            showResearchPopup();
+        });
+
+        planetView.refreshBuildings();
+        refreshVisuals();
+
+        researchPopup.setVisible(true);
+        researchPopup.setManaged(true);
+    }
+
+    private void updateActionButton() {
+        if (selectedBuilding == null) return;
+
+        var controller = App.getInstance().getGameController();
+
+        switch (selectedBuilding.getType()) {
+            case SPACEPORT -> {
+                boolean canLaunch = controller.canLaunch();
+                actionBtn.setDisable(!canLaunch);
+                actionBtn.setOpacity(canLaunch ? 1.0 : 0.5);
+            }
+            case MARKET -> {
+                actionBtn.setDisable(false);
+                actionBtn.setOpacity(1.0);
+            }
+
+            case RESEARCH_LAB -> {
+                if (researchPopup.isVisible()){
+                    boolean canLevel = controller.canResearchLevel();
+                    researchBtn.setDisable(!canLevel);
+                    researchBtn.setOpacity(canLevel ? 1.0 : 0.5);
+                } else {
+                    actionBtn.setDisable(false);
+                    actionBtn.setOpacity(1.0);
+                }
+
+            }
+            default -> {
+                boolean lockedByResearch = controller.isBlockedByResearch(selectedBuilding);
+                boolean canUpgrade = controller.canUpgradeBuilding(selectedBuilding) && !lockedByResearch;
+                actionBtn.setDisable(!canUpgrade);
+                actionBtn.setOpacity(canUpgrade ? 1.0 : 0.5);
+            }
+        }
+    }
+
+    @Override
+    public void refreshVisuals(){
+
+        var controller = App.getInstance().getGameController();
+
+        int gold = controller.getResourceAmount(Resource.MONEY);
+        int metal = controller.getResourceAmount(Resource.METAL);
+        int wood = controller.getResourceAmount(Resource.WOOD);
+        int stone = controller.getResourceAmount(Resource.STONE);
+
+        currentGoldLabel.setText(String.format("%,d", gold));
+        currentMetalLabel.setText(String.format("%,d", metal));
+        currentWoodLabel.setText(String.format("%,d", wood));
+        currentStoneLabel.setText(String.format("%,d", stone));
+
+        if (prevGold >= 0 && gold > prevGold) textBounce(currentGoldLabel);
+        if (prevMetal >= 0 && metal > prevMetal) textBounce(currentMetalLabel);
+        if (prevWood >= 0 && wood > prevWood) textBounce(currentWoodLabel);
+        if (prevStone >= 0 && stone > prevStone) textBounce(currentStoneLabel);
+
+        prevGold = gold;
+        prevMetal = metal;
+        prevWood = wood;
+        prevStone = stone;
+
+        updateActionButton();
+
+        for (HBox card : buildCards) {
+            BuildingType type = buildCardMap.get(card);
+            boolean buildable = controller.buildable(type);
+
+            card.getStyleClass().setAll("build-card");
+
+            if (type == selectedBuildingType) {
+                card.getStyleClass().add("build-card-selected");
+            }
+
+            if (buildable) {
+                card.setOpacity(1.0);
+                card.setDisable(false);
+            } else {
+                card.setOpacity(0.5);
+                card.setDisable(true);
+
+                if (type == selectedBuildingType) {
+                    selectedBuildingType = null;
+                }
+            }
+        }
+    }
 
     @Override
     public void initialise() {
         root.setOnMousePressed(e -> planetView.onMousePressed(e));
         root.setOnMouseDragged(e -> planetView.onMouseDragged(e));
         root.addEventHandler(ScrollEvent.SCROLL, e -> planetView.onScroll(e, camera));
-    }
-
-    @Override
-    public void refreshVisuals(){
-
-
-        var state = App.getInstance().getGameController().getGameState();
-
-        currentGoldLabel.setText(String.format("%,d", state.getResourceAmount(Resource.MONEY)));
-        currentMetalLabel.setText(String.format("%,d", state.getResourceAmount(Resource.METAL)));
-        currentWoodLabel.setText(String.format("%,d", state.getResourceAmount(Resource.WOOD)));
-        currentStoneLabel.setText(String.format("%,d", state.getResourceAmount(Resource.STONE)));
-
-
     }
 
 }

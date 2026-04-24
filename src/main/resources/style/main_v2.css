@@ -353,6 +353,25 @@
     -fx-background-radius: 25;
     -fx-alignment: center;
 }
+
+.build-card {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-border-color: transparent;
+    -fx-border-width: 2;
+    -fx-border-radius: 12;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.05), 8, 0, 0, 3);
+}
+
+.build-card-selected {
+    -fx-border-color: gold;
+}
+
+.resource-display {
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-effect: dropshadow(gaussian, black, 1, 1, 0, 0);
+}
 /* --redundant--
 
 .login-scene {
