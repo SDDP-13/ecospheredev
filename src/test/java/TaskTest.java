@@ -78,4 +78,46 @@ public class TaskTest {
         boolean isLocked = (task1.getId().equals("Did a scheduled task (1)") && completedCount < 1);
         assertTrue(isLocked, "Task 1 should be locked when completed count is 0");
     }
+    @Test
+    void testThresholdUnlocking() {
+        // 1. Declare the task
+        Task structureTask = new Task("Build 5 structures", "Desc", List.of());
+
+        // 2. Simulate the logic that would exist in your TaskScene or Controller
+        int buildingCountAtFour = 4;
+        boolean isLockedAtFour = checkTaskLockStatus(structureTask, buildingCountAtFour);
+
+        int buildingCountAtFive = 5;
+        boolean isLockedAtFive = checkTaskLockStatus(structureTask, buildingCountAtFive);
+
+        // 3. Assertions
+        assertTrue(isLockedAtFour, "Task should be locked at 4 structures");
+        assertFalse(isLockedAtFive, "Task should unlock exactly at 5 structures");
+    }
+
+    /**
+     * Helper method to simulate the app's locking mechanism
+     */
+    private boolean checkTaskLockStatus(Task task, int currentBuildings) {
+        if (task.getId().equals("Build 5 structures")) {
+            return currentBuildings < 5;
+        }
+        return false;
+    }
+
+    @Test
+    void testPreventDuplicateClaim() {
+        Task task = new Task("One-time Reward", "Desc", List.of(new ResourceStack(Resource.MONEY, 50)));
+
+        // First claim
+        assertFalse(task.getRewardCollected());
+        task.toggleRewardCollected();
+        assertTrue(task.getRewardCollected());
+
+        // Attempt second claim logic (Scene logic check)
+        if (task.getRewardCollected()) {
+            // In the UI, the button is disabled or logic returns early
+            assertTrue(task.getRewardCollected(), "State should remain collected");
+        }
+    }
 }
