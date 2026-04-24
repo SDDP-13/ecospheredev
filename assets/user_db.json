@@ -1,59 +1,13 @@
 {
   "settings": {},
   "userDatabase": {
-    "users": [
-      {
-        "id": "c4679367-003c-4ba3-a1c0-f4c0e72de4fe",
-        "userName": "user1",
-        "storedHash": "PCB+rHcibE5I/rgik1vGKgBGIH0qWzVToP9nKhQChCk=",
-        "storedSalt": "3nbdgWFFAaqJnGj6bjWiVg=="
-      },
-      {
-        "id": "7c41eb21-19e8-4d18-b2be-334bb1786d96",
-        "userName": "user",
-        "storedHash": "BNreJqpeB7nA+FEGeB8MercYS+V3kVRXVqP79nqP3go=",
-        "storedSalt": "sJ/Co2LXs+EK39SAKTvefw=="
-      },
-      {
-        "id": "d3bccab0-b337-444b-97b2-a51b833e516e",
-        "userName": "yuma",
-        "storedHash": "K+VMlAlKpACw5TVTZ0wB6udTAQJtdjUeyGzyl36qElI=",
-        "storedSalt": "e6kg14mCL4E/JXDXC3n3+g=="
-      }
-    ],
-    "currentUserName": "yuma"
+    "users": [],
+    "currentUserName": ""
   },
-  "userSettings": {
-    "user1": {
-      "shareUsageData": false,
-      "darkMode": false,
-      "sendCrashReports": true,
-      "notifications": false
-    },
-    "yuma": {
-      "shareUsageData": false,
-      "darkMode": false,
-      "sendCrashReports": true,
-      "notifications": false
-    },
-    "user": {
-      "shareUsageData": false,
-      "darkMode": false,
-      "sendCrashReports": true,
-      "notifications": false
-    },
-    "user121": {
-      "shareUsageData": false,
-      "darkMode": false,
-      "sendCrashReports": true,
-      "notifications": false
-    }
-  },
+  "userSettings": {},
   "cookieData": {
-    "loggedInUser": "yuma",
-    "lastLoginDate": "2026-04-23",
-    "claimedTasksByUser": {
-      "user1": {}
-    }
+    "loggedInUser": "",
+    "lastLoginDate": "",
+    "claimedTasksByUser": {}
   }
 }
