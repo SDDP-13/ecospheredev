@@ -19,12 +19,24 @@
         "userName": "yuma",
         "storedHash": "K+VMlAlKpACw5TVTZ0wB6udTAQJtdjUeyGzyl36qElI=",
         "storedSalt": "e6kg14mCL4E/JXDXC3n3+g=="
+      },
+      {
+        "id": "470c8eb8-09f6-405e-9feb-de667cd537a3",
+        "userName": "dan",
+        "storedHash": "GzjLH5g9w8isjgm1cU4hFa0pvpqJAvqnkFerjsH1h/8=",
+        "storedSalt": "SHXPihsX7MP6JY/CCKmDEQ=="
       }
     ],
-    "currentUserName": "yuma"
+    "currentUserName": "dan"
   },
   "userSettings": {
     "user1": {
+      "shareUsageData": false,
+      "darkMode": false,
+      "sendCrashReports": true,
+      "notifications": false
+    },
+    "dan": {
       "shareUsageData": false,
       "darkMode": false,
       "sendCrashReports": true,
@@ -50,9 +62,10 @@
     }
   },
   "cookieData": {
-    "loggedInUser": "yuma",
-    "lastLoginDate": "2026-04-23",
+    "loggedInUser": "dan",
+    "lastLoginDate": "2026-04-24",
     "claimedTasksByUser": {
+      "dan": {},
       "user1": {}
     }
   }
