@@ -11,6 +11,7 @@ public class GameController {
     private GameLoop gameLoop;
 
     private static final double MIN_ANGULAR_DISTANCE = Math.toRadians(5);
+    private static final int MAX_UPGRADE_LEVEL = 5;
 
 
     public GameController(GameState loadedState) {
@@ -54,7 +55,7 @@ public class GameController {
     public boolean canPlaceBuilding(BuildingType type, Planet planet, double theta, double phi) {
         if (planet == null) return false;
         if (!isBuildLocationFree(planet, theta, phi)) return false;
-        return state.sufficientResources(type.getPrice());
+        return state.sufficientResources(getBuildingPrice(type));
     }
 
     public BuildingData placeBuilding(
@@ -65,7 +66,7 @@ public class GameController {
         Planet planet = getSelectedPlanet();
         if (!canPlaceBuilding(type, planet, theta, phi)) { return null; }
 
-        List<ResourceStack> cost = type.getPrice();
+        List<ResourceStack> cost = getBuildingPrice(type);
         state.spendResources(cost);
 
         BuildingData building = new BuildingData(type, theta, phi);
@@ -106,7 +107,7 @@ public class GameController {
 
     public boolean canUpgradeBuilding(BuildingData data) {
         if (data == null) return false;
-        if (data.getLevel() >= 5) return false;
+        if (data.getLevel() >= MAX_UPGRADE_LEVEL) return false;
 
         BuildingType type = data.getType();
         if (!type.isUpgradeable()) return false;
@@ -135,10 +136,10 @@ public class GameController {
     public List<ResourceStack> getLaunchCost() {
         int planetsOwned = getPlanets().size();
 
-        int base = 5000;
-        int scale = 1000;
+        int base = 7000;
+        double scale = Math.pow(2.0, planetsOwned - 1);
 
-        int total = base + ((planetsOwned - 1) * scale);
+        int total = (int) Math.round(base * scale);
 
         return List.of(
                 new ResourceStack(Resource.MONEY, total),
@@ -156,16 +157,23 @@ public class GameController {
     }
 
     public List<ResourceStack> getResearchCost() {
-        int count = getNumberOfBuildingType(getSelectedPlanet(), BuildingType.RESEARCH_LAB);
-        int base = 1000;
-        int scale = 5000;
-        int total = base;
+
+        double baseMoney = 2000;
+        double baseStone = 1000;
+        double baseWood = 1500;
+
+        int level = getSelectedPlanet().getResearchLevel();
+
+        double scale = Math.pow(3.2, level - 1);
+
         return List.of(
-                new ResourceStack(Resource.MONEY, total),
-                new ResourceStack(Resource.STONE, total/2),
-                new ResourceStack(Resource.WOOD, total/2)
+                new ResourceStack(Resource.MONEY, (int) Math.round(baseMoney * scale)),
+                new ResourceStack(Resource.STONE, (int) Math.round(baseStone * scale)),
+                new ResourceStack(Resource.WOOD, (int) Math.round(baseWood * scale))
         );
     }
+
+
     public boolean canResearchLevel() {
         int count = getNumberOfBuildingType(getSelectedPlanet(), BuildingType.RESEARCH_LAB);
         int currentLevel = getSelectedPlanet().getResearchLevel();
@@ -182,11 +190,31 @@ public class GameController {
     }
 
     public int getNumberOfBuildingType(Planet planet, BuildingType type) {
-        long labs = planet.getBuildingData().stream()
+        long count = planet.getBuildingData().stream()
                 .filter(b -> b.getType() == type)
                 .count();
-        int count = Math.max(1, (int) labs);
-        return count;
+        return (int) count;
+    }
+
+    public int getNumberOfBuildingType(BuildingType type) {
+        long count = state.getPlanets().stream()
+                .flatMap(p -> p.getBuildingData().stream())
+                .filter(b -> b.getType() == type)
+                .count();
+        return (int) count;
+    }
+
+    public List<ResourceStack> getBuildingPrice(BuildingType type) {
+        int count = getNumberOfBuildingType(type);
+
+        double multiplier = Math.pow(1.15, count);
+
+        return type.getBasePrice().stream()
+                .map(stack -> new ResourceStack(
+                        stack.getType(),
+                        (int) Math.round(stack.getAmount() * multiplier)
+                ))
+                .toList();
     }
 
     public void addPlanet(Planet planet) { getPlanets().add(planet); }
@@ -195,14 +223,13 @@ public class GameController {
     public Planet getSelectedPlanet() { return state.getSelectedPlanet(); }
     public void setSelectedPlanet(Planet planet) { state.setSelectedPlanet(planet); }
     public List<Planet> getPlanets() { return state.getPlanets(); }
+    public int getMaxUpgradeLevel() { return this.MAX_UPGRADE_LEVEL; }
 
     public GameState getGameState() { return state; }
 
     /**---------Returns whether a building is allowed to be built or not.------------*/
     public boolean buildable(BuildingType type) {
-        return state.sufficientResources(type.getPrice());
+        return state.sufficientResources(getBuildingPrice(type));
     }
-
-
 
 }

@@ -27,7 +27,7 @@ public class BuildingView {
         materialMap.put(BuildingType.QUARRY, new PhongMaterial(Color.DARKGRAY));
         materialMap.put(BuildingType.TOWN, new PhongMaterial(Color.GOLD));
         materialMap.put(BuildingType.MINE, new PhongMaterial(Color.LIGHTBLUE));
-        materialMap.put(BuildingType.RESEARCH_LAB, new PhongMaterial(Color.WHITE));
+        materialMap.put(BuildingType.RESEARCH_LAB, new PhongMaterial(Color.rgb(215, 255, 215)));
         materialMap.put(BuildingType.SPACEPORT, new PhongMaterial(Color.DARKCYAN));
         materialMap.put(BuildingType.MARKET, new PhongMaterial(Color.PURPLE));
     }

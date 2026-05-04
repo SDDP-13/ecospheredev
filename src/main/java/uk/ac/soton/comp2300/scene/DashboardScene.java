@@ -319,10 +319,6 @@ public class DashboardScene extends BaseScene implements RefreshVisuals {
         structGrid.setAlignment(Pos.CENTER);
 
 
-        var selectedPlanet = state.getSelectedPlanet();
-        //var buildings = (selectedPlanet != null) ? selectedPlanet.getBuildingData()
-        //        : java.util.List.<uk.ac.soton.comp2300.model.game_logic.BuildingData>of();
-
         var buildings = state.getPlanets().stream().
                 flatMap(planet -> planet.getBuildingData().stream()).toList();
 

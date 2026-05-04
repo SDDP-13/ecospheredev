@@ -15,8 +15,6 @@ public class GameState {
     private ResourceStack stoneTotal;
     private int totalXp;
 
-    private int researchLevel;
-
 
     private double totalEnergySaved = 0.0;
     private double totalCo2Saved = 0.0;

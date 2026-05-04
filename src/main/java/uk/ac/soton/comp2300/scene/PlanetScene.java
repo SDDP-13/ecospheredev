@@ -186,6 +186,7 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
             double phi = planetView.getCursorPhi();
             BuildingData newBuild = controller.placeBuilding(selectedBuildingType, theta, phi);
             if (newBuild != null) planetView.renderBuilding(newBuild);
+            refreshBuildMenu();
         });
 
 // --- HUD CONTAINER (LEVEL + RESOURCES) ---
@@ -303,6 +304,7 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         move.setInterpolator(Interpolator.EASE_BOTH);
         if (buildmenuOpen) {
             move.setToY(0);
+            refreshBuildMenu();
         } else {
             move.setToY(260);
         }
@@ -368,6 +370,18 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
 
     }
 
+    private void refreshBuildMenu() {
+        buildCards.clear();
+        buildCardMap.clear();
+
+        VBox buildList = (VBox) ((ScrollPane) buildMenu.getChildren().get(1)).getContent();
+        buildList.getChildren().clear();
+
+        for (BuildingType type : BuildingType.values()) {
+            buildList.getChildren().add(buildEntry(type));
+        }
+    }
+
     private HBox buildEntry(BuildingType type) {
         // 1. Convert Enum name (e.g., TOWN) to Filename (Town.png)
         String rawName = type.name().toLowerCase();
@@ -398,7 +412,7 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         }
 
         // 3. Assemble the card
-        HBox resourceCost = formatWithIcons(type.getPrice());
+        HBox resourceCost = formatWithIcons(App.getInstance().getGameController().getBuildingPrice(type));
         VBox textContent = new VBox(4, label, resourceCost);
 
         HBox buildCard = new HBox(15, buildingIcon, textContent);
@@ -537,6 +551,8 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
             planetView.refreshBuildings();
             planetView.clearSelectionExternally();
 
+            refreshBuildMenu();
+
             buildingPopup.setVisible(false);
             buildingPopup.setManaged(false);
 
@@ -607,7 +623,7 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
 
         if (data.getType().isUpgradeable()) {
 
-            if (data.getLevel() >= 5) {
+            if (data.getLevel() >= controller.getMaxUpgradeLevel()) {
                 popupTier.setText("TIER: MAX");
             } else {
                 popupTier.setText("TIER: " + data.getLevel());
@@ -781,7 +797,15 @@ public class PlanetScene extends BaseScene implements RefreshVisuals  {
         Label desc = new Label("Your Research Level is capped at the number of labs you own on this planet. Maximum Tier: 5");
         desc.setWrapText(true);
         desc.setStyle("-fx-text-fill: #333; -fx-font-size: 12px;");
-        Label levelTier = new Label("Research Level: " + controller.getSelectedPlanet().getResearchLevel());
+
+        Label levelTier = new Label();
+        int researchLevel = controller.getSelectedPlanet().getResearchLevel();
+        if (researchLevel >= controller.getMaxUpgradeLevel()) {
+            levelTier.setText("Research Level: MAX");
+        } else {
+            levelTier.setText("Research Level: " + researchLevel);
+        }
+
         levelTier.getStyleClass().add("title-medium");
         levelTier.setStyle("-fx-font-weight: bold;");
 

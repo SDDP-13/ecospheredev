@@ -1,5 +1,6 @@
 package uk.ac.soton.comp2300.model.game_logic;
 
+import uk.ac.soton.comp2300.App;
 import uk.ac.soton.comp2300.model.Resource;
 import uk.ac.soton.comp2300.scene.PlanetTexture;
 
@@ -50,7 +51,7 @@ public class Planet {
     public Map<Resource, Double> getProductionMultipliers() { return productionMultipliers; }
     public void setResearchLevel(int level) { this.researchLevel = level; }
     public int getResearchLevel() { return this.researchLevel; }
-    public void unlockNextResearchLevel() { if (this.researchLevel < 5) this.researchLevel++ ;}
+    public void unlockNextResearchLevel() { if (this.researchLevel < App.getInstance().getGameController().getMaxUpgradeLevel()) this.researchLevel++ ;}
 
     public void changeMultiplier(Resource res, double change) {
         double multiplier = productionMultipliers.getOrDefault(res, 1.0);

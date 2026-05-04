@@ -7,7 +7,7 @@ Class that has an enum type and a quantity to represent an amount of resources
 public class ResourceStack {
     private Resource type;
     private int amount;
-    private static final int max_stored = 99999;
+    private static final int max_stored = 2100000000;
 
     public ResourceStack(Resource type, int amount) {
         this.type = type;

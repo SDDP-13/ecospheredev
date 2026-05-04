@@ -7,7 +7,10 @@ public class GameLoop {
 
     GameState state;
     private long lastProductiontick = System.currentTimeMillis();
-    private int baseResourceamount = 1;
+    private int baseMoneyAmount = 7;
+    private int baseWoodAmount = 5;
+    private int baseStoneAmount = 3;
+    private int baseMetalAmount = 1;
 
     public GameLoop(GameState state) {
         this.state = state;
@@ -29,21 +32,30 @@ public class GameLoop {
     private void produceBuildingRes( Planet planet, BuildingData building) {
 
 
-        int resourceAmount = baseResourceamount;
-        Resource resourceGenerated = null;
+        int resourceAmount;
+        Resource resourceGenerated;
+        double levelScaling;
 
         switch (building.getType()) {
             case LUMBER_MILL -> {
                 resourceGenerated = Resource.WOOD;
+                resourceAmount = baseWoodAmount;
+                levelScaling = 1.0;
             }
             case QUARRY -> {
                 resourceGenerated = Resource.STONE;
+                resourceAmount = baseStoneAmount;
+                levelScaling = 1.2;
             }
             case MINE -> {
                 resourceGenerated = Resource.METAL;
+                resourceAmount = baseMetalAmount;
+                levelScaling = 1.4;
             }
             case TOWN -> {
                 resourceGenerated = Resource.MONEY;
+                resourceAmount = baseMoneyAmount;
+                levelScaling = 0.8;
             }
             default -> {return;}
         }
@@ -51,7 +63,7 @@ public class GameLoop {
         double planetProdMultiplier = planet.getProductionMultipliers().
                 getOrDefault(resourceGenerated, 1.0 );
         double buildingLvl = building.getLevel();
-        int amountAdded = (int) Math.round(resourceAmount*(planetProdMultiplier + buildingLvl));
+        int amountAdded = (int) Math.round((resourceAmount + (buildingLvl * 2 * levelScaling)) * planetProdMultiplier);
         state.addResource(resourceGenerated, amountAdded );
 
     }
