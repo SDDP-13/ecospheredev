@@ -71,9 +71,9 @@ public class UserScopedGameSaveTest {
 
         assertEquals(1000, state.getResourceAmount(Resource.MONEY));
         assertEquals(200, state.getResourceAmount(Resource.METAL));
-        assertEquals(500, state.getResourceAmount(Resource.WOOD));
-        assertEquals(200, state.getResourceAmount(Resource.STONE));
-        assertEquals(3, state.getPlanets().size());
+        assertEquals(800, state.getResourceAmount(Resource.WOOD));
+        assertEquals(300, state.getResourceAmount(Resource.STONE));
+        assertEquals(1, state.getPlanets().size());
         assertNotNull(state.getSelectedPlanet());
         assertNotNull(state.getSelectedPlanet().getTextureID());
 

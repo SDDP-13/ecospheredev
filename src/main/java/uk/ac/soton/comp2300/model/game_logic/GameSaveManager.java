@@ -1,6 +1,7 @@
 package uk.ac.soton.comp2300.model.game_logic;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import uk.ac.soton.comp2300.model.ScheduleManager;
 
 import java.io.IOException;
 import java.nio.file.*;
@@ -71,6 +72,7 @@ public class GameSaveManager {
 
     public void saveGame(GameState state) {
         try {
+            state.setScheduleTasks(ScheduleManager.export());
             Files.createDirectories(saveFile.getParent());
             String json = gson.toJson(state);
             Files.writeString(saveFile, json, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);

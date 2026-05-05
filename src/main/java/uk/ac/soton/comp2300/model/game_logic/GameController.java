@@ -25,10 +25,10 @@ public class GameController {
         state.setSelectedPlanet(earth);
 
 
-        state.addResource(Resource.MONEY, 15000);
-        state.addResource(Resource.METAL, 4000);
-        state.addResource(Resource.WOOD, 8000);
-        state.addResource(Resource.STONE, 4000);
+        state.addResource(Resource.MONEY, 1000);
+        state.addResource(Resource.METAL, 200);
+        state.addResource(Resource.WOOD, 800);
+        state.addResource(Resource.STONE, 300);
     }
 
     public void gameLoopTick(){

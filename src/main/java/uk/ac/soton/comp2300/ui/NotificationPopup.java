@@ -108,9 +108,17 @@ public class NotificationPopup {
                 for (var note : repo.getAllNotifications()) {
                     if (note.getId().equals(record.id())) {
                         note.setStatus(uk.ac.soton.comp2300.model.Notification.Status.TASK_COMPLETED);
+
+                        var report = app.getSavingsReportForDevice(note.getTitle());
+                        app.addReportSavings(report);
+
+                        app.markScheduleTaskCompleted(note.getRefId());
+
+                        app.incrementCompletedTasks();
                         break;
                     }
                 }
+
                 app.addReportSavings(app.getSavingsReportForDevice(name));
                 app.incrementCompletedTasks();
                 app.addXp(20);

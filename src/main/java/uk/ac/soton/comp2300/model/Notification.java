@@ -53,6 +53,7 @@ public class Notification {
     public String getMessage() {return message;}
     public LocalDateTime getToSendTime() {return sendAt;}
     public LocalDateTime getScheduled_Time() {return scheduled_Time;};
+    public String getRefId() {return refId;}
 
     public Status getStatus() {return status;}
 

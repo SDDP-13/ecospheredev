@@ -201,6 +201,8 @@ public class NotificationScene extends BaseScene implements NotificationListener
                     var report = app.getSavingsReportForDevice(note.getTitle());
                     app.addReportSavings(report);
 
+                    app.markScheduleTaskCompleted(note.getRefId());
+
                     app.incrementCompletedTasks();
                     break;
                 }

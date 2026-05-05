@@ -24,10 +24,7 @@ import uk.ac.soton.comp2300.model.game_logic.*;
 import uk.ac.soton.comp2300.scene.LoginScene;
 import uk.ac.soton.comp2300.ui.MainWindow;
 
-import java.time.Duration;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -229,10 +226,65 @@ public class App extends Application {
             this.gameState = loadedState;
             gameController = new GameController(gameState);
 
+            ScheduleManager.getTasks().clear();
+            ScheduleManager.loadFrom(gameState.getScheduleTasks());
+
+            recreateNotificationsFromSchedules();
+
         } else {
             this.gameState = new GameState();
             gameController = new GameController(gameState);
             gameController.initializeNewGame();
+
+            ScheduleManager.getTasks().clear();
+            ScheduleManager.loadFrom(new ArrayList<>());
+        }
+    }
+
+    private void recreateNotificationsFromSchedules() {
+        if (gameState == null) return;
+
+        var tasks = gameState.getScheduleTasks();
+        if (tasks == null) return;
+
+        repository.clearNotifications();
+
+        for (ScheduleTask task : tasks) {
+
+            LocalDate today = LocalDate.now();
+            if (today.equals(task.getLastCompletedDate())) continue;
+
+            LocalDateTime now = LocalDateTime.now();
+
+            LocalDateTime trigger = now
+                    .withHour(task.getTime().getHour())
+                    .withMinute(task.getTime().getMinute())
+                    .withSecond(0)
+                    .withNano(0);
+
+
+            Notification notification = new Notification(
+                    Notification.Source.SCHEDULER,
+                    Notification.Type.REMINDER,
+                    task.getDeviceName(),
+                    task.getDescription(),
+                    trigger,
+                    trigger,
+                    task.getId()
+            );
+
+            repository.add(notification);
+        }
+    }
+
+    public void markScheduleTaskCompleted(String id) {
+        if (id == null) return;
+
+        for (ScheduleTask task : ScheduleManager.getTasks()) {
+            if (task.getId().equals(id)) {
+                task.setLastCompletedDate(LocalDate.now());
+                break;
+            }
         }
     }
 

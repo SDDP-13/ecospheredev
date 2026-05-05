@@ -1,15 +1,22 @@
 package uk.ac.soton.comp2300.model;
 
 import javafx.collections.FXCollections;
+
+import java.util.ArrayList;
 import java.util.Comparator;
 import javafx.collections.ObservableList;
 import java.time.LocalTime;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public class ScheduleManager {
 
     private static final ObservableList<ScheduleTask> tasks =
             FXCollections.observableArrayList();
+
+    public static void loadFrom(List<ScheduleTask> tasks) { getTasks().setAll(tasks); }
+    public static List<ScheduleTask> export() { return new ArrayList<>(getTasks()); }
+
 
     public static ObservableList<ScheduleTask> getTasks() {
         return tasks;

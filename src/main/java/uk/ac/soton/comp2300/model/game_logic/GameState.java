@@ -1,6 +1,7 @@
 package uk.ac.soton.comp2300.model.game_logic;
 import uk.ac.soton.comp2300.model.Resource;
 import uk.ac.soton.comp2300.model.ResourceStack;
+import uk.ac.soton.comp2300.model.ScheduleTask;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -44,6 +45,11 @@ public class GameState {
         this.buildingsPlaced++;
     }
     public void decrementBuildingsPlaced() {  this.buildingsPlaced--; }
+
+    private List<ScheduleTask> scheduleTasks = new ArrayList<>();
+
+    public List<ScheduleTask> getScheduleTasks() { return scheduleTasks; }
+    public void setScheduleTasks(List<ScheduleTask> tasks) { this.scheduleTasks = tasks; }
 
     public GameState() {
         this.planets = new ArrayList<Planet>();
