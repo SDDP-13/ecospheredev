@@ -37,25 +37,34 @@ public class BuildingView {
         PhongMaterial material = materialMap.getOrDefault(type, new PhongMaterial(Color.BLACK));
         pip.setMaterial(material);
 
+        String rawName = type.name().toLowerCase();
+        String[] parts = rawName.split("_");
+        StringBuilder sb = new StringBuilder();
+        for (String part : parts) {
+            sb.append(Character.toUpperCase(part.charAt(0))).append(part.substring(1));
+        }
+        String buildingImgName = sb.toString() + ".png";
 
-        String iconPath = "/images/" + type.name().toLowerCase().replace("_", "") + ".png";
+        ImageView buildingIcon = new javafx.scene.image.ImageView();
         try {
-            Image iconImage = new Image(BuildingView.class.getResourceAsStream(iconPath));
+            var stream = BuildingView.class.getResourceAsStream("/images/" + buildingImgName);
+            if (stream != null) {
+                buildingIcon.setImage(new javafx.scene.image.Image(stream));
+                buildingIcon.setFitWidth(9);
+                buildingIcon.setFitHeight(9);
+                buildingIcon.setTranslateY(2);
+                buildingIcon.setTranslateX(-4.5);
+                buildingIcon.setTranslateZ(-4.5);
 
-            ImageView imageView = new ImageView(iconImage);
-            imageView.setFitWidth(9);
-            imageView.setFitHeight(9);
-            imageView.setTranslateY(2);
-            imageView.setTranslateX(-4.5);
-            imageView.setTranslateZ(-4.5);
+                Rotate rotate = new Rotate(90, Rotate.X_AXIS);
+                buildingIcon.getTransforms().add(rotate);
 
-            Rotate rotate = new Rotate(90, Rotate.X_AXIS);
-            imageView.getTransforms().add(rotate);
-
-            Group group = new Group(pip, imageView);
-            return group;
-
-        } catch (Exception ignored) {}
+                Group group = new Group(pip, buildingIcon);
+                return group;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         return pip;
     }
 }

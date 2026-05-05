@@ -1,10 +1,26 @@
 {
   "settings": {},
   "userDatabase": {
-    "users": []
+    "users": [
+      {
+        "id": "e02dba20-78a0-440d-be17-1f342ce7cc2e",
+        "userName": "dan",
+        "storedHash": "qx4Fpo9C4XHzkjrhFxQMvbaNO6ybetG4Umy0brRUBwE=",
+        "storedSalt": "wKOx98JFG/sxQjnpIz51fg=="
+      }
+    ],
+    "currentUserName": "dan"
   },
-  "userSettings": {},
+  "userSettings": {
+    "dan": {
+      "shareUsageData": false,
+      "darkMode": false,
+      "sendCrashReports": true,
+      "notifications": false
+    }
+  },
   "cookieData": {
+    "loggedInUser": "dan",
     "lastLoginDate": "2026-05-05",
     "claimedTasksByUser": {}
   }
