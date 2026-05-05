@@ -24,11 +24,19 @@ public class GameController {
         state.addPlanet(earth);
         state.setSelectedPlanet(earth);
 
+        Planet moon = new Planet("Moon");
+        state.addPlanet(moon);
+        state.setSelectedPlanet(moon);
 
-        state.addResource(Resource.MONEY, 1000);
-        state.addResource(Resource.METAL, 200);
-        state.addResource(Resource.WOOD, 800);
-        state.addResource(Resource.STONE, 300);
+        Planet venus = new Planet("Venus");
+        state.addPlanet(venus);
+        state.setSelectedPlanet(venus);
+
+
+        state.addResource(Resource.MONEY, 10000000);
+        state.addResource(Resource.METAL, 10000000);
+        state.addResource(Resource.WOOD, 10000000);
+        state.addResource(Resource.STONE, 10000000);
     }
 
     public void gameLoopTick(){
